@@ -21,6 +21,9 @@ export default defineConfig({
       default_path: 'entrypoints/sidepanel/index.html',
     },
     action: {},
+    name : "just-mock",
+    description: "A browser extension for mocking data in the sidebar.",
+    version: '0.0.1',
     permissions: [
       'sidePanel',
     ],   
