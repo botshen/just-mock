@@ -4,7 +4,7 @@ import { RouterView } from 'vue-router'
 
 export const App = createComponent(null, () => {
   return () => (
-    <div class="flex">
+    <div class="flex h-screen">
       <div class="shrink-0 grow">
         <RouterView />
       </div>
