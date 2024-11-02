@@ -1,11 +1,15 @@
- import { createComponent } from '@/share/create-component'
+import { Sidebar } from '@/entrypoints/sidepanel/modules/sidebar/sidebar'
+import { createComponent } from '@/share/create-component'
+import { RouterView } from 'vue-router'
 
-export const App = createComponent(null, (props, context) => {
+export const App = createComponent(null, () => {
   return () => (
-    <div class="block text-6xl text-red-500 w-[800px] h-[600px]">
-      <div>
-        fuck 
+    <div class="flex">
+      <div class="shrink-0 grow">
+        <RouterView />
       </div>
+      <Sidebar /> 
     </div>
   )
 })
+  
