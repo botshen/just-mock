@@ -16,4 +16,13 @@ export default defineConfig({
       }),
     ],
   }),
+  manifest: {
+    side_panel: {
+      default_path: 'entrypoints/sidepanel/index.html',
+    },
+    action: {},
+    permissions: [
+      'sidePanel',
+    ],   
+  },
 });
