@@ -8,118 +8,22 @@ import VueSelect from 'vue3-select-component'
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
   const selected = ref<string>('')
-
+  browser.runtime.onMessage.addListener(async (event) => {
+    console.log('event-sidepanel', event)
+    list.value.unshift({
+      path: event.url,
+      status: '200',
+      mock: event.isMock ? 'mock' : 'real',
+      type: event.type,
+    })
+  })
   const Table = CreateTable()
-  const list = ref([
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-    {
-      path: '/bapi/biz/data/space/page',
-      status: '200',
-      mock: '1',
-      type: 'xhr',
-    },
-  ])
+  const list = ref<{
+    path: string
+    status: string
+    mock: string
+    type: string
+  }[]>([])
 
   // 添加 dialog ref
   const dialogRef = ref<HTMLDialogElement>()

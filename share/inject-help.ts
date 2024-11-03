@@ -17,3 +17,14 @@ export function injectScriptToPage() {
     console.error('err', err)
   }
 }
+export function sendMessageToContentScript<T>(message: T, eventName: string) {
+  console.log('sendMessageToContentScript', message)
+  const event = new CustomEvent(eventName, { detail: message })
+  window.dispatchEvent(event)
+}
+
+export function removeKeyFromObject<T>(obj: T, key: keyof T): Omit<T, keyof T> {
+  const newObj = { ...obj }
+  delete newObj[key]
+  return newObj
+}
