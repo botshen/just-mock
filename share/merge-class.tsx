@@ -1,9 +1,10 @@
-import { SlotFn } from '@/share/create-component'
-import { h, HTMLAttributes } from 'vue'
-import { createComponent } from '@/share/create-component'
+import type { createComponent, SlotFn } from '@/share/create-component'
+import type { ClassName } from '@/share/typings'
+import type { HTMLAttributes } from 'vue'
 import { mc, mergeClass } from '@/share/ui-helper'
-import { ClassName } from '@/share/typings'
-type MergeClassOptions = {
+import { h } from 'vue'
+
+interface MergeClassOptions {
   props: {
     tag?: string
     baseClass?: ClassName

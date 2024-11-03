@@ -1,9 +1,10 @@
-import { createComponent, fn } from '@/share/create-component'
-import { ClassName } from '@/share/typings'
-import { mc } from '@/share/ui-helper'
-import { VNodeChild } from 'vue'
+import type { ClassName } from '@/share/typings'
+import type { VNodeChild } from 'vue'
 import closeUrl from '@/assets/close.svg'
-export type DialogOptions = {
+import { createComponent, fn } from '@/share/create-component'
+import { mc } from '@/share/ui-helper'
+
+export interface DialogOptions {
   props: {
     visible?: boolean
     content?: (() => VNodeChild) | null
@@ -34,8 +35,8 @@ export const Dialog = createComponent<DialogOptions>({
   }
 
   return () => (
-    <dialog 
-      class={mc('rounded-2xl', props.visible ? '' : 'hidden', props.class)} 
+    <dialog
+      class={mc('rounded-2xl', props.visible ? '' : 'hidden', props.class)}
       open={props.visible}
       {...attrs}
     >

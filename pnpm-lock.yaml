@@ -87,6 +87,9 @@ importers:
       vue-tsc:
         specifier: ^2.1.6
         version: 2.1.10(typescript@5.6.3)
+      vue3-select-component:
+        specifier: ^0.6.1
+        version: 0.6.1(vue@3.5.12(typescript@5.6.3))
       wxt:
         specifier: ^0.19.11
         version: 0.19.13(@types/node@22.8.6)(rollup@4.24.3)
@@ -4129,6 +4132,11 @@ packages:
     hasBin: true
     peerDependencies:
       typescript: '>=5.0.0'
+
+  vue3-select-component@0.6.1:
+    resolution: {integrity: sha512-5sFZXaq9p23ErcXmc3KcuJMkxUzNbmwf+xqEms5tX/n5310ZXYB1t0q7Q0vvcihlyHN8c+YciwnI2qgbbjwrpQ==}
+    peerDependencies:
+      vue: ^3.5.0
 
   vue@3.5.12:
     resolution: {integrity: sha512-CLVZtXtn2ItBIi/zHZ0Sg1Xkb7+PU32bJJ8Bmy7ts3jxXTcbfsEfBivFYYWz1Hur+lalqGAh65Coin0r+HRUfg==}
@@ -8805,6 +8813,10 @@ snapshots:
       '@vue/language-core': 2.1.10(typescript@5.6.3)
       semver: 7.6.3
       typescript: 5.6.3
+
+  vue3-select-component@0.6.1(vue@3.5.12(typescript@5.6.3)):
+    dependencies:
+      vue: 3.5.12(typescript@5.6.3)
 
   vue@3.5.12(typescript@5.6.3):
     dependencies:

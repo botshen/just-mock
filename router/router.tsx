@@ -3,7 +3,6 @@ import { ProjectsPage } from '@/entrypoints/sidepanel/modules/projects/projects-
 import { SettingsPage } from '@/entrypoints/sidepanel/modules/settings/settings-page'
 import { createMemoryHistory, createRouter } from 'vue-router'
 
-  
 const routes = [
   { path: '/', component: LogPage },
   { path: '/projects', component: ProjectsPage },

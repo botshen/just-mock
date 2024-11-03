@@ -1,10 +1,10 @@
+import checkDisabledUrl from '@/assets/check-disabled.svg'
+import checkedUrl from '@/assets/checked.svg'
+import indeterminateUrl from '@/assets/indeterminate.svg'
 import { createComponent } from '../../share/create-component'
 import { mc } from '../../share/ui-helper'
-import checkDisabledUrl from '@/assets/check-disabled.svg';
-import checkedUrl from '@/assets/checked.svg';
-import indeterminateUrl from '@/assets/indeterminate.svg';
 
-type Options = {
+interface Options {
   props: {
     modelValue?: boolean
     indeterminate?: boolean
@@ -27,8 +27,7 @@ export const Checkbox = createComponent<Options>({
   emits: {
     'update:modelValue': (val: boolean) => true,
   },
-},
-(props, { emit }) => {
+}, (props, { emit }) => {
   const toggle = () => {
     emit('update:modelValue', !props.modelValue)
   }
@@ -55,7 +54,7 @@ export const Checkbox = createComponent<Options>({
         {props.modelValue && !props.indeterminate && (
           props.disabled
             ? (
-                 <img src={checkDisabledUrl} alt="check-disabled" class="w-3 h-3" />
+                <img src={checkDisabledUrl} alt="check-disabled" class="w-3 h-3" />
               )
             : (
                 <img src={checkedUrl} alt="checked" class="w-3 h-3" />

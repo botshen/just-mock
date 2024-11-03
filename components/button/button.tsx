@@ -1,12 +1,11 @@
- 
-import { ref, computed, shallowRef, watch } from 'vue'
-import { ClassName } from '@/share/typings'
+import type { ClassName } from '@/share/typings'
 import { createComponent } from '@/share/create-component'
 import { mc } from '@/share/ui-helper'
+import { computed, ref, shallowRef, watch } from 'vue'
 
 export * from './button-2.tsx'
 
-type Options = {
+interface Options {
   props: {
     type?: 'submit' | 'button' | 'reset'
     disabled?: boolean
@@ -42,7 +41,8 @@ export const Button = createComponent<Options>({
   })
   const timer = shallowRef<number>()
   watch(() => props.disabled, () => {
-    if (timer.value === undefined) return
+    if (timer.value === undefined)
+      return
     window.clearTimeout(timer.value)
   })
   const disableDuration = computed(() =>

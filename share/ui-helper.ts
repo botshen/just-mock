@@ -1,23 +1,24 @@
-import { ClassName } from '@/share/typings'
-import { twJoin, twMerge } from 'tailwind-merge' 
+import type { ClassName } from '@/share/typings'
+import { twJoin, twMerge } from 'tailwind-merge'
 
 export type Key = string | number
 const rules = [
-  /^text-shadow-(.*?)$/,
-  /^grid-areas-(.*?)$/,
-  /^grid-in-(.*?)$/,
+  /^text-shadow-(.*)$/,
+  /^grid-areas-(.*)$/,
+  /^grid-in-(.*)$/,
 ]
-const _mergeClass = (_left: ClassName, _right: ClassName) => {
-  // @ts-ignore
+function _mergeClass(_left: ClassName, _right: ClassName) {
+  // @ts-expect-error 这是 JS 文件
   const leftParts = twJoin(_left).split(' ').filter(item => !item.match(/\s+/g))
-  // @ts-ignore
+  // @ts-expect-error 这是 JS 文件
   const rightParts = twJoin(_right).split(' ').filter(item => !item.match(/\s+/g))
   rules.forEach((rule: RegExp) => {
     leftParts.forEach((left, index) => {
       const matched = left.match(rule)
       if (matched) {
         const found = rightParts.find(right => right.match(rule))
-        if (found) leftParts[index] = ''
+        if (found)
+          leftParts[index] = ''
       }
     })
   })
@@ -26,7 +27,7 @@ const _mergeClass = (_left: ClassName, _right: ClassName) => {
 /**
  * @alias mc
  */
-export const mergeClass = (...classes: ClassName[]) => {
+export function mergeClass(...classes: ClassName[]) {
   // 从后往前，使用 mergeClass两两合并
   return classes.reduceRight((prev, current) => _mergeClass(current, prev), '')
 }
@@ -39,12 +40,13 @@ export const mc = mergeClass
  * @param fn
  * @returns
  */
-export const createCachedFn = <T extends object>(fn: (key: Key) => T) => {
+export function createCachedFn<T extends object>(fn: (key: Key) => T) {
   const cache = new Map<Key, T>()
   const getFromCache = (f2: typeof fn, key: Key) => {
     if (cache.has(key)) {
       return cache.get(key)!
-    } else {
+    }
+    else {
       const r = f2(key)
       cache.set(key, r)
       return r
@@ -58,4 +60,3 @@ type X<F extends (p: string) => unknown> = F extends (p: infer P) => infer R
   : F
 
 export const unique = <T>(arr: T[]): T[] => Array.from(new Set(arr))
-

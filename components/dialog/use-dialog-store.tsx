@@ -1,12 +1,12 @@
-import { Options2Props } from '@/share/create-component'
+import type { Options2Props } from '@/share/create-component'
+import type { DialogOptions } from './dialog'
 import { ref } from 'vue'
-import { DialogOptions } from './dialog'
 
 export type DialogProps = Options2Props<DialogOptions>
 
-type Item = { id: number, props: DialogProps }
+interface Item { id: number, props: DialogProps }
 const list = ref<Item[]>([])
-export const useDialogStore = () => {
+export function useDialogStore() {
   const add = (item: Item) => {
     list.value.push(item)
   }
@@ -15,14 +15,15 @@ export const useDialogStore = () => {
     list.value.splice(index, 1)
   }
   const getPreviousDialogId = () => {
-    if (list.value.length < 2) return null
+    if (list.value.length < 2)
+      return null
     return list.value[list.value.length - 2].id
   }
 
   return { list, add, remove, getPreviousDialogId }
 }
 
-export const openPreviousDialog = () => {
+export function openPreviousDialog() {
   const { list, remove, getPreviousDialogId } = useDialogStore()
   const currentDialogId = list.value[list.value.length - 1].id
   const previousDialogId = getPreviousDialogId()

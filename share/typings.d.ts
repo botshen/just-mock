@@ -3,7 +3,7 @@ export type Emits2Events<T> = {
   [K in keyof T as AddOnPrefix<string & K>]?: T[K]
 }
 export type JsonSimpleValue = string | number | boolean | null | undefined
-export type JsonObject = { [key: string]: JsonValue }
+export interface JsonObject { [key: string]: JsonValue }
 export type JsonArray = JsonValue[]
 export type JsonValue = JsonSimpleValue | JsonObject | JsonArray
 

@@ -1,10 +1,9 @@
- 
-import { Options2Props } from '@/share/create-component'
-import { DialogOptions } from './dialog'
-import { useDialogStore } from './use-dialog-store'
+import type { Options2Props } from '@/share/create-component'
+import type { DialogOptions } from './dialog'
 import { createId } from '@/share/id-helper'
+import { useDialogStore } from './use-dialog-store'
 
-export const openDialog = (props: Options2Props<DialogOptions>) => {
+export function openDialog(props: Options2Props<DialogOptions>) {
   const { add, remove } = useDialogStore()
   const id = createId()
   add({ id, props })

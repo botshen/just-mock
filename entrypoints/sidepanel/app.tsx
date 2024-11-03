@@ -1,5 +1,3 @@
-import { Dialog } from '@/components/dialog/dialog'
-import { useDialogStore } from '@/components/dialog/use-dialog-store'
 import { Sidebar } from '@/entrypoints/sidepanel/modules/sidebar/sidebar'
 import { createComponent } from '@/share/create-component'
 import { RouterView } from 'vue-router'

@@ -1,13 +1,13 @@
- import { SVGAttributes } from 'vue'
+import type { SVGAttributes } from 'vue'
 import { createComponent } from '@/share/create-component'
 import { mc } from '@/share/ui-helper'
+
 type ClassName = string | string[] | object | null | false | undefined | 0
 interface Props {
   name: string
   class?: ClassName
   colored?: boolean
 }
-
 
 export const SvgIcon = createComponent<{ props: Props }, SVGAttributes>(
   {

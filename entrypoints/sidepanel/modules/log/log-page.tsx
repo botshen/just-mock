@@ -3,9 +3,11 @@ import { Button2 } from '@/components/button/button'
 import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { createComponent } from '@/share/create-component'
+import VueSelect from 'vue3-select-component'
 
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
+  const selected = ref<string>('')
 
   const Table = CreateTable()
   const list = ref([
@@ -121,6 +123,15 @@ export const LogPage = createComponent(null, () => {
 
   // 添加 dialog ref
   const dialogRef = ref<HTMLDialogElement>()
+  // 接受到background的消息 就关闭sidebar
+  browser.runtime.onMessage.addListener((message) => {
+    if (message.type === 'close-sidebar') {
+      window.close()
+    }
+  })
+  const onCloseSidebar = () => {
+    window.close()
+  }
 
   return () => (
     <div>
@@ -164,6 +175,17 @@ export const LogPage = createComponent(null, () => {
             class="absolute top-4 right-4 cursor-pointer"
             onClick={() => dialogRef.value?.close()}
           />
+          <VueSelect
+            modelValue={selected.value}
+            onUpdate:modelValue={value => selected.value = value}
+            options={[
+              { label: 'Option #1', value: 'option_1' },
+              { label: 'Option #2', value: 'option_2' },
+              { label: 'Option #3', value: 'option_3' },
+            ]}
+            placeholder="Select an option"
+          />
+          <Button2 onClick={onCloseSidebar}>CLOSE</Button2>
         </div>
       </dialog>
     </div>

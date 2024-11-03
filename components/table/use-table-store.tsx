@@ -1,5 +1,6 @@
+import type { Key } from '@/share/ui-helper'
+import { createCachedFn } from '@/share/ui-helper'
 import { ref } from 'vue'
-import { createCachedFn, Key } from '@/share/ui-helper'
 
 export const useTableStore = createCachedFn((id: Key) => {
   const selectedRowIds = ref<string[]>([])

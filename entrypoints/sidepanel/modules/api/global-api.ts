@@ -1,14 +1,13 @@
 import { createCachedFn, type Key } from '@/share/ui-helper'
-import { computed, ref } from 'vue'
- 
+import { ref } from 'vue'
 
-export const globalApi = { 
+export const globalApi = {
   page: () => {
     return []
   },
 }
 
-export const useGlobal = createCachedFn((cacheKey: Key) => {  
+export const useGlobal = createCachedFn((cacheKey: Key) => {
   const list = ref([])
   const page = ref(1)
   const size = ref(10)
@@ -22,8 +21,8 @@ export const useGlobal = createCachedFn((cacheKey: Key) => {
   const gettingPage = ref(false)
   const getPage = async (_page?: number, modelIds?: string[]) => {
     const p = _page ?? page.value + 1
-    gettingPage.value = true 
-    page.value = p 
+    gettingPage.value = true
+    page.value = p
   }
   return {
     getPage,

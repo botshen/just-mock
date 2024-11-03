@@ -1,11 +1,12 @@
-import { ClassName } from '@/share/typings'
+import type { ClassName } from '@/share/typings'
 import { createComponent } from '@/share/create-component'
 import { mc } from '@/share/ui-helper'
 import { cva } from 'class-variance-authority'
-import { ref, computed, shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 
 const buttonStyles = cva(
-  'text-[14px] font-bold  border border-solid rounded  flex items-center', {
+  'text-[14px] font-bold  border border-solid rounded  flex items-center',
+  {
     variants: {
       level: {
         important: 'bg-[#4f5572] text-white font-bol justify-center py-2 px-4',
@@ -34,7 +35,7 @@ const buttonStyles = cva(
   },
 )
 
-type Options = {
+interface Options {
   props: {
     level?: 'important' | 'normal' | 'danger' | 'form_important' | 'form' | 'remove' | 'remove_outline' | 'text'
     type?: 'submit' | 'button'
@@ -74,7 +75,8 @@ export const Button2 = createComponent<Options>({
   })
   const timer = shallowRef<number>()
   watch(() => props.disabled, () => {
-    if (timer.value === undefined) return
+    if (timer.value === undefined)
+      return
     window.clearTimeout(timer.value)
   })
   const disableDuration = computed(() => props.autoDisable === true ? 200 : props.autoDisable)

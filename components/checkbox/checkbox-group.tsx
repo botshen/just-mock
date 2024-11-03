@@ -1,5 +1,5 @@
-import { createComponent, required } from '@fucol/shared/create-component'
-import { mc } from '@fucol/shared'
+import { createComponent, required } from '@/share/create-component'
+import { mc } from '@/share/ui-helper'
 import { Checkbox } from './checkbox'
 
 interface CheckboxOption {
@@ -7,7 +7,7 @@ interface CheckboxOption {
   value: string
 }
 
-type Options = {
+interface Options {
   props: {
     modelValue: string []
     options: CheckboxOption[]
@@ -30,14 +30,14 @@ export const CheckboxGroup = createComponent<Options>({
   emits: {
     'update:modelValue': (val: (string | number)[]) => true,
   },
-},
-(props, { emit }) => {
+}, (props, { emit }) => {
   const updateValue = (option: CheckboxOption) => {
     const newValue = [...props.modelValue]
     const index = newValue.indexOf(option.value)
     if (index === -1) {
       newValue.push(option.value)
-    } else {
+    }
+    else {
       newValue.splice(index, 1)
     }
     emit('update:modelValue', newValue)

@@ -1,9 +1,9 @@
+import path from 'node:path'
 import cors from 'cors'
 import Debug from 'debug'
 import getEtag from 'etag'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
-import path from 'node:path'
 import SVGCompiler from 'svg-baker'
 import { optimize } from 'svgo'
 import { normalizePath } from 'vite'
@@ -52,7 +52,8 @@ export function createSvgIconsPlugin(opt) {
     },
 
     async load(id, ssr) {
-      if (!isBuild && !ssr) return null
+      if (!isBuild && !ssr)
+        return null
 
       const isRegister = id.endsWith(registerName)
       const isClient = id.endsWith(SVG_ICONS_CLIENT)
@@ -175,7 +176,7 @@ export async function compilerIcons(
       let relativeName = ''
 
       const getSymbol = async () => {
-        relativeName = normalizePath(path).replace(normalizePath(dir + '/'), '')
+        relativeName = normalizePath(path).replace(normalizePath(`${dir}/`), '')
         symbolId = createSymbolId(relativeName, options)
         svgSymbol = await compilerIcon(path, symbolId, svgOptions)
         idSet.add(symbolId)

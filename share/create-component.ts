@@ -1,12 +1,12 @@
-import { Emits2Events, Prettify } from './typings'
-import type { ComponentObjectPropsOptions, SetupContext, SlotsType, VNodeChild } from 'vue'
-import { defineComponent, VNode } from 'vue'
+import type { ComponentObjectPropsOptions, SetupContext, SlotsType, VNode, VNodeChild } from 'vue'
+import type { Emits2Events, Prettify } from './typings'
+import { defineComponent } from 'vue'
 
 export type SlotFn<T = unknown> = (...args: T[]) => VNode[]
 /**
  * 将对象的值映射为另一个值
  */
-const mapValues = <T, R>(obj: object, fn: (v: T) => R) => {
+function mapValues<T, R>(obj: object, fn: (v: T) => R) {
   const res: Record<string, R> = {}
   Object.entries(obj).forEach(([k, v]) => {
     res[k] = fn(v)
@@ -52,7 +52,7 @@ interface Extra {
 
 export const required = Symbol('required')
 
-type MySetupContext<E = {}, S extends undefined | Record<string, unknown> = {}> = {
+interface MySetupContext<E = {}, S extends undefined | Record<string, unknown> = {}> {
   attrs: Record<string, unknown>
   slots: S
   emit: S extends undefined ? undefined : SetupContext<E, SlotsType<Exclude<S, undefined>>>['emit']
@@ -70,10 +70,8 @@ type PropsWithDefaults<T> = {
  * @param fn 组件的渲染函数，第一个参数为 props，第二个参数为 context {expose, emit, attrs, slots}
  * @returns
  */
-export const createComponent = <T extends ComponentParams, I = unknown>(
-  params: (Omit<T, 'slots' | 'props'> & { props?: PropsWithDefaults<T['props']> } & Extra) | null,
-  fn: (props: Required<T['props']> & I, context: MySetupContext<Exclude<T['emits'], undefined>, T['slots']>) =>
-  () => VNodeChild) => {
+export function createComponent<T extends ComponentParams, I = unknown>(params: (Omit<T, 'slots' | 'props'> & { props?: PropsWithDefaults<T['props']> } & Extra) | null, fn: (props: Required<T['props']> & I, context: MySetupContext<Exclude<T['emits'], undefined>, T['slots']>) =>
+() => VNodeChild) {
   checkProps(params?.props)
   type Props = Exclude<T['props'], undefined>
   type Emits = Exclude<T['emits'], undefined>
@@ -84,7 +82,7 @@ export const createComponent = <T extends ComponentParams, I = unknown>(
     return fn(props, extra)
   }, {
     props: p as ComponentObjectPropsOptions<Exclude<T['props'], undefined> & I> | undefined,
-    emits: params ? (params.emits instanceof Array ? params.emits : Object.keys(params.emits ?? {})) : [],
+    emits: params ? (Array.isArray(params.emits) ? params.emits : Object.keys(params.emits ?? {})) : [],
     inheritAttrs: params?.inheritAttrs,
     name: params?.name,
   })
@@ -93,7 +91,7 @@ export const createComponent = <T extends ComponentParams, I = unknown>(
 /**
  * 一个空函数
  */
-export const fn = () => {}
+export function fn() {}
 
 /**
  * 判断 v 是否是数组或普通对象
@@ -109,7 +107,7 @@ export const fn = () => {}
  * isArrayOrObject(null) // false
  * ```
  */
-export const isArrayOrObject = (v: unknown) => {
+export function isArrayOrObject(v: unknown) {
   return v !== null && (Array.isArray(v) || typeof v === 'object')
 }
 
