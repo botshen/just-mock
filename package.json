@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue-jsx": "^4.0.1",
+    "ajax-hook": "^3.0.3",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.0",
     "cors": "^2.8.5",

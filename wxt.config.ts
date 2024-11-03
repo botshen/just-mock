@@ -48,6 +48,12 @@ export default defineConfig({
     permissions: [
       'sidePanel',
     ],
+    web_accessible_resources: [
+      {
+        resources: ['/injected.js'],
+        matches: ['<all_urls>'],
+      },
+    ],
     commands: {
       'toggle-sidebar': {
         suggested_key: {
