@@ -1,8 +1,6 @@
 import { proxy } from 'ajax-hook'
 
 export default defineUnlistedScript(() => {
-  console.log('Ajax hook script injected!')
-
   proxy({
     onRequest: async (config, handler) => {
       console.log('Request intercepted:', config)
