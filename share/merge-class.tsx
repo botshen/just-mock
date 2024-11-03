@@ -1,6 +1,7 @@
-import type { createComponent, SlotFn } from '@/share/create-component'
+import type { SlotFn } from '@/share/create-component'
 import type { ClassName } from '@/share/typings'
 import type { HTMLAttributes } from 'vue'
+import { createComponent } from '@/share/create-component'
 import { mc, mergeClass } from '@/share/ui-helper'
 import { h } from 'vue'
 
