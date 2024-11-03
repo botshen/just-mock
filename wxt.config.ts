@@ -40,6 +40,7 @@ export default defineConfig({
   manifest: {
     side_panel: {
       default_path: 'entrypoints/sidepanel/index.html',
+      default_width: 800,
     },
     action: {},
     name : "just-mock",

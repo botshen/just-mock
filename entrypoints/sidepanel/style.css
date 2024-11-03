@@ -9,3 +9,6 @@
 }
 
  
+dialog::backdrop {
+  background: white;
+}
