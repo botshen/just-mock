@@ -7,8 +7,17 @@
   margin: 0;
   padding: 0;
 }
-
- 
+dialog {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
 dialog::backdrop {
-  background: white;
+  position: fixed;
+  inset: 0; /* 等同于 top: 0; right: 0; bottom: 0; left: 0; */
+  background-color: rgba(0, 0, 0, 0.2); /* 半透明黑色背景 */
+  width: 100vw;
+  height: 100vh;
+}
+body:has(dialog[open]) {
+  overflow: hidden;
 }
