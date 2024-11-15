@@ -5,9 +5,9 @@ export default defineContentScript({
   runAt: 'document_start',
   main() {
     injectScriptToPage()
-    window.addEventListener('mock-message', (event) => {
-      console.log('event-content', event)
-      browser.runtime.sendMessage(event.detail)
-    })
+    window.addEventListener('mock-message', ((event: Event) => {
+      const customEvent = event as CustomEvent
+      browser.runtime.sendMessage(customEvent.detail)
+    }) as EventListener)
   },
 })
