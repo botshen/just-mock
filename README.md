@@ -1,7 +1,32 @@
-# WXT + Vue 3
+# 智能数据生成与API管理工具
 
-This template should help get you started developing with Vue 3 in WXT.
+## 核心功能
 
-## Recommended IDE Setup
+### 智能数据生成
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+- 基于API接口结构自动生成合理的Mock数据
+- 生成符合业务逻辑的测试数据集
+- 智能识别字段类型,生成对应随机数据
+- 支持自然语言描述转换为Mock数据
+- 自动生成边界值和异常场景测试数据
+
+### API文档与类型支持
+
+- 智能分析请求响应生成API文档
+- 自动生成TypeScript类型定义
+- 提供最佳实践接口使用建议
+
+### 性能分析与优化
+
+- 智能分析API请求错误并提供修复方案
+- 自动记录调试日志
+- 分析响应时间,识别性能瓶颈
+- 提供智能缓存策略建议
+- 支持离线功能
+
+### 数据安全与隐私保护
+
+- 智能识别敏感信息
+- 自动脱敏个人隐私数据
+- 确保数据结构完整性
+- 提供多层次安全保护机制
