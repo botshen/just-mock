@@ -55,6 +55,7 @@ export function CreateTable<D extends { id: string }>() {
     },
   }, (props, { slots }) => {
     const { selectedRowIds, mode } = props.store ?? useTableStore()
+    const listIds = computed(() => props.list?.map(item => item.id) ?? [])
 
     const handleSelectAll = (value: boolean) => {
       if (!props.list)
@@ -70,7 +71,6 @@ export function CreateTable<D extends { id: string }>() {
         selectedRowIds.value.push(row.id)
       }
     }
-    const listIds = computed(() => props.list?.map(item => item.id) ?? [])
     const finalHeadCellClass = computed(() => mc('h-8 font-bold text-xs text-[#999] whitespace-nowrap max-w-full', props.cellClass, props.headCellClass))
     const finalCellClass = computed(() => mc('flex items-center px-3 py-2 max-w-full', props.cellClass))
     return () => (
@@ -190,7 +190,7 @@ export function CreateTable<D extends { id: string }>() {
                   </x-table>
                 )
               : !props.loading && (
-                  <div class="text-center py-8">Data is empty.</div>
+                  <div class=" text-red-800 text-center py-8">Data is empty.</div>
                 )
           }
           {props.loading

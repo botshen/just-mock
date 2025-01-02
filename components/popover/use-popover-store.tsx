@@ -1,3 +1,4 @@
+import type { Key } from '@/share/ui-helper'
 import type { Placement } from '@floating-ui/dom'
 import type { VNodeChild } from 'vue'
 import { createStringId } from '@/share/id-helper'

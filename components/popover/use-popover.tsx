@@ -10,45 +10,6 @@ export function usePopover(options: Omit<PopoverProps, 'id'>) {
   const id = ref<string | number>()
   let timer: null | number = null
 
-  const cancelAsyncClose = () => {
-    if (timer) {
-      window.clearTimeout(timer)
-      timer = null
-    }
-  }
-  const remove = () => {
-    cancelAsyncClose()
-    if (id.value === undefined)
-      return
-    popoverStore.removePopover(id.value as string)
-    id.value = undefined
-  }
-  const close = () => {
-    remove()
-  }
-  const asyncClose = (delay = 200) => {
-    if (id.value === undefined)
-      return
-    timer = window.setTimeout(remove, delay)
-  }
-
-  const open = () => {
-    cancelAsyncClose()
-    if (id.value)
-      return
-    id.value = popoverStore.addPopover(options, {
-      cancelAsyncClose,
-      remove,
-    })
-  }
-  const toggle = () => {
-    if (id.value) {
-      remove()
-    }
-    else {
-      open()
-    }
-  }
   watch([options.triggerElement], () => {
     const ele = unrefElement(options.triggerElement as MaybeRef<HTMLElement>)
     if (!ele)
@@ -77,6 +38,48 @@ export function usePopover(options: Omit<PopoverProps, 'id'>) {
   })
 
   const visible = computed(() => id.value !== undefined)
+
+  const open = () => {
+    cancelAsyncClose()
+    if (id.value)
+      return
+    id.value = popoverStore.addPopover(options, {
+      cancelAsyncClose,
+      remove,
+    })
+  }
+  const remove = () => {
+    cancelAsyncClose()
+    if (id.value === undefined)
+      return
+    popoverStore.removePopover(id.value as string)
+    id.value = undefined
+  }
+
+  const toggle = () => {
+    if (id.value) {
+      remove()
+    }
+    else {
+      open()
+    }
+  }
+
+  const cancelAsyncClose = () => {
+    if (timer) {
+      window.clearTimeout(timer)
+      timer = null
+    }
+  }
+
+  const asyncClose = (delay = 200) => {
+    if (id.value === undefined)
+      return
+    timer = window.setTimeout(remove, delay)
+  }
+  const close = () => {
+    remove()
+  }
 
   onUnmounted(() => {
     close()

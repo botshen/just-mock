@@ -36,7 +36,11 @@ export const Dialog = createComponent<DialogOptions>({
 
   return () => (
     <dialog
-      class={mc('rounded-2xl', props.visible ? '' : 'hidden', props.class)}
+      class={mc(
+        'rounded-2xl fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+        props.visible ? '' : 'hidden',
+        props.class,
+      )}
       open={props.visible}
       {...attrs}
     >

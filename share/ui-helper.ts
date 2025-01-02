@@ -60,3 +60,10 @@ type X<F extends (p: string) => unknown> = F extends (p: infer P) => infer R
   : F
 
 export const unique = <T>(arr: T[]): T[] => Array.from(new Set(arr))
+
+export function withStopPropagation(fn: (event: Event) => void) {
+  return (event: Event) => {
+    event.stopPropagation()
+    fn(event)
+  }
+}

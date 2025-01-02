@@ -1,11 +1,13 @@
 import type { SlotFn } from '@/share/create-component'
 import type { ClassName } from '@/share/typings'
 import type { VNode } from 'vue'
+import { usePopover } from '@/components/popover/use-popover'
 import { createComponent, fn } from '@/share/create-component'
 import { createStringId } from '@/share/id-helper'
+import { MergeClass } from '@/share/merge-class'
+import { mc, withStopPropagation } from '@/share/ui-helper'
 import { onClickOutside, useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { usePopover } from '../popover/use-popover'
 import { useMultiSelectStore } from './use-multi-select-store'
 
 interface InputOption<D = unknown> {
@@ -16,6 +18,7 @@ interface InputOption<D = unknown> {
 type SimpleValue = string | number | boolean
 export interface FormMultiSelectOptions<D = unknown> {
   props: {
+    class: ClassName
     modelValue?: D[]
     options?: Array<InputOption<D>> | (() => VNode | string | null)
     placeholder?: string
@@ -44,6 +47,7 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
   return createComponent<FormMultiSelectOptions<D>>({
     name: 'FormMultiSelect',
     props: {
+      class: '',
       modelValue: [],
       options: [],
       placeholder: 'place select',
@@ -172,7 +176,7 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
                       class={mc(
                         'px-2 flex items-center gap-x-2 h-8 text-sm text-[#666]',
                         hoveredIndex.value === index ? 'bg-[#f6f6f6]' : '',
-                        selected ? 'bg-[#f6f6f6]' : '',
+                        // selected ? 'bg-[#f6f6f6]' : '',
                         option.disabled ? props.disabledItemClass : '',
                       )}
                       onMouseenter={() => { hoveredIndex.value = index }}
@@ -225,7 +229,7 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
         <MergeClass tag="x-multi-select" baseClass="block rounded h-8 min-w-[200px] relative text-sm">
           <label
             ref={labelWrapper}
-            class={['flex flex-nowrap border border-line-1 rounded bg-white relative z-up group', visible.value ? 'max-h-[80px] h-auto' : 'h-full', popoverVisible.value ? 'border-[#4e5575] border-2' : 'border-[#ccc]']}
+            class={mc('flex flex-nowrap border border-line-1 rounded bg-white relative z-up group', visible.value ? 'max-h-[80px] h-auto' : 'h-full', popoverVisible.value ? 'border-[#4e5575] border-2' : 'border-[#ccc]', props.class)}
             for={uniqueId}
             onClick={() => { popoverVisible.value = true }}
           >
@@ -236,8 +240,8 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
               {props.modelValue.length > 0
                 ? props.modelValue.map(value => (
                   findLabelFromOptions(value, props.options, ({ label, disabled }) => (
-                    <x-label class=" px-1 py-[4px] rounded-md truncate shrink-0 grow-0 inline-flex items-center gap-x-1">
-                      <x-name>{label}</x-name>
+                    <x-label class="px-1 py-[4px] rounded-md truncate shrink-0 grow-0 inline-flex items-center gap-x-1 max-w-[200px]">
+                      <x-name class="truncate" title={label}>{label}</x-name>
                       {(!disabled && props.maxlength && props.maxlength > 1) && (
                         <x-remove class="size-[14px] relative" onClick={(e: Event) => { e.stopPropagation(); onRemoveItem(value) }}>
                           <span class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">

@@ -7,17 +7,9 @@
   margin: 0;
   padding: 0;
 }
-dialog {
-  overflow: auto;
-  overscroll-behavior: contain;
-}
+/* 或者使用更细致的样式 */
 dialog::backdrop {
-  position: fixed;
-  inset: 0; /* 等同于 top: 0; right: 0; bottom: 0; left: 0; */
-  background-color: rgba(0, 0, 0, 0.2); /* 半透明黑色背景 */
-  width: 100vw;
-  height: 100vh;
-}
-body:has(dialog[open]) {
-  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px); /* 添加模糊效果 */
+  transition: backdrop-filter 0.3s ease; /* 平滑过渡效果 */
 }
