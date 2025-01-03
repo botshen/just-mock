@@ -162,7 +162,6 @@ export const LogDetail = createComponent(null, () => {
             v-model={formData.value.code}
             options={codeOptions.value}
           />
-
         </div>
         <div class="grid grid-cols-2 gap-4">
           <FormItem
@@ -176,7 +175,6 @@ export const LogDetail = createComponent(null, () => {
           />
           <FormItem
             formItemClass="mb-4"
-            error={errors.value.comments?.[0]}
             type="text"
             placeholder="Comments"
             label="Comments"
