@@ -5,9 +5,18 @@ const list = ref<{
   mock: string
   type: string
 }[]>([])
+const formData = ref({
+  pathRule: '',
+  method: '',
+  Delay: '',
+  response: '',
+  code: '',
+  comments: '',
+})
 
 export function useLogsStore() {
   return {
     list,
+    formData,
   }
 }

@@ -1,12 +1,15 @@
 import type { ClassName } from '@/share/typings'
 import { Button2 } from '@/components/button/button'
 import { Form, FormItem } from '@/components/form/form'
+import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent, fn } from '@/share/create-component'
 import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
 import { addDataPoolSchema } from './log-validator'
 
 export const LogDetail = createComponent(null, () => {
+  const { formData } = useLogsStore()
+
   const onSubmit = () => {
     errors.value = {
       pathRule: [],
@@ -21,14 +24,7 @@ export const LogDetail = createComponent(null, () => {
     }
     console.log('onSubmit')
   }
-  const formData = ref({
-    pathRule: '',
-    method: '',
-    Delay: '',
-    response: '',
-    code: '',
-    comments: '',
-  })
+
   const jsonEditorContainer = ref<HTMLDivElement>()
   const editor = ref<any>(null)
   const router = useRouter()
@@ -116,7 +112,7 @@ export const LogDetail = createComponent(null, () => {
     }
     return true
   }
-  const errors = ref({
+  const errors = ref<Record<string, string[]>>({
     code: [],
     pathRule: [],
     method: [],
