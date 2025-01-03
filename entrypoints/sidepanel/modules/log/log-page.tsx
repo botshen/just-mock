@@ -3,10 +3,10 @@ import { Button2 } from '@/components/button/button'
 import { openDialog } from '@/components/dialog/open-dialog'
 import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
-import { Detail } from '@/entrypoints/sidepanel/modules/log/log-detail'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
 import { nanoid } from 'nanoid'
+import { useRouter } from 'vue-router'
 
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
@@ -36,6 +36,8 @@ export const LogPage = createComponent(null, () => {
     }
   })
 
+  const router = useRouter()
+
   return () => (
     <div>
       <Button2
@@ -61,11 +63,7 @@ export const LogPage = createComponent(null, () => {
                 width="fit"
                 class="h-8 text-[#4C5578] text-sm font-bold uppercase"
                 onClick={() => {
-                  const close = openDialog({
-                    content: () => (
-                      <Detail onClose={close} />
-                    ),
-                  })
+                  router.push(`/log`)
                 }}
               >
                 edit

@@ -10,7 +10,7 @@ export const App = createComponent(null, () => {
   const { renderPopovers } = usePopoverStore()
 
   return () => (
-    <div class="flex flex-col">
+    <div class="flex flex-col h-[100vh]">
       <div class="grow overflow-auto">
         <RouterView />
         {renderPopovers()}
@@ -28,7 +28,7 @@ export const App = createComponent(null, () => {
           )
         })
       }
-      <Sidebar class="fixed bottom-0" />
+      <Sidebar class=" " />
     </div>
   )
 })

@@ -126,7 +126,7 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
       }
     }
     const onClickOption = (option: InputOption<D>) => {
-    // 删除已选项
+      // 删除已选项
       if (props.clickBehavior === 'toggle' && props.modelValue.includes(option.value)) {
         updateModelValue(props.modelValue.filter(value => value !== option.value))
         return
@@ -183,16 +183,16 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
                       onClick={option.disabled
                         ? undefined
                         : () => {
-                            onClickOption(option)
-                          }}
+                          onClickOption(option)
+                        }}
                     >
                       {
                         props.maxlength && props.maxlength > 1
                           ? (
-                              <span class="size-4 inline-flex items-center justify-center shrink-0 grow-0 text-primary">
-                                {selected ? icons.value.checked : icons.value.unchecked}
-                              </span>
-                            )
+                            <span class="size-4 inline-flex items-center justify-center shrink-0 grow-0 text-primary">
+                              {selected ? icons.value.checked : icons.value.unchecked}
+                            </span>
+                          )
                           : null
                       }
                       <span class="flex-1 truncate">{option.label}</span>
@@ -226,7 +226,7 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
     })
     return () => {
       return (
-        <MergeClass tag="x-multi-select" baseClass="block rounded h-8 min-w-[200px] relative text-sm">
+        <MergeClass tag="x-multi-select" baseClass="block rounded h-8] relative text-sm">
           <label
             ref={labelWrapper}
             class={mc('flex flex-nowrap border border-line-1 rounded bg-white relative z-up group', visible.value ? 'max-h-[80px] h-auto' : 'h-full', popoverVisible.value ? 'border-[#4e5575] border-2' : 'border-[#ccc]', props.class)}
@@ -260,12 +260,12 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
               {visible.value || props.modelValue.length === 0 || props.maxlength === 1
                 ? null
                 : (
-                    <span class="px-2 shrink-0 flex cursor-pointer justify-center items-center border-r">
-                      已选
-                      {props.modelValue.length}
-                      项
-                    </span>
-                  )}
+                  <span class="px-2 shrink-0 flex cursor-pointer justify-center items-center border-r">
+                    已选
+                    {props.modelValue.length}
+                    项
+                  </span>
+                )}
               {
                 props.modelValue.length > 0 && (
                   <span

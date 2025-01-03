@@ -8,5 +8,6 @@ export default antfu({
     '@typescript-eslint/no-use-before-define': 'off',
     'max-statements-per-line': 'off',
     'style/max-statements-per-line': 'off',
+    'style/indent': 'off',
   },
 })
