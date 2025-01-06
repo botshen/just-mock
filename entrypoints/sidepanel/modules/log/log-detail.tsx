@@ -6,6 +6,7 @@ import { createComponent, fn } from '@/share/create-component'
 import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
 import { addDataPoolSchema } from './log-validator'
+import './json.css'
 
 export const LogDetail = createComponent(null, () => {
   const { formData } = useLogsStore()
@@ -41,8 +42,8 @@ export const LogDetail = createComponent(null, () => {
             json: formData.value.response ? JSON.parse(formData.value.response) : {},
             text: undefined,
           },
-        },
-      })
+         },
+       })
     }
     if (payloadEditorContainer.value) {
       editor.value = createJSONEditor({
@@ -189,11 +190,15 @@ export const LogDetail = createComponent(null, () => {
           />
 
         </div>
-        <FormItem label="Payload" class="min-h-[80px]" type="slot">
-          <div ref={payloadEditorContainer} class="w-full max-h-[400px]"></div>
-        </FormItem>
+        {
+          formData.value.payload && (
+            <FormItem label="Payload" class="min-h-[100px]" type="slot">
+            <div ref={payloadEditorContainer} class="w-full !max-h-[400px] jse-theme-light"></div>
+            </FormItem>
+          )
+        }
         <FormItem error={errors.value.response[0]} label="Response" class="min-h-[80px]" type="slot">
-          <div ref={jsonEditorContainer} class="w-full max-h-[400px]"></div>
+          <div ref={jsonEditorContainer} class="w-full !max-h-[400px] jse-theme-light"></div>
         </FormItem>
         <div class="flex justify-end mt-8 gap-2">
           <Button2

@@ -7,9 +7,13 @@
   margin: 0;
   padding: 0;
 }
-/* 或者使用更细致的样式 */
-dialog::backdrop {
+ dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px); /* 添加模糊效果 */
-  transition: backdrop-filter 0.3s ease; /* 平滑过渡效果 */
+  backdrop-filter: blur(3px);
+  transition: backdrop-filter 0.3s ease;
+}
+
+.jse-main {
+  min-height: 100px;
+  max-height: 400px;
 }
