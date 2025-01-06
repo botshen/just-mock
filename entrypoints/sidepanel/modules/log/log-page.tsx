@@ -17,13 +17,16 @@ export const LogPage = createComponent(null, () => {
   onMounted(() => {
     const messageHandler = async (event: any) => {
       console.log('event    =====', event)
-      if (event.type === 'request') {
+      if (event.type === 'response') {
         list.value.unshift({
           id: nanoid(),
           path: event.url,
-          status: '200',
+          status: event.status,
           mock: event.isMock ? 'mock' : 'real',
-          type: event.type,
+          type: event.method,
+          payload: event.body,
+          delay: event.delay,
+          response: event.response,
         })
       }
     }
@@ -50,10 +53,13 @@ export const LogPage = createComponent(null, () => {
     status: string
     mock: string
     type: string
+    payload: string
+    delay: string
+    response: string
   }>()
 
   const router = useRouter()
-
+  const { formData } = useLogsStore()
   return () => (
     <div>
       <Button2
@@ -72,13 +78,23 @@ export const LogPage = createComponent(null, () => {
           ['PATH', 'path', { width: 'auto' }],
           ['STATUS', 'status', { width: 'auto' }],
           ['MOCK', 'mock', { width: 'auto' }],
-          ['ACTIONS', () => (
+          ['ACTIONS', row => (
             <div class="flex gap-x-4 items-center">
               <Button2
                 level="text"
                 width="fit"
                 class="h-8 text-[#4C5578] text-sm font-bold uppercase"
                 onClick={() => {
+                  console.log('row', row)
+                  formData.value = {
+                    url: row.path,
+                    method: row.type,
+                    payload: row.payload,
+                    delay: row.delay,
+                    response: row.response,
+                    code: row.status,
+                    comments: '',
+                  }
                   router.push(`/log`)
                 }}
               >

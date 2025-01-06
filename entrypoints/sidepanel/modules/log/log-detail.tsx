@@ -12,7 +12,7 @@ export const LogDetail = createComponent(null, () => {
 
   const onSubmit = () => {
     errors.value = {
-      pathRule: [],
+      url: [],
       method: [],
       code: [],
       Delay: [],
@@ -26,6 +26,7 @@ export const LogDetail = createComponent(null, () => {
   }
 
   const jsonEditorContainer = ref<HTMLDivElement>()
+  const payloadEditorContainer = ref<HTMLDivElement>()
   const editor = ref<any>(null)
   const router = useRouter()
   onMounted(() => {
@@ -37,12 +38,21 @@ export const LogDetail = createComponent(null, () => {
           showEditor: true,
           readOnly: false,
           content: {
-            json: {
-              greeting: 'Hello World',
-              color: '#ff3e00',
-              ok: true,
-              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-            },
+            json: formData.value.response ? JSON.parse(formData.value.response) : {},
+            text: undefined,
+          },
+        },
+      })
+    }
+    if (payloadEditorContainer.value) {
+      editor.value = createJSONEditor({
+        target: payloadEditorContainer.value,
+        props: {
+          mode: 'text',
+          showEditor: false,
+          readOnly: true,
+          content: {
+            json: formData.value.payload ? JSON.parse(formData.value.payload) : {},
             text: undefined,
           },
         },
@@ -116,7 +126,7 @@ export const LogDetail = createComponent(null, () => {
     code: [],
     pathRule: [],
     method: [],
-    Delay: [],
+    delay: [],
     response: [],
     comments: [],
   })
@@ -133,7 +143,7 @@ export const LogDetail = createComponent(null, () => {
           placeholder="Path Rule"
           label="Path Rule"
           class="w-full h-8"
-          v-model={formData.value.pathRule}
+          v-model={formData.value.url}
         />
         <div class="grid grid-cols-2 gap-4">
           <FormItem
@@ -162,12 +172,12 @@ export const LogDetail = createComponent(null, () => {
         <div class="grid grid-cols-2 gap-4">
           <FormItem
             formItemClass="mb-4"
-            error={errors.value.Delay?.[0]}
+            error={errors.value.delay?.[0]}
             type="text"
             placeholder="Delay"
             label="Delay"
             class="w-full h-8"
-            v-model={formData.value.Delay}
+            v-model={formData.value.delay}
           />
           <FormItem
             formItemClass="mb-4"
@@ -179,10 +189,12 @@ export const LogDetail = createComponent(null, () => {
           />
 
         </div>
-        <FormItem error={errors.value.response[0]} label="Response" class="min-h-[80px]" type="slot">
-          <div ref={jsonEditorContainer} class="w-full h-[400px]"></div>
+        <FormItem label="Payload" class="min-h-[80px]" type="slot">
+          <div ref={payloadEditorContainer} class="w-full max-h-[400px]"></div>
         </FormItem>
-
+        <FormItem error={errors.value.response[0]} label="Response" class="min-h-[80px]" type="slot">
+          <div ref={jsonEditorContainer} class="w-full max-h-[400px]"></div>
+        </FormItem>
         <div class="flex justify-end mt-8 gap-2">
           <Button2
             width="fit"

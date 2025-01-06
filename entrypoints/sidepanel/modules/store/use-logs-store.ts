@@ -3,12 +3,16 @@ const list = ref<{
   path: string
   status: string
   mock: string
+  payload: string
   type: string
+  delay: string
+  response: string
 }[]>([])
 const formData = ref({
-  pathRule: '',
+  url: '',
   method: '',
-  Delay: '',
+  payload: '',
+  delay: '',
   response: '',
   code: '',
   comments: '',
