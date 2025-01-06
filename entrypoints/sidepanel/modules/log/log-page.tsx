@@ -6,21 +6,44 @@ import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
 import { nanoid } from 'nanoid'
+import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
   const { list } = useLogsStore()
 
-  browser.runtime.onMessage.addListener(async (event) => {
-    list.value.unshift({
-      id: nanoid(),
-      path: event.url,
-      status: '200',
-      mock: event.isMock ? 'mock' : 'real',
-      type: event.type,
+  // 使用 onMounted 和 onUnmounted 来管理事件监听器
+  onMounted(() => {
+    const messageHandler = async (event: any) => {
+      console.log('event    =====', event)
+      if (event.type === 'request') {
+        list.value.unshift({
+          id: nanoid(),
+          path: event.url,
+          status: '200',
+          mock: event.isMock ? 'mock' : 'real',
+          type: event.type,
+        })
+      }
+    }
+
+    const sidebarHandler = (message: any) => {
+      if (message.type === 'close-sidebar') {
+        window.close()
+      }
+    }
+
+    browser.runtime.onMessage.addListener(messageHandler)
+    browser.runtime.onMessage.addListener(sidebarHandler)
+
+    // 清理函数
+    onUnmounted(() => {
+      browser.runtime.onMessage.removeListener(messageHandler)
+      browser.runtime.onMessage.removeListener(sidebarHandler)
     })
   })
+
   const Table = CreateTable<{
     id: string
     path: string
@@ -28,13 +51,6 @@ export const LogPage = createComponent(null, () => {
     mock: string
     type: string
   }>()
-
-  // 接受到background的消息 就关闭sidebar
-  browser.runtime.onMessage.addListener((message) => {
-    if (message.type === 'close-sidebar') {
-      window.close()
-    }
-  })
 
   const router = useRouter()
 
