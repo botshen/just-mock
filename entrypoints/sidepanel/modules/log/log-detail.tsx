@@ -1,17 +1,20 @@
 import type { ClassName } from '@/share/typings'
+import type { LogRule } from '../store/use-logs-store'
 import { Button2 } from '@/components/button/button'
 import { Form, FormItem } from '@/components/form/form'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent, fn } from '@/share/create-component'
+import { NButton, NSwitch } from 'naive-ui'
+import { nanoid } from 'nanoid'
 import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
 import { addDataPoolSchema } from './log-validator'
 import './json.css'
 
 export const LogDetail = createComponent(null, () => {
-  const { formData } = useLogsStore()
-
-  const onSubmit = () => {
+  const { formData, ruleListStorage } = useLogsStore()
+  const router = useRouter()
+  const onSubmit = async () => {
     errors.value = {
       url: [],
       method: [],
@@ -20,17 +23,47 @@ export const LogDetail = createComponent(null, () => {
       response: [],
       comments: [],
     }
-    if (!validateForm()) {
-      return
+
+    const ruleList = await ruleListStorage.getValue()
+    console.log('ruleList', ruleList)
+    let newRuleList: LogRule[] = []
+
+    const newRule: LogRule = {
+      id: formData.value.id || nanoid(),
+      path: formData.value.path,
+      status: formData.value.status,
+      mock: formData.value.mock || 'mock',
+      payload: formData.value.payload,
+      type: formData.value.type,
+      delay: formData.value.delay,
+      response: formData.value.response,
+      comments: formData.value.comments,
     }
-    console.log('onSubmit')
+    console.log('newRule', newRule)
+    console.log('ruleList', ruleList)
+    if (ruleList.length === 0) {
+      newRuleList = [newRule]
+    }
+ else {
+      const existingRuleIndex = ruleList.findIndex(rule => rule.path === newRule.path)
+
+      if (existingRuleIndex !== -1) {
+        newRuleList = [...ruleList]
+        newRuleList[existingRuleIndex] = newRule
+      }
+ else {
+        newRuleList = [...ruleList, newRule]
+      }
+    }
+
+    await ruleListStorage.setValue(newRuleList)
+    router.back()
   }
 
   const jsonEditorContainer = ref<HTMLDivElement>()
   const payloadEditorContainer = ref<HTMLDivElement>()
   const editor = ref<any>(null)
-  const router = useRouter()
-  onMounted(() => {
+   onMounted(() => {
     if (jsonEditorContainer.value) {
       editor.value = createJSONEditor({
         target: jsonEditorContainer.value,
@@ -111,18 +144,18 @@ export const LogDetail = createComponent(null, () => {
     label: 'DELETE',
     value: 'DELETE',
   }])
-  const validateForm = () => {
-    const result = addDataPoolSchema.safeParse(formData.value)
+  // const validateForm = () => {
+  //   const result = addDataPoolSchema.safeParse(formData.value)
 
-    if (!result.success) {
-      result.error.issues.forEach((error) => {
-        const path = error.path[0] as keyof typeof formData.value
-        errors.value[path].push(error.message)
-      })
-      return false
-    }
-    return true
-  }
+  //   if (!result.success) {
+  //     result.error.issues.forEach((error) => {
+  //       const path = error.path[0] as keyof typeof formData.value
+  //       errors.value[path].push(error.message)
+  //     })
+  //     return false
+  //   }
+  //   return true
+  // }
   const errors = ref<Record<string, string[]>>({
     code: [],
     pathRule: [],
@@ -131,12 +164,15 @@ export const LogDetail = createComponent(null, () => {
     response: [],
     comments: [],
   })
+  const active = ref(false)
   return () => (
     <div class="p-8 bg-white">
-      <div class="dialog-header">
-        <h3 class="text-sm font-bold text-[#999] absolute left-4 top-4">DETAIL</h3>
-      </div>
-      <Form class="space-y-2 mt-4" onSubmit={onSubmit}>
+      <NSwitch value={active.value} onUpdateValue={v => active.value = v} size="medium">
+        {{
+          icon: () => '🤔',
+        }}
+      </NSwitch>
+      <Form class="space-y-2" onSubmit={onSubmit}>
         <FormItem
           formItemClass="mb-4"
           error={errors.value.pathRule?.[0]}
@@ -144,7 +180,7 @@ export const LogDetail = createComponent(null, () => {
           placeholder="Path Rule"
           label="Path Rule"
           class="w-full h-8"
-          v-model={formData.value.url}
+          v-model={formData.value.path}
         />
         <div class="grid grid-cols-2 gap-4">
           <FormItem
@@ -155,7 +191,7 @@ export const LogDetail = createComponent(null, () => {
             label="Method"
             class="w-full h-8"
             search
-            v-model={formData.value.method}
+            v-model={formData.value.type}
             options={methodOptions.value}
           />
           <FormItem
@@ -166,7 +202,7 @@ export const LogDetail = createComponent(null, () => {
             label="Code"
             class="w-full h-8"
             search
-            v-model={formData.value.code}
+            v-model={formData.value.status}
             options={codeOptions.value}
           />
         </div>

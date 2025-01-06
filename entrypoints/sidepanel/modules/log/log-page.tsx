@@ -18,6 +18,10 @@ export const LogPage = createComponent(null, () => {
     const messageHandler = async (event: any) => {
       console.log('event    =====', event)
       if (event.type === 'response') {
+        if (!Array.isArray(list.value)) {
+          list.value = []
+        }
+
         list.value.unshift({
           id: nanoid(),
           path: event.url,
@@ -104,7 +108,7 @@ export const LogPage = createComponent(null, () => {
             </div>
           ), { class: 'sticky right-0 bg-white border-l border-[#eee]' }],
         ]}
-        list={list.value}
+        list={list.value || []}
       />
 
     </div>
