@@ -81,25 +81,25 @@ export function CreateTable<D extends { id: string }>() {
             {props.multiSelect && (
               mode.value === 'normal'
                 ? (
-                    <Button2
-                      level="text"
-                      width="fit"
-                      class="h-8 text-sm font-bold"
-                      onClick={() => mode.value = 'select'}
-                    >
-                      MULTI SELECT
-                    </Button2>
-                  )
+                  <Button2
+                    level="text"
+                    width="fit"
+                    class="h-8 text-sm font-bold"
+                    onClick={() => mode.value = 'select'}
+                  >
+                    MULTI SELECT
+                  </Button2>
+                )
                 : (
-                    <Button2
-                      level="normal"
-                      width="fit"
-                      class="h-8 text-sm font-bold"
-                      onClick={() => mode.value = 'normal'}
-                    >
-                      Cancel Select
-                    </Button2>
-                  )
+                  <Button2
+                    level="normal"
+                    width="fit"
+                    class="h-8 text-sm font-bold"
+                    onClick={() => mode.value = 'normal'}
+                  >
+                    Cancel Select
+                  </Button2>
+                )
             )}
             {props.rightActions?.()}
           </MergeClass>
@@ -108,97 +108,97 @@ export function CreateTable<D extends { id: string }>() {
           {
             props.list?.[0]
               ? (
-                  <x-table
-                    class="overflow-x-auto w-full relative"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns:
-                  [mode.value === 'select' ? 'max-content' : '', ...props.columns.map(column => column[2]?.width ?? 'max-content')].join(' '),
-                    }}
-                  >
-                    {/* head */}
-                    {/* <x-head class={mc('block', props.theadClass.value)}> */}
-                    {/* <x-row class={mc(rowClass, props.rowClass)}> */}
-                    {/* 全选 */}
-                    {mode.value === 'select' && (
-                      <x-cell role="head" class={mc(finalHeadCellClass.value, 'px-2 w-8 head')}>
-                        <Checkbox
-                          modelValue={isEqual(selectedRowIds.value, listIds.value)}
-                          indeterminate={selectedRowIds.value.length > 0 && difference(listIds.value, selectedRowIds.value).length > 0}
-                          onUpdate:modelValue={handleSelectAll}
-                        />
-                      </x-cell>
-                    )}
-                    {/* 表头 */}
-                    {props.columns.map((column, index) => (
-                      <x-cell
-                        role="head"
-                        class={mc(
+                <x-table
+                  class="overflow-x-auto w-full relative"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                      [mode.value === 'select' ? 'max-content' : '', ...props.columns.map(column => column[2]?.width ?? 'max-content')].join(' '),
+                  }}
+                >
+                  {/* head */}
+                  {/* <x-head class={mc('block', props.theadClass.value)}> */}
+                  {/* <x-row class={mc(rowClass, props.rowClass)}> */}
+                  {/* 全选 */}
+                  {mode.value === 'select' && (
+                    <x-cell role="head" class={mc(finalHeadCellClass.value, 'px-2 w-8 head')}>
+                      <Checkbox
+                        modelValue={isEqual(selectedRowIds.value, listIds.value)}
+                        indeterminate={selectedRowIds.value.length > 0 && difference(listIds.value, selectedRowIds.value).length > 0}
+                        onUpdate:modelValue={handleSelectAll}
+                      />
+                    </x-cell>
+                  )}
+                  {/* 表头 */}
+                  {props.columns.map((column, index) => (
+                    <x-cell
+                      role="head"
+                      class={mc(
+                        column[2]?.class,
+                        finalHeadCellClass.value,
+                        'head',
+                        // 根据不同情况添加圆角
+                        mode.value !== 'select' && index === 0 ? 'rounded-l' : '',
+                        index === props.columns.length - 1 ? 'rounded-r' : '',
+                      )}
+                    >
+                      {resolve(column[0], column, props.list!)}
+                    </x-cell>
+                  ))}
+                  {/* </x-row> */}
+                  {/* </x-head> */}
+                  {/* <x-body class={mc('block', props.tbodyClass)}> */}
+                  {props.list.map((row, rowIndex) => (
+                    <>
+                      {/* <x-row class={mc(rowClass, props.rowClass)} key={row.id ?? rowIndex}> */}
+                      {/* 勾选 */}
+                      {mode.value === 'select' && (
+                        <x-cell class={mc(
+                          finalCellClass.value,
+                          'w-8 px-2 py-4 whitespace-nowrap text-sm',
+                          rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f6f6f6]',
+                        )}
+                        >
+                          <Checkbox
+                            modelValue={selectedRowIds.value.includes(row.id)}
+                            onUpdate:modelValue={() => handleSelectionChange(row)}
+                          />
+                        </x-cell>
+                      )}
+                      {/* 所有列 */}
+                      {props.columns.map(column => (
+                        <x-cell class={mc(
+                          finalCellClass.value,
+                          rowIndex % 2 === 0 ? 'bg-white' : 'bg-white',
                           column[2]?.class,
-                          finalHeadCellClass.value,
-                          'head',
-                          // 根据不同情况添加圆角
-                          mode.value !== 'select' && index === 0 ? 'rounded-l' : '',
-                          index === props.columns.length - 1 ? 'rounded-r' : '',
                         )}
-                      >
-                        {resolve(column[0], column, props.list!)}
-                      </x-cell>
-                    ))}
-                    {/* </x-row> */}
-                    {/* </x-head> */}
-                    {/* <x-body class={mc('block', props.tbodyClass)}> */}
-                    {props.list.map((row, rowIndex) => (
-                      <>
-                        {/* <x-row class={mc(rowClass, props.rowClass)} key={row.id ?? rowIndex}> */}
-                        {/* 勾选 */}
-                        {mode.value === 'select' && (
-                          <x-cell class={mc(
-                            finalCellClass.value,
-                            'w-8 px-2 py-4 whitespace-nowrap text-sm',
-                            rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f6f6f6]',
-                          )}
-                          >
-                            <Checkbox
-                              modelValue={selectedRowIds.value.includes(row.id)}
-                              onUpdate:modelValue={() => handleSelectionChange(row)}
-                            />
-                          </x-cell>
-                        )}
-                        {/* 所有列 */}
-                        {props.columns.map(column => (
-                          <x-cell class={mc(
-                            finalCellClass.value,
-                            column[2]?.class,
-                            rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f6f6f6]',
-                          )}
-                          >
-                            {typeof column[1] === 'function' ? column[1](row, rowIndex, props.list!) : row[column[1]]}
-                          </x-cell>
-                        ))}
-                        {/* </x-row> */}
-                        {props.expanded?.[row.id] && (
+                        >
+                          {typeof column[1] === 'function' ? column[1](row, rowIndex, props.list!) : row[column[1]]}
+                        </x-cell>
+                      ))}
+                      {/* </x-row> */}
+                      {props.expanded?.[row.id] && (
                         // <x-row class={mc(rowClass, 'block h-4', props.rowClass)} key={row.id ? `expanded-${row.id}` : `expanded-${rowIndex}`}>
-                          <x-cell class={mc(finalCellClass.value)}>
-                            展开内容
-                          </x-cell>
+                        <x-cell class={mc(finalCellClass.value)}>
+                          展开内容
+                        </x-cell>
                         // </x-row>
-                        )}
-                      </>
-                    ))}
-                    {/* </x-body> */}
-                  </x-table>
-                )
+                      )}
+                    </>
+                  ))}
+                  {/* </x-body> */}
+                </x-table>
+              )
               : !props.loading && (
-                  <div class=" text-red-800 text-center py-8">Data is empty.</div>
-                )
+                <div class=" text-red-800 text-center py-8">Data is empty.</div>
+              )
           }
           {props.loading
             ? (
-                <div class="text-center py-8 flex justify-center items-center border border-gray-100 rounded-lg absolute top-0 left-0 w-full h-full bg-white">
-                  <div class="w-6 h-6 border-2 border-[#464b65] border-t-white rounded-full animate-spin" />
-                </div>
-              )
+              <div class="text-center py-8 flex justify-center items-center border border-gray-100 rounded-lg absolute top-0 left-0 w-full h-full bg-white">
+                <div class="w-6 h-6 border-2 border-[#464b65] border-t-white rounded-full animate-spin" />
+              </div>
+            )
             : null}
         </div>
       </MergeClass>
