@@ -16,7 +16,6 @@ export default defineUnlistedScript(() => {
       handler.next(err)
     },
     onResponse: async (response, handler) => {
-      console.log('response', response)
       sendMessageToContentScript({
         type: 'response',
         status: response.status,

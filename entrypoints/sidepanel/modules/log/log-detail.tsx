@@ -44,14 +44,14 @@ export const LogDetail = createComponent(null, () => {
     if (ruleList.length === 0) {
       newRuleList = [newRule]
     }
- else {
+    else {
       const existingRuleIndex = ruleList.findIndex(rule => rule.path === newRule.path)
 
       if (existingRuleIndex !== -1) {
         newRuleList = [...ruleList]
         newRuleList[existingRuleIndex] = newRule
       }
- else {
+      else {
         newRuleList = [...ruleList, newRule]
       }
     }
@@ -63,7 +63,7 @@ export const LogDetail = createComponent(null, () => {
   const jsonEditorContainer = ref<HTMLDivElement>()
   const payloadEditorContainer = ref<HTMLDivElement>()
   const editor = ref<any>(null)
-   onMounted(() => {
+  onMounted(() => {
     if (jsonEditorContainer.value) {
       editor.value = createJSONEditor({
         target: jsonEditorContainer.value,
@@ -75,8 +75,8 @@ export const LogDetail = createComponent(null, () => {
             json: formData.value.response ? JSON.parse(formData.value.response) : {},
             text: undefined,
           },
-         },
-       })
+        },
+      })
     }
     if (payloadEditorContainer.value) {
       editor.value = createJSONEditor({
@@ -229,7 +229,7 @@ export const LogDetail = createComponent(null, () => {
         {
           formData.value.payload && (
             <FormItem label="Payload" class="min-h-[100px]" type="slot">
-            <div ref={payloadEditorContainer} class="w-full !max-h-[400px] jse-theme-light"></div>
+              <div ref={payloadEditorContainer} class="w-full !max-h-[400px] jse-theme-light"></div>
             </FormItem>
           )
         }

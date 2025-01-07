@@ -18,7 +18,6 @@ export function injectScriptToPage() {
   }
 }
 export function sendMessageToContentScript<T>(message: T, eventName: string) {
-  console.log('sendMessageToContentScript', message)
   const event = new CustomEvent(eventName, { detail: message })
   window.dispatchEvent(event)
 }
