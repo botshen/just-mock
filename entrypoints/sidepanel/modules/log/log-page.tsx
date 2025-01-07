@@ -73,18 +73,18 @@ export const LogPage = createComponent(null, () => {
         clear
       </Button2>
       <Table
-        cellClass="flex items-center px-2 py-0 border-b border-[#eee] text-sm  "
+        cellClass="flex items-center px-2  py-0 border-b border-[#eee] text-sm  "
         headCellClass="bg-[#f6f6f6] border-b border-[#eee] "
         store={tableStore}
         actionsClass="flex gap-4"
         columns={[
           ['URL', row => (
             <div class="flex items-center">
-              <span class="bg-yellow-100 px-2 py-1 rounded text-yellow-800">
+              <span class="">
                 {row.url}
               </span>
             </div>
-          ), { width: 'auto' }],
+          ), { width: 'auto', class: (row, rowIndex) => rowIndex % 2 === 0 ? 'bg-white' : 'bg-yellow-100 py-1 rounded text-yellow-800' }],
           ['STATUS', 'status', { width: 'auto' }],
           ['MOCK', 'mock', { width: 'auto' }],
           ['ACTIONS', row => (

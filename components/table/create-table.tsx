@@ -13,7 +13,7 @@ export type Column<D> = [
   name: string | VNodeChild | ((column: Column<D>, data: D[]) => VNodeChild),
   render: keyof D | ((row: D, rowIndex: number, data: D[]) => VNodeChild),
   {
-    class?: ClassName
+    class?: ClassName | ((row: D, rowIndex: number, data: D[]) => ClassName)
     width?: 'max-content' | 'min-content' | 'auto' | 'minmax(min, max)' | 'fit-content(?)' | '1fr' | '100px' | '50%' | string
   },
 ] | [
@@ -72,7 +72,7 @@ export function CreateTable<D extends { id: string }>() {
       }
     }
     const finalHeadCellClass = computed(() => mc('h-8 font-bold text-xs text-[#999] whitespace-nowrap max-w-full', props.cellClass, props.headCellClass))
-    const finalCellClass = computed(() => mc('flex items-center px-3 py-2 max-w-full', props.cellClass))
+    const finalCellClass = computed(() => mc('flex items-center py-2 max-w-full', props.cellClass))
     return () => (
       <MergeClass baseClass="block overflow-x-auto max-w-full break-all relative space-y-4">
         {(props.leftActions || props.rightActions || props.multiSelect) && (
@@ -170,7 +170,7 @@ export function CreateTable<D extends { id: string }>() {
                         <x-cell class={mc(
                           finalCellClass.value,
                           rowIndex % 2 === 0 ? 'bg-white' : 'bg-white',
-                          column[2]?.class,
+                          typeof column[2]?.class === 'function' ? column[2].class(row, rowIndex, props.list!) : column[2]?.class,
                         )}
                         >
                           {typeof column[1] === 'function' ? column[1](row, rowIndex, props.list!) : row[column[1]]}
