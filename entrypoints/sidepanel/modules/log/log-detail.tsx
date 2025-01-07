@@ -1,39 +1,29 @@
-import type { ClassName } from '@/share/typings'
 import type { LogRule } from '../store/use-logs-store'
 import { Button2 } from '@/components/button/button'
 import { Form, FormItem } from '@/components/form/form'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
-import { createComponent, fn } from '@/share/create-component'
-import { NButton, NSwitch } from 'naive-ui'
+import { createComponent } from '@/share/create-component'
+import { tryParseJson } from '@/share/inject-help'
+import { NSwitch } from 'naive-ui'
 import { nanoid } from 'nanoid'
 import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
-import { addDataPoolSchema } from './log-validator'
 import './json.css'
 
 export const LogDetail = createComponent(null, () => {
   const { formData, ruleListStorage } = useLogsStore()
   const router = useRouter()
   const onSubmit = async () => {
-    errors.value = {
-      url: [],
-      method: [],
-      code: [],
-      Delay: [],
-      response: [],
-      comments: [],
-    }
-
     const ruleList = await ruleListStorage.getValue()
     console.log('ruleList', ruleList)
     let newRuleList: LogRule[] = []
 
     const newRule: LogRule = {
       id: formData.value.id || nanoid(),
-      path: formData.value.path,
+      url: formData.value.url,
       status: formData.value.status,
       mock: formData.value.mock || 'mock',
-      payload: formData.value.payload,
+      payload: '',
       type: formData.value.type,
       delay: formData.value.delay,
       response: formData.value.response,
@@ -45,7 +35,7 @@ export const LogDetail = createComponent(null, () => {
       newRuleList = [newRule]
     }
     else {
-      const existingRuleIndex = ruleList.findIndex(rule => rule.path === newRule.path)
+      const existingRuleIndex = ruleList.findIndex(rule => rule.url === newRule.url)
 
       if (existingRuleIndex !== -1) {
         newRuleList = [...ruleList]
@@ -57,6 +47,8 @@ export const LogDetail = createComponent(null, () => {
     }
 
     await ruleListStorage.setValue(newRuleList)
+    const _ruleList = await ruleListStorage.getValue()
+    console.log('_ruleList', _ruleList)
     router.back()
   }
 
@@ -72,7 +64,7 @@ export const LogDetail = createComponent(null, () => {
           showEditor: true,
           readOnly: false,
           content: {
-            json: formData.value.response ? JSON.parse(formData.value.response) : {},
+            json: formData.value.response ? tryParseJson(formData.value.response, {}) : {},
             text: undefined,
           },
         },
@@ -86,7 +78,7 @@ export const LogDetail = createComponent(null, () => {
           showEditor: false,
           readOnly: true,
           content: {
-            json: formData.value.payload ? JSON.parse(formData.value.payload) : {},
+            json: formData.value.payload ? tryParseJson(formData.value.payload, {}) : {},
             text: undefined,
           },
         },
@@ -144,48 +136,44 @@ export const LogDetail = createComponent(null, () => {
     label: 'DELETE',
     value: 'DELETE',
   }])
-  // const validateForm = () => {
-  //   const result = addDataPoolSchema.safeParse(formData.value)
 
-  //   if (!result.success) {
-  //     result.error.issues.forEach((error) => {
-  //       const path = error.path[0] as keyof typeof formData.value
-  //       errors.value[path].push(error.message)
-  //     })
-  //     return false
-  //   }
-  //   return true
-  // }
-  const errors = ref<Record<string, string[]>>({
-    code: [],
-    pathRule: [],
-    method: [],
-    delay: [],
-    response: [],
-    comments: [],
-  })
-  const active = ref(false)
   return () => (
-    <div class="p-8 bg-white">
-      <NSwitch value={active.value} onUpdateValue={v => active.value = v} size="medium">
-        {{
-          icon: () => '🤔',
-        }}
-      </NSwitch>
+    <div class="p-8   bg-white">
+
       <Form class="space-y-2" onSubmit={onSubmit}>
+
+        <div class="flex justify-between items-center  ">
+          <NSwitch
+            class=" "
+            value={formData.value.active}
+            onUpdateValue={v => formData.value.active = v}
+            size="small"
+          />
+          <div class="flex gap-2">
+            <Button2
+              width="fit"
+              type="submit"
+              class="px-8 py-2"
+              onClick={() => {
+                router.back()
+              }}
+            >
+              BACK
+            </Button2>
+            <Button2 class="px-8 py-2" level="important" width="fit" type="submit">SUBMIT</Button2>
+          </div>
+        </div>
         <FormItem
           formItemClass="mb-4"
-          error={errors.value.pathRule?.[0]}
           type="text"
           placeholder="Path Rule"
           label="Path Rule"
           class="w-full h-8"
-          v-model={formData.value.path}
+          v-model={formData.value.url}
         />
         <div class="grid grid-cols-2 gap-4">
           <FormItem
             formItemClass="mb-4"
-            error={errors.value.method?.[0]}
             type="select"
             placeholder="Method"
             label="Method"
@@ -196,7 +184,6 @@ export const LogDetail = createComponent(null, () => {
           />
           <FormItem
             formItemClass="mb-4"
-            error={errors.value.code?.[0]}
             type="select"
             placeholder="Code"
             label="Code"
@@ -209,7 +196,6 @@ export const LogDetail = createComponent(null, () => {
         <div class="grid grid-cols-2 gap-4">
           <FormItem
             formItemClass="mb-4"
-            error={errors.value.delay?.[0]}
             type="text"
             placeholder="Delay"
             label="Delay"
@@ -233,22 +219,10 @@ export const LogDetail = createComponent(null, () => {
             </FormItem>
           )
         }
-        <FormItem error={errors.value.response[0]} label="Response" class="min-h-[80px]" type="slot">
+        <FormItem label="Response" class="min-h-[80px]" type="slot">
           <div ref={jsonEditorContainer} class="w-full !max-h-[400px] jse-theme-light"></div>
         </FormItem>
-        <div class="flex justify-end mt-8 gap-2">
-          <Button2
-            width="fit"
-            type="submit"
-            class="px-8 py-2"
-            onClick={() => {
-              router.back()
-            }}
-          >
-            BACK
-          </Button2>
-          <Button2 class="px-8 py-2" level="important" width="fit" type="submit">SUBMIT</Button2>
-        </div>
+
       </Form>
     </div>
 

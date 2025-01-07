@@ -1,4 +1,4 @@
- import { storage } from 'wxt/storage'
+import { storage } from 'wxt/storage'
 
 // 定义 ruleList 存储项
 export const ruleListStorage = storage.defineItem<LogRule[]>('local:ruleList', {
@@ -8,7 +8,7 @@ export const ruleListStorage = storage.defineItem<LogRule[]>('local:ruleList', {
 // 定义类型
 export interface LogRule {
   id: string
-  path: string
+  url: string
   status: string
   mock: string
   payload: string
@@ -16,12 +16,13 @@ export interface LogRule {
   delay: string
   response: string
   comments?: string
+  active?: boolean
 }
 
 const list = ref<LogRule[]>([])
 const formData = ref<LogRule>({
   id: '',
-  path: '',
+  url: '',
   status: '',
   mock: 'mock',
   payload: '',
@@ -29,6 +30,7 @@ const formData = ref<LogRule>({
   delay: '',
   response: '',
   comments: '',
+  active: true,
 })
 
 export function useLogsStore() {

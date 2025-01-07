@@ -1,6 +1,4 @@
-import closeImgUrl from '@/assets/close.svg'
 import { Button2 } from '@/components/button/button'
-import { openDialog } from '@/components/dialog/open-dialog'
 import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
@@ -24,13 +22,14 @@ export const LogPage = createComponent(null, () => {
 
         list.value.unshift({
           id: nanoid(),
-          path: event.url,
+          url: event.url,
           status: event.status,
           mock: event.isMock ? 'mock' : 'real',
           type: event.method,
           payload: event.body,
           delay: event.delay,
           response: event.response,
+          active: true,
         })
       }
     }
@@ -53,7 +52,7 @@ export const LogPage = createComponent(null, () => {
 
   const Table = CreateTable<{
     id: string
-    path: string
+    url: string
     status: string
     mock: string
     type: string
@@ -79,7 +78,7 @@ export const LogPage = createComponent(null, () => {
         store={tableStore}
         actionsClass="flex gap-4"
         columns={[
-          ['PATH', 'path', { width: 'auto' }],
+          ['URL', 'url', { width: 'auto' }],
           ['STATUS', 'status', { width: 'auto' }],
           ['MOCK', 'mock', { width: 'auto' }],
           ['ACTIONS', row => (
@@ -89,14 +88,16 @@ export const LogPage = createComponent(null, () => {
                 width="fit"
                 class="h-8 text-[#4C5578] text-sm font-bold uppercase"
                 onClick={() => {
-                  console.log('row', row)
                   formData.value = {
-                    url: row.path,
-                    method: row.type,
+                    url: row.url,
+                    type: row.type,
                     payload: row.payload,
                     delay: row.delay,
                     response: row.response,
-                    code: row.status,
+                    id: row.id,
+                    status: row.status,
+                    mock: row.mock,
+                    active: true,
                     comments: '',
                   }
                   router.push(`/log`)

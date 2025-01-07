@@ -9,5 +9,6 @@ export default antfu({
     'max-statements-per-line': 'off',
     'style/max-statements-per-line': 'off',
     'style/indent': 'off',
+    'unused-imports/no-unused-vars': 'off',
   },
 })
