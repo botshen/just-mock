@@ -5,7 +5,7 @@ import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
 import { FilterOutline, RemoveOutline } from '@vicons/ionicons5'
-import { NFloatButton, NIcon } from 'naive-ui'
+import { NFloatButton, NIcon, NTooltip } from 'naive-ui'
 import { nanoid } from 'nanoid'
 import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -81,21 +81,30 @@ export const LogPage = createComponent(null, () => {
       </Form>
       <Table
         cellClass="flex items-center px-2  py-0 border-b border-[#eee] text-sm  "
-        headCellClass="bg-[#f6f6f6] border-b border-[#eee] "
+        headCellClass="bg-[#f6f6f6] border-b border-[#eee] text-xs "
         store={tableStore}
         actionsClass="flex gap-4"
         columns={[
           ['URL', row => (
-            <div class="flex items-center">
-              <span class="">
+            <NTooltip v-slots={{
+              trigger: () => (
+                <div class="flex items-center">
+                  <span class="truncate block max-w-[400px]">
+                    {row.url}
+                  </span>
+                </div>
+              ),
+            }}
+            >
+              <div class="text-xs max-w-[300px] break-all">
                 {row.url}
-              </span>
-            </div>
+              </div>
+            </NTooltip>
           ), { width: 'auto', class: (row, rowIndex) => rowIndex % 2 === 0 ? 'bg-white' : 'bg-yellow-100 py-1 rounded text-yellow-800' }],
-          ['STATUS', 'status', { width: 'auto' }],
-          ['MOCK', 'mock', { width: 'auto' }],
+          ['STATUS', 'status', { width: '60px' }],
+          ['MOCK', 'mock', { width: '60px' }],
           ['ACTIONS', row => (
-            <div class="flex gap-x-4 items-center">
+            <div class="flex gap-x-4 items-center w-[60px]">
               <Button2
                 level="text"
                 width="fit"
