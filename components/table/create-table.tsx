@@ -196,7 +196,7 @@ export function CreateTable<D extends { id: string }>() {
           {props.loading
             ? (
               <div class="text-center py-8 flex justify-center items-center border border-gray-100 rounded-lg absolute top-0 left-0 w-full h-full bg-white">
-                <div class="w-6 h-6 border-2 border-[#464b65] border-t-white rounded-full animate-spin" />
+                <div class="w-6 h-6 border-1 border-[#464b65] border-t-white rounded-full animate-spin" />
               </div>
             )
             : null}

@@ -10,5 +10,6 @@ export default antfu({
     'style/max-statements-per-line': 'off',
     'style/indent': 'off',
     'unused-imports/no-unused-vars': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
   },
 })

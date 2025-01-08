@@ -40,7 +40,7 @@ export const Input = createComponent<Options>({
 }, (props, { emit, slots }) => {
   return () => (
     <div
-      class={mc('rounded border border-[#cccccc] flex items-center focus-within:border-2 focus-within:border-[#4E5575]', props.class)}
+      class={mc('rounded border border-[#cccccc] flex items-center focus-within:border-1 focus-within:border-[#4E5575]', props.class)}
     >
       {slots.prefix?.()}
       <input

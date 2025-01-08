@@ -22,7 +22,7 @@ export default defineUnlistedScript(() => {
     onRequest: async (config, handler) => {
       // 获取特定key的数据
       const specificData = await getStorageData<string>('ruleList')
-      console.log('specificData', specificData)
+      // console.log('specificData', specificData)
       handler.next(config)
     },
     onError: async (err, handler) => {

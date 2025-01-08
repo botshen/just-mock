@@ -229,7 +229,7 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
         <MergeClass tag="x-multi-select" baseClass="block rounded h-8] relative text-sm">
           <label
             ref={labelWrapper}
-            class={mc('flex flex-nowrap border border-line-1 rounded bg-white relative z-up group', visible.value ? 'max-h-[80px] h-auto' : 'h-full', popoverVisible.value ? 'border-[#4e5575] border-2' : 'border-[#ccc]', props.class)}
+            class={mc('flex flex-nowrap border border-line-1 rounded bg-white relative z-up group', visible.value ? 'max-h-[80px] h-auto' : 'h-full', popoverVisible.value ? 'border-[#4e5575] border-1' : 'border-[#ccc]', props.class)}
             for={uniqueId}
             onClick={() => { popoverVisible.value = true }}
           >

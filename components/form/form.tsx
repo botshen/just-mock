@@ -38,7 +38,7 @@ export const Form = createComponent<FormOptions>({
       }}
       class={mc('w-full', props.class)}
     >
-      { slots.default?.() }
+      {slots.default?.()}
     </form>
   )
 })
@@ -104,20 +104,20 @@ export const FormItem = createComponent<{ props: FormItemProps, emits: Emits, sl
   const inputClass = computed(() => {
     const baseClass = `px-2 text-[14px] w-full border-[#cccccc] rounded grow border `
     return hasError.value
-      ? `${baseClass} !border-2 !border-[#E10505]`
+      ? `${baseClass} !border-1 !border-[#E10505]`
       : baseClass
   })
 
   const textareaClass = computed(() => {
     const baseClass = `p-2 text-[14px] rounded w-full grow border border-solid border-[#cccccc] outline-none focus:outline-none`
     return hasError.value
-      ? `${baseClass} !border-2 !border-[#E10505]`
+      ? `${baseClass} !border-1 !border-[#E10505]`
       : baseClass
   })
   const selectClass = computed(() => {
     const baseClass = ``
     return hasError.value
-      ? `${baseClass} !border-2 !border-[#E10505]`
+      ? `${baseClass} !border-1 !border-[#E10505]`
       : baseClass
   })
 
@@ -225,11 +225,11 @@ export const FormItem = createComponent<{ props: FormItemProps, emits: Emits, sl
       <x-form-item class={`block ${props.formItemClass}`}>
         <div class="flex justify-between items-center">
           {props.label
-          && <label for={finalId} class="font-bold text-[14px] mb-[6px]">{props.label}</label>}
+            && <label for={finalId} class="font-bold text-[14px] mb-[6px]">{props.label}</label>}
           {props.rightComponent
-          && <div class="flex items-center">{props.rightComponent()}</div>}
+            && <div class="flex items-center">{props.rightComponent()}</div>}
           {props.errorInLabel
-          && <div class="flex text-[#E10505] items-center text-xs">{props.error ?? '　'}</div>}
+            && <div class="flex text-[#E10505] items-center text-xs">{props.error ?? '　'}</div>}
         </div>
         <div class="flex">
           <x-content class={mc('block flex-grow translate-y-[1px] z-up', props.contentClass)}>

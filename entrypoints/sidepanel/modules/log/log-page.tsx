@@ -1,17 +1,18 @@
 import { Button2 } from '@/components/button/button'
+import { Form, FormItem } from '@/components/form/form'
 import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
+import { FilterOutline, RemoveOutline, SearchOutline } from '@vicons/ionicons5'
+import { NFloatButton, NIcon } from 'naive-ui'
 import { nanoid } from 'nanoid'
 import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
-  const { list } = useLogsStore()
-
-  // 使用 onMounted 和 onUnmounted 来管理事件监听器
+  const { list, filter } = useLogsStore()
   onMounted(() => {
     const messageHandler = async (event: any) => {
       console.log('event    =====', event)
@@ -19,7 +20,6 @@ export const LogPage = createComponent(null, () => {
         if (!Array.isArray(list.value)) {
           list.value = []
         }
-
         list.value.unshift({
           id: nanoid(),
           url: event.url,
@@ -43,7 +43,6 @@ export const LogPage = createComponent(null, () => {
     browser.runtime.onMessage.addListener(messageHandler)
     browser.runtime.onMessage.addListener(sidebarHandler)
 
-    // 清理函数
     onUnmounted(() => {
       browser.runtime.onMessage.removeListener(messageHandler)
       browser.runtime.onMessage.removeListener(sidebarHandler)
@@ -64,14 +63,24 @@ export const LogPage = createComponent(null, () => {
   const router = useRouter()
   const { formData } = useLogsStore()
   return () => (
-    <div>
-      <Button2
-        onClick={() => {
-          list.value = []
-        }}
-      >
-        clear
-      </Button2>
+    <div class="m-2">
+      <Form class="space-y-2">
+        <FormItem
+          formItemClass="mb-2"
+          type="text"
+          placeholder="Filter"
+          class="w-[256px] h-8 "
+          prefix={() => (
+            <NIcon>
+              <FilterOutline />
+            </NIcon>
+          )}
+          v-model={filter.value}
+          onUpdate:modelValue={() => {
+            console.log('filter', filter.value)
+          }}
+        />
+      </Form>
       <Table
         cellClass="flex items-center px-2  py-0 border-b border-[#eee] text-sm  "
         headCellClass="bg-[#f6f6f6] border-b border-[#eee] "
@@ -117,7 +126,19 @@ export const LogPage = createComponent(null, () => {
         ]}
         list={list.value || []}
       />
-
+      <NFloatButton
+        position="fixed"
+        bottom="50px"
+        right="10px"
+        // @ts-expect-error
+        onClick={() => {
+          list.value = []
+        }}
+      >
+        <NIcon>
+          <RemoveOutline />
+        </NIcon>
+      </NFloatButton>
     </div>
   )
 })

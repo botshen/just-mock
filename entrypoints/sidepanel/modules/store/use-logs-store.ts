@@ -32,11 +32,13 @@ const formData = ref<LogRule>({
   comments: '',
   active: true,
 })
+const filter = ref('')
 
 export function useLogsStore() {
   return {
     list,
     formData,
     ruleListStorage,
+    filter,
   }
 }
