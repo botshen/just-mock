@@ -88,48 +88,64 @@ export const LogPage = createComponent(null, () => {
           ['URL', row => (
             <NTooltip v-slots={{
               trigger: () => (
-                <div class="flex items-center">
-                  <span class="truncate block max-w-[400px]">
+                <div
+                  class="flex items-center cursor-pointer"
+                  onClick={() => {
+                    formData.value = {
+                      url: row.url,
+                      type: row.type,
+                      payload: row.payload,
+                      delay: row.delay,
+                      response: row.response,
+                      id: row.id,
+                      status: row.status,
+                      mock: row.mock,
+                      active: true,
+                      comments: '',
+                    }
+                    router.push(`/log`)
+                  }}
+                >
+                  <span class="truncate block max-w-[260px]">
                     {row.url}
                   </span>
                 </div>
               ),
             }}
             >
-              <div class="text-xs max-w-[300px] break-all">
+              <div class="text-xs max-w-[260px] break-all">
                 {row.url}
               </div>
             </NTooltip>
-          ), { width: 'auto', class: (row, rowIndex) => rowIndex % 2 === 0 ? 'bg-white' : 'bg-yellow-100 py-1 rounded text-yellow-800' }],
+          ), { width: 'auto', class: (row, rowIndex) => rowIndex % 2 === 0 ? 'bg-white' : 'bg-yellow-100   rounded text-yellow-800' }],
           ['STATUS', 'status', { width: '60px' }],
-          ['MOCK', 'mock', { width: '60px' }],
-          ['ACTIONS', row => (
-            <div class="flex gap-x-4 items-center w-[60px]">
-              <Button2
-                level="text"
-                width="fit"
-                class="h-8 text-[#4C5578] text-sm font-bold uppercase"
-                onClick={() => {
-                  formData.value = {
-                    url: row.url,
-                    type: row.type,
-                    payload: row.payload,
-                    delay: row.delay,
-                    response: row.response,
-                    id: row.id,
-                    status: row.status,
-                    mock: row.mock,
-                    active: true,
-                    comments: '',
-                  }
-                  router.push(`/log`)
-                }}
-              >
-                edit
-              </Button2>
+          // ['ACTIONS', row => (
+          //   <div class="flex gap-x-4 items-center w-[60px]">
+          //     <Button2
+          //       level="text"
+          //       width="fit"
+          //       class="h-8 text-[#4C5578] text-sm font-bold uppercase"
+          //       onClick={() => {
+          //         formData.value = {
+          //           url: row.url,
+          //           type: row.type,
+          //           payload: row.payload,
+          //           delay: row.delay,
+          //           response: row.response,
+          //           id: row.id,
+          //           status: row.status,
+          //           mock: row.mock,
+          //           active: true,
+          //           comments: '',
+          //         }
+          //         router.push(`/log`)
+          //       }}
+          //     >
+          //       edit
+          //     </Button2>
 
-            </div>
-          ), { class: 'sticky right-0 bg-white border-l border-[#eee]' }],
+          //   </div>
+          // ), { class: 'sticky right-0 bg-white border-l border-[#eee]' }],
         ]}
         list={filteredList.value || []}
       />
