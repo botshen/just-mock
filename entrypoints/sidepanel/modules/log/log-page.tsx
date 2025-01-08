@@ -117,7 +117,7 @@ export const LogPage = createComponent(null, () => {
                 {row.url}
               </div>
             </NTooltip>
-          ), { width: 'auto', class: (row, rowIndex) => rowIndex % 2 === 0 ? 'bg-white' : 'bg-yellow-100   rounded text-yellow-800' }],
+          ), { width: 'auto', class: row => row.mock === 'real' ? 'bg-white' : 'bg-yellow-100 rounded text-yellow-800' }],
           ['STATUS', 'status', { width: '60px' }],
           // ['ACTIONS', row => (
           //   <div class="flex gap-x-4 items-center w-[60px]">
