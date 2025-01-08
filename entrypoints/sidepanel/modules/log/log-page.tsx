@@ -80,7 +80,7 @@ export const LogPage = createComponent(null, () => {
         />
       </Form>
       <Table
-        cellClass="flex items-center px-2  py-0 border-b border-[#eee] text-sm  "
+        cellClass="flex items-center px-2  py-2 border-b border-[#eee] text-sm  "
         headCellClass="bg-[#f6f6f6] border-b border-[#eee] text-xs "
         store={tableStore}
         actionsClass="flex gap-4"
@@ -106,14 +106,14 @@ export const LogPage = createComponent(null, () => {
                     router.push(`/log`)
                   }}
                 >
-                  <span class="truncate block max-w-[260px]">
+                  <span class="truncate block min-w-[260px] max-w-[400px]">
                     {row.url}
                   </span>
                 </div>
               ),
             }}
             >
-              <div class="text-xs max-w-[260px] break-all">
+              <div class="text-xs min-w-[260px] break-all max-w-[400px]">
                 {row.url}
               </div>
             </NTooltip>
