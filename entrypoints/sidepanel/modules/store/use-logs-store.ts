@@ -1,3 +1,5 @@
+import { debounce } from 'lodash-es'
+import { computed } from 'vue'
 import { storage } from 'wxt/storage'
 
 // 定义 ruleList 存储项
@@ -34,11 +36,27 @@ const formData = ref<LogRule>({
 })
 const filter = ref('')
 
+const filteredList = computed(() => {
+  const searchText = filter.value.toLowerCase().trim()
+  if (!searchText)
+    return list.value
+
+  return list.value.filter(item =>
+    item.url.toLowerCase().includes(searchText),
+  )
+})
+
+const debouncedFilter = debounce((value: string) => {
+  filter.value = value
+}, 300)
+
 export function useLogsStore() {
   return {
     list,
     formData,
     ruleListStorage,
     filter,
+    filteredList,
+    debouncedFilter,
   }
 }

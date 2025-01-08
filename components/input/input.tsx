@@ -12,6 +12,7 @@ interface Options {
     class?: ClassName
     id?: string
     disabled?: boolean
+    clearable?: boolean
   }
   emits: {
     'update:modelValue': (val: string) => void
@@ -32,6 +33,7 @@ export const Input = createComponent<Options>({
     placeholder: '',
     id: '',
     disabled: false,
+    clearable: false,
   },
 
   emits: {
@@ -54,6 +56,14 @@ export const Input = createComponent<Options>({
         onFocus={e => (e.target as HTMLElement).parentElement?.classList.add('focused')}
         onBlur={e => (e.target as HTMLElement).parentElement?.classList.remove('focused')}
       />
+      {props.clearable && props.modelValue && (
+        <div
+          class="px-2 cursor-pointer"
+          onClick={() => emit('update:modelValue', '')}
+        >
+          ❎
+        </div>
+      )}
       {slots.suffix?.()}
     </div>
   )

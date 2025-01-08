@@ -4,7 +4,7 @@ import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
-import { FilterOutline, RemoveOutline, SearchOutline } from '@vicons/ionicons5'
+import { FilterOutline, RemoveOutline } from '@vicons/ionicons5'
 import { NFloatButton, NIcon } from 'naive-ui'
 import { nanoid } from 'nanoid'
 import { onMounted, onUnmounted } from 'vue'
@@ -12,7 +12,7 @@ import { useRouter } from 'vue-router'
 
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
-  const { list, filter } = useLogsStore()
+  const { list, filter, debouncedFilter, filteredList } = useLogsStore()
   onMounted(() => {
     const messageHandler = async (event: any) => {
       console.log('event    =====', event)
@@ -68,17 +68,15 @@ export const LogPage = createComponent(null, () => {
         <FormItem
           formItemClass="mb-2"
           type="text"
-          placeholder="Filter"
+          placeholder="Filter URL"
           class="w-[256px] h-8 "
           prefix={() => (
             <NIcon>
               <FilterOutline />
             </NIcon>
           )}
-          v-model={filter.value}
-          onUpdate:modelValue={() => {
-            console.log('filter', filter.value)
-          }}
+          modelValue={filter.value}
+          onUpdate:modelValue={e => debouncedFilter(e)}
         />
       </Form>
       <Table
@@ -124,7 +122,7 @@ export const LogPage = createComponent(null, () => {
             </div>
           ), { class: 'sticky right-0 bg-white border-l border-[#eee]' }],
         ]}
-        list={list.value || []}
+        list={filteredList.value || []}
       />
       <NFloatButton
         position="fixed"

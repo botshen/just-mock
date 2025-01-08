@@ -147,6 +147,8 @@ export const FormItem = createComponent<{ props: FormItemProps, emits: Emits, sl
             v-slots={{
               prefix: props.prefix,
             }}
+            clearable={true}
+
           />
         )
       case 'password':
