@@ -229,7 +229,11 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
         <MergeClass tag="x-multi-select" baseClass="block rounded h-8] relative text-sm">
           <label
             ref={labelWrapper}
-            class={mc('flex flex-nowrap border border-line-1 rounded bg-white relative z-up group', visible.value ? 'max-h-[80px] h-auto' : 'h-full', popoverVisible.value ? 'border-[#4e5575] border-1' : 'border-[#ccc]', props.class)}
+            class={mc('flex flex-nowrap border border-line-1 rounded bg-white relative z-up group', visible.value
+              ? 'max-h-[80px] h-auto'
+              : 'h-full', popoverVisible.value
+              ? 'border-[#ccc]'
+              : 'border-[#ccc]', props.class)}
             for={uniqueId}
             onClick={() => { popoverVisible.value = true }}
           >
@@ -245,9 +249,7 @@ export function CreateFormMultiSelect<D extends SimpleValue>() {
                       {(!disabled && props.maxlength && props.maxlength > 1) && (
                         <x-remove class="size-[14px] relative" onClick={(e: Event) => { e.stopPropagation(); onRemoveItem(value) }}>
                           <span class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            {' '}
                             {icons.value.removeItem}
-                            {' '}
                           </span>
                         </x-remove>
                       )}

@@ -1,4 +1,3 @@
-import type { LogRule } from '../store/use-logs-store'
 import { Button2 } from '@/components/button/button'
 import { Form, FormItem } from '@/components/form/form'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
@@ -8,6 +7,7 @@ import { NSwitch } from 'naive-ui'
 import { nanoid } from 'nanoid'
 import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
+import type { LogRule } from '../store/use-logs-store'
 import './json.css'
 
 export const LogDetail = createComponent(null, () => {
@@ -181,6 +181,7 @@ export const LogDetail = createComponent(null, () => {
             search
             v-model={formData.value.type}
             options={methodOptions.value}
+            onClear={() => formData.value.type = ''}
           />
           <FormItem
             formItemClass="mb-4"
@@ -191,6 +192,7 @@ export const LogDetail = createComponent(null, () => {
             search
             v-model={formData.value.status}
             options={codeOptions.value}
+            onClear={() => formData.value.status = ''}
           />
         </div>
         <div class="grid grid-cols-2 gap-4">
