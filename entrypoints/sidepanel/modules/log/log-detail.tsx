@@ -1,23 +1,20 @@
+import type { LogRule } from '../store/use-logs-store'
 import { Button2 } from '@/components/button/button'
 import { Form, FormItem } from '@/components/form/form'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
 import { tryParseJson } from '@/share/inject-help'
+import { getTodosRepo } from '@/utils/service'
 import { NSwitch } from 'naive-ui'
 import { nanoid } from 'nanoid'
 import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
-import type { LogRule } from '../store/use-logs-store'
 import './json.css'
 
 export const LogDetail = createComponent(null, () => {
-  const { formData, ruleListStorage } = useLogsStore()
+  const { formData } = useLogsStore()
   const router = useRouter()
   const onSubmit = async () => {
-    const ruleList = await ruleListStorage.getValue()
-    console.log('ruleList', ruleList)
-    let newRuleList: LogRule[] = []
-
     const newRule: LogRule = {
       id: formData.value.id || nanoid(),
       url: formData.value.url,
@@ -29,26 +26,8 @@ export const LogDetail = createComponent(null, () => {
       response: formData.value.response,
       comments: formData.value.comments,
     }
-    console.log('newRule', newRule)
-    console.log('ruleList', ruleList)
-    if (ruleList.length === 0) {
-      newRuleList = [newRule]
-    }
-    else {
-      const existingRuleIndex = ruleList.findIndex(rule => rule.url === newRule.url)
-
-      if (existingRuleIndex !== -1) {
-        newRuleList = [...ruleList]
-        newRuleList[existingRuleIndex] = newRule
-      }
-      else {
-        newRuleList = [...ruleList, newRule]
-      }
-    }
-
-    await ruleListStorage.setValue(newRuleList)
-    const _ruleList = await ruleListStorage.getValue()
-    console.log('_ruleList', _ruleList)
+    const todosRepo = getTodosRepo()
+    await todosRepo.create(newRule)
     router.back()
   }
 

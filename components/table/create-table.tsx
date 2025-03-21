@@ -74,7 +74,7 @@ export function CreateTable<D extends { id: string }>() {
     const finalHeadCellClass = computed(() => mc('h-8 font-bold text-xs text-[#999] whitespace-nowrap max-w-full', props.cellClass, props.headCellClass))
     const finalCellClass = computed(() => mc('flex items-center py-2 max-w-full', props.cellClass))
     return () => (
-      <MergeClass baseClass="block overflow-x-auto max-w-full break-all relative space-y-4">
+      <MergeClass baseClass="block overflow-x-auto max-w-full break-all relative space-y-4 h-full">
         {(props.leftActions || props.rightActions || props.multiSelect) && (
           <MergeClass tag="x-table-actions" baseClass="flex" class={props.actionsClass}>
             {props.leftActions?.()}
@@ -104,7 +104,7 @@ export function CreateTable<D extends { id: string }>() {
             {props.rightActions?.()}
           </MergeClass>
         )}
-        <div class="relative min-h-[200px]">
+        <div class="relative min-h-[200px] h-full">
           {
             props.list?.[0]
               ? (
