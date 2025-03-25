@@ -147,8 +147,7 @@ export const LogPage = createComponent(null, () => {
                 }
                 return url
               }
-
-              return (
+               return (
                 <div
                   class="flex items-center cursor-pointer"
                   onClick={() => {

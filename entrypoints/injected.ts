@@ -25,12 +25,6 @@ async function mockCore(url: string, method: string) {
      }
   }
 }
-  function sendMsg(data: any, name: string) {
-  const result = data
-  const detail = parse(stringify(result))
-  const event = new CustomEvent(name, { detail })
-  window.dispatchEvent(event)
-}
 
 function handMockResult({
   res,
@@ -47,8 +41,19 @@ function handMockResult({
     headers: res?.headers,
     response: res?.response || '',
   }
+  const payload = {
+    request,
+    response: {
+      status: result.status,
+      headers: result.headers,
+      url: config.url,
+      responseTxt: result.response,
+      isMock: true,
+      rulePath: request.path,
+    },
+  }
 
-  return { result }
+  return { result, payload }
 }
 
 export default defineUnlistedScript(() => {
@@ -74,7 +79,11 @@ export default defineUnlistedScript(() => {
       }
       try {
         const res = await mockCore(url.href, config.method)
-         const { result } = handMockResult({ res, request, config })
+         const { result, payload } = handMockResult({ res, request, config })
+           websiteMessenger.sendMessage('mock-rules-message', {
+            ...payload,
+            isMock: true,
+          })
 
         handler.resolve(result)
       }
@@ -122,7 +131,10 @@ export default defineUnlistedScript(() => {
           rulePath: '',
         },
       }
-       websiteMessenger.sendMessage('mock-rules-message', payload)
+        websiteMessenger.sendMessage('mock-rules-message', {
+        ...payload,
+        isMock: false,
+       })
 
       handler.resolve(response)
     }

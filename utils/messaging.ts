@@ -14,6 +14,6 @@ export async function safeSendToSidePanel(data: any): Promise<void> {
      await sendMessage('sendToSidePanel', data)
   }
  catch (error) {
-    console.log('Failed to send message to side panel:', error)
+    // console.log('Failed to send message to side panel:', error)
   }
 }

@@ -4,6 +4,7 @@ import {
  } from '@/share/inject-help'
 import { onMessage, safeSendToSidePanel } from '@/utils/messaging'
 import { getTodosRepo } from '@/utils/service'
+import { websiteMessenger } from '@/utils/website-messenging'
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -17,7 +18,7 @@ export default defineContentScript({
       sendMockRulesToInjectedScript(message.data)
     })
     websiteMessenger.onMessage('mock-rules-message', (message: any) => {
-       safeSendToSidePanel(message.data)
+        safeSendToSidePanel(message.data)
     })
   },
 })
