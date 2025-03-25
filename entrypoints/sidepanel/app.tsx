@@ -50,7 +50,7 @@ export const App = createComponent(null, () => {
           )
         })
       }
-      <Sidebar class=" " />
+      <Sidebar />
     </div>
   )
 })

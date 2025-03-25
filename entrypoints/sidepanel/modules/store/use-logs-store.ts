@@ -35,15 +35,28 @@ const formData = ref<LogRule>({
   active: true,
 })
 const filter = ref('')
-
+const isCurrentDomain = ref(true)
+const currentTabUrl = ref('')
+const currentDomain = ref('')
 const filteredList = computed(() => {
   const searchText = filter.value.toLowerCase().trim()
-  if (!searchText)
-    return list.value
+  let filtered = list.value
 
-  return list.value.filter(item =>
-    item.url.toLowerCase().includes(searchText),
-  )
+  // 如果启用了当前域名过滤
+  if (isCurrentDomain.value && currentDomain.value) {
+    filtered = filtered.filter(item =>
+      item.url.toLowerCase().includes(currentDomain.value.toLowerCase()),
+    )
+  }
+
+  // 应用搜索文本过滤
+  if (searchText) {
+    filtered = filtered.filter(item =>
+      item.url.toLowerCase().includes(searchText),
+    )
+  }
+
+  return filtered
 })
 
 const debouncedFilter = debounce((value: string) => {
@@ -58,5 +71,8 @@ export function useLogsStore() {
     filter,
     filteredList,
     debouncedFilter,
+    isCurrentDomain,
+    currentTabUrl,
+    currentDomain,
   }
 }

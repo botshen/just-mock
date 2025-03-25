@@ -17,6 +17,7 @@ export const ProjectsPage = createComponent(null, () => {
     payload: string
     delay: string
     response: string
+    active: boolean
   }>()
   const tableStore = useTableStore('projects')
   const { ruleList, onDelete } = useProjectStore()
@@ -37,7 +38,7 @@ export const ProjectsPage = createComponent(null, () => {
           [
             'URL',
             row => (
-              <span class="truncate block min-w-[260px] max-w-[400px]">
+              <span>
                 {row.url}
               </span>
             ),
