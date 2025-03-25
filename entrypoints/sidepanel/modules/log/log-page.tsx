@@ -4,10 +4,10 @@ import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
-import { FilterOutline, RemoveOutline } from '@vicons/ionicons5'
+ import { FilterOutline, RemoveOutline } from '@vicons/ionicons5'
 import { NFloatButton, NIcon, NTooltip } from 'naive-ui'
 import { nanoid } from 'nanoid'
-import { onMounted, onUnmounted } from 'vue'
+ import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 export const LogPage = createComponent(null, () => {
@@ -15,20 +15,19 @@ export const LogPage = createComponent(null, () => {
   const { list, filter, debouncedFilter, filteredList } = useLogsStore()
   onMounted(() => {
     const messageHandler = async (event: any) => {
-      console.log('event    =====', event)
-      if (event.type === 'response') {
+       if (event.type === 'response') {
         if (!Array.isArray(list.value)) {
           list.value = []
         }
         list.value.unshift({
           id: nanoid(),
-          url: event.url,
-          status: event.status,
-          mock: event.isMock ? 'mock' : 'real',
-          type: event.method,
-          payload: event.body,
-          delay: event.delay,
-          response: event.response,
+          url: event.data.request.url,
+          status: event.data.response.status,
+          mock: event.data.isMock ? 'mock' : 'real',
+          type: event.data.request.method,
+          payload: event.data.request.body,
+          delay: event.data.response?.delay ?? 0,
+          response: event.data.response?.responseTxt,
           active: true,
         })
       }
@@ -103,7 +102,7 @@ export const LogPage = createComponent(null, () => {
                       active: true,
                       comments: '',
                     }
-                    router.push(`/log`)
+                    router.push('/log')
                   }}
                 >
                   <span class="truncate block min-w-[260px] max-w-[400px]">

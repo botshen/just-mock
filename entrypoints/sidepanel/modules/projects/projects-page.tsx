@@ -1,9 +1,11 @@
- import type { LogRule } from '../store/use-logs-store'
 import { Button2 } from '@/components/button/button'
 import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
+import { router } from '@/router/router'
 import { createComponent } from '@/share/create-component'
 import { getTodosRepo } from '@/utils/service'
+import { useLogsStore } from '../store/use-logs-store'
+import { useProjectStore } from './use-project-store'
 
 export const ProjectsPage = createComponent(null, () => {
   const Table = CreateTable<{
@@ -17,46 +19,79 @@ export const ProjectsPage = createComponent(null, () => {
     response: string
   }>()
   const tableStore = useTableStore('projects')
-  const ruleList = ref<LogRule[]>([])
+  const { ruleList, onDelete } = useProjectStore()
+  const { formData } = useLogsStore()
   onMounted(async () => {
-    console.log('ProjectsPage mounted')
-    const todosRepo = getTodosRepo()
-    ruleList.value = await todosRepo.getAll()
-    console.log('ruleList', ruleList.value)
+     const todosRepo = getTodosRepo()
+    const all = await todosRepo.getAll()
+    console.log('all', all)
+     ruleList.value = all
   })
   return () => (
     <div class="h-full">
-     <Table
-       cellClass="flex items-center px-2  py-2 border-b border-[#eee] text-sm h-full "
-       headCellClass="bg-[#f6f6f6] border-b border-[#eee] text-xs "
-       store={tableStore}
-       actionsClass="flex gap-4"
-       columns={[
-          ['URL', row => (
-
+       <Table
+         cellClass="flex items-center px-2 py-2  border-b border-[#eee] text-sm h-full "
+         headCellClass="bg-[#f6f6f6] border-b border-[#eee] text-xs "
+         store={tableStore}
+         actionsClass="flex gap-4"
+         columns={[
+          [
+            'URL',
+            row => (
               <span class="truncate block min-w-[260px] max-w-[400px]">
                 {row.url}
               </span>
-
-          ), { width: 'auto', class: row => row.mock === 'real' ? 'bg-white' : 'bg-yellow-100 rounded text-yellow-800' }],
-           ['ACTIONS', row => (
-            <div class="flex gap-x-4 items-center w-[60px]">
-              <Button2
-                level="text"
-                width="fit"
-                class="h-8 text-[#4C5578] text-sm font-bold uppercase"
-                onClick={() => {
-                  console.log('delete', row)
-                }}
-              >
-                delete
-              </Button2>
-
-            </div>
-          ), { class: 'sticky right-0 bg-white border-l border-[#eee]' }],
+            ),
+            {
+              width: 'auto',
+              class: row =>
+                row.mock === 'real'
+                  ? 'bg-white'
+                  : 'bg-yellow-100 rounded text-yellow-800',
+            },
+          ],
+          [
+            'ACTIONS',
+            row => (
+              <div class="flex gap-x-4 items-center ">
+                <Button2
+                  level="text"
+                  width="fit"
+                  class="  text-[#4C5578] text-sm font-bold uppercase"
+                  onClick={() => {
+                    formData.value = {
+                      url: row.url,
+                      type: row.type,
+                      payload: row.payload,
+                      delay: row.delay,
+                      response: row.response,
+                      id: row.id,
+                      status: row.status,
+                      mock: row.mock,
+                      active: row.active,
+                      comments: '',
+                    }
+                    router.push('/log')
+                  }}
+                >
+                  edit
+                </Button2>
+                <Button2
+                  level="text"
+                  width="fit"
+                  class="  text-[#4C5578] text-sm font-bold uppercase"
+                  onClick={() => onDelete(row.id)}
+                >
+                  delete
+                </Button2>
+              </div>
+            ),
+            { class: 'sticky right-0 bg-white border-l border-[#eee]' },
+          ],
         ]}
-       list={ruleList.value || []}
-     />
+         list={ruleList.value || []}
+       />
+
     </div>
   )
 })

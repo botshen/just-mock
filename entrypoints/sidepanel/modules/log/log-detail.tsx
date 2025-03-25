@@ -4,8 +4,8 @@ import { Form, FormItem } from '@/components/form/form'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
 import { tryParseJson } from '@/share/inject-help'
+import { sendMessage } from '@/utils/messaging'
 import { getTodosRepo } from '@/utils/service'
-import { NSwitch } from 'naive-ui'
 import { nanoid } from 'nanoid'
 import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
@@ -14,29 +14,14 @@ import './json.css'
 export const LogDetail = createComponent(null, () => {
   const { formData } = useLogsStore()
   const router = useRouter()
-  const onSubmit = async () => {
-    const newRule: LogRule = {
-      id: formData.value.id || nanoid(),
-      url: formData.value.url,
-      status: formData.value.status,
-      mock: formData.value.mock || 'mock',
-      payload: '',
-      type: formData.value.type,
-      delay: formData.value.delay,
-      response: formData.value.response,
-      comments: formData.value.comments,
-    }
-    const todosRepo = getTodosRepo()
-    await todosRepo.create(newRule)
-    router.back()
-  }
-
   const jsonEditorContainer = ref<HTMLDivElement>()
   const payloadEditorContainer = ref<HTMLDivElement>()
   const editor = ref<any>(null)
+  const responseEditor = ref<any>(null)
+
   onMounted(() => {
     if (jsonEditorContainer.value) {
-      editor.value = createJSONEditor({
+      responseEditor.value = createJSONEditor({
         target: jsonEditorContainer.value,
         props: {
           mode: 'text',
@@ -46,9 +31,18 @@ export const LogDetail = createComponent(null, () => {
             json: formData.value.response ? tryParseJson(formData.value.response, {}) : {},
             text: undefined,
           },
+          onChange: (updatedContent: any) => {
+            if (updatedContent.json) {
+              formData.value.response = JSON.stringify(updatedContent.json)
+            }
+ else if (updatedContent.text) {
+              formData.value.response = updatedContent.text
+            }
+          },
         },
       })
     }
+
     if (payloadEditorContainer.value) {
       editor.value = createJSONEditor({
         target: payloadEditorContainer.value,
@@ -69,7 +63,42 @@ export const LogDetail = createComponent(null, () => {
     if (editor.value) {
       editor.value.destroy()
     }
+    if (responseEditor.value) {
+      responseEditor.value.destroy()
+    }
   })
+
+  const onSubmit = async () => {
+    console.log('formData.value', formData.value)
+     if (responseEditor.value) {
+      const content = responseEditor.value.get()
+      if (content.json) {
+        formData.value.response = JSON.stringify(content.json)
+      }
+ else if (content.text) {
+        formData.value.response = content.text
+      }
+    }
+
+    const newRule: LogRule = {
+      id: formData.value.id || nanoid(),
+      url: formData.value.url,
+      status: formData.value.status,
+      mock: formData.value.mock || 'mock',
+      payload: '',
+      type: formData.value.type,
+      delay: formData.value.delay,
+      response: formData.value.response,
+      comments: formData.value.comments,
+      active: formData.value.active,
+    }
+    console.log('newRule', newRule)
+     const todosRepo = getTodosRepo()
+    await todosRepo.update(newRule)
+
+    sendMessage('sendMockRules', undefined)
+     router.back()
+  }
 
   const codeOptions = ref([{
     label: '200 OK',
@@ -117,17 +146,23 @@ export const LogDetail = createComponent(null, () => {
   }])
 
   return () => (
-    <div class="p-8   bg-white">
+    <div class="p-8 bg-white">
 
       <Form class="space-y-2" onSubmit={onSubmit}>
 
         <div class="flex justify-between items-center  ">
-          <NSwitch
-            class=" "
-            value={formData.value.active}
-            onUpdateValue={v => formData.value.active = v}
-            size="small"
+          <input
+            type="checkbox"
+            class="toggle"
+            checked={formData.value.active}
+            onChange={(e) => {
+              console.log('111', 111)
+              if (e && e.target && 'checked' in e.target) {
+                formData.value.active = (e.target as HTMLInputElement).checked
+              }
+            }}
           />
+
           <div class="flex gap-2">
             <Button2
               width="fit"

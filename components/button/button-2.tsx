@@ -23,7 +23,7 @@ const buttonStyles = cva(
         full: 'w-full',
       },
       disabled: {
-        true: 'cursor-not-allowed !bg-[#ccc] !text-[#999] !border-[#ccc]',
+        true: 'cursor-not-allowed  !text-[#999] !border-[#ccc]',
         false: '',
       },
     },

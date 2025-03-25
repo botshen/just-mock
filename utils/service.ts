@@ -11,7 +11,7 @@ function createTodosRepo(idbPromise: Promise<IDBPDatabase>) {
     async create(todo: Omit<LogRule, 'id'>): Promise<void> {
       await idb.add('todos', todo)
     },
-    getOne(id: number | string): Promise<LogRule> {
+    getOne(id: string): Promise<LogRule> {
       return idb.get('todos', id)
     },
     getAll(): Promise<LogRule[]> {
@@ -20,7 +20,7 @@ function createTodosRepo(idbPromise: Promise<IDBPDatabase>) {
     async update(todo: LogRule): Promise<void> {
       await idb.put('todos', todo)
     },
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
       await idb.delete('todos', id)
     },
     async clear(): Promise<void> {
