@@ -4,48 +4,30 @@ import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
- import { FilterOutline, RemoveOutline } from '@vicons/ionicons5'
+import { onMessage } from '@/utils/messaging'
+import { FilterOutline, RemoveOutline } from '@vicons/ionicons5'
 import { NFloatButton, NIcon, NTooltip } from 'naive-ui'
 import { nanoid } from 'nanoid'
- import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
   const { list, filter, debouncedFilter, filteredList } = useLogsStore()
-  onMounted(() => {
-    const messageHandler = async (event: any) => {
-       if (event.type === 'response') {
-        if (!Array.isArray(list.value)) {
-          list.value = []
-        }
-        list.value.unshift({
-          id: nanoid(),
-          url: event.data.request.url,
-          status: event.data.response.status,
-          mock: event.data.isMock ? 'mock' : 'real',
-          type: event.data.request.method,
-          payload: event.data.request.body,
-          delay: event.data.response?.delay ?? 0,
-          response: event.data.response?.responseTxt,
-          active: true,
-        })
-      }
-    }
 
+  onMounted(() => {
     const sidebarHandler = (message: any) => {
       if (message.type === 'close-sidebar') {
         window.close()
       }
     }
 
-    browser.runtime.onMessage.addListener(messageHandler)
     browser.runtime.onMessage.addListener(sidebarHandler)
 
     onUnmounted(() => {
-      browser.runtime.onMessage.removeListener(messageHandler)
       browser.runtime.onMessage.removeListener(sidebarHandler)
-    })
+      // 确保移除 sendToSidePanel 的监听器
+     })
   })
 
   const Table = CreateTable<{
@@ -117,34 +99,7 @@ export const LogPage = createComponent(null, () => {
               </div>
             </NTooltip>
           ), { width: 'auto', class: row => row.mock === 'real' ? 'bg-white' : 'bg-yellow-100 rounded text-yellow-800' }],
-          ['STATUS', 'status', { width: '60px' }],
-          // ['ACTIONS', row => (
-          //   <div class="flex gap-x-4 items-center w-[60px]">
-          //     <Button2
-          //       level="text"
-          //       width="fit"
-          //       class="h-8 text-[#4C5578] text-sm font-bold uppercase"
-          //       onClick={() => {
-          //         formData.value = {
-          //           url: row.url,
-          //           type: row.type,
-          //           payload: row.payload,
-          //           delay: row.delay,
-          //           response: row.response,
-          //           id: row.id,
-          //           status: row.status,
-          //           mock: row.mock,
-          //           active: true,
-          //           comments: '',
-          //         }
-          //         router.push(`/log`)
-          //       }}
-          //     >
-          //       edit
-          //     </Button2>
 
-          //   </div>
-          // ), { class: 'sticky right-0 bg-white border-l border-[#eee]' }],
         ]}
         list={filteredList.value || []}
       />

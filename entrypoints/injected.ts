@@ -1,7 +1,7 @@
 import {
   getMockRules,
 } from '@/share/inject-help'
-import { proxy } from 'ajax-hook'
+ import { proxy } from 'ajax-hook'
 import { parse, stringify } from 'flatted'
 import Url from 'url-parse'
 
@@ -25,14 +25,10 @@ async function mockCore(url: string, method: string) {
      }
   }
 }
-
-function sendMsg(msg: any, isMock = false) {
-  const result = {
-    ...msg,
-    isMock,
-  }
+  function sendMsg(data: any, name: string) {
+  const result = data
   const detail = parse(stringify(result))
-  const event = new CustomEvent('xxxxx', { detail })
+  const event = new CustomEvent(name, { detail })
   window.dispatchEvent(event)
 }
 
@@ -126,7 +122,8 @@ export default defineUnlistedScript(() => {
           rulePath: '',
         },
       }
-      sendMsg(payload)
+       websiteMessenger.sendMessage('mock-rules-message', payload)
+
       handler.resolve(response)
     }
     },

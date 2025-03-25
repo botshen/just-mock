@@ -1,9 +1,8 @@
 import {
   injectScriptToPage,
   sendMockRulesToInjectedScript,
-  setMockRules,
-} from '@/share/inject-help'
-import { onMessage } from '@/utils/messaging'
+ } from '@/share/inject-help'
+import { onMessage, safeSendToSidePanel } from '@/utils/messaging'
 import { getTodosRepo } from '@/utils/service'
 
 export default defineContentScript({
@@ -16,6 +15,9 @@ export default defineContentScript({
     sendMockRulesToInjectedScript(allTodos)
     onMessage('sendToContentScript', (message) => {
       sendMockRulesToInjectedScript(message.data)
+    })
+    websiteMessenger.onMessage('mock-rules-message', (message: any) => {
+       safeSendToSidePanel(message.data)
     })
   },
 })

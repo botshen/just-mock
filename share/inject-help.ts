@@ -1,3 +1,5 @@
+import { websiteMessenger } from '@/utils/website-messenging'
+
 export function injectScriptToPage(): Promise<void> {
   return new Promise((resolve) => {
     try {
@@ -15,7 +17,7 @@ export function injectScriptToPage(): Promise<void> {
       script.onload = function () {
         // 脚本加载完成，但不一定执行完毕
         // 实际的准备就绪信号将由 injected-script-ready 事件提供
-        script.remove()
+         script.remove()
       }
 
       document.documentElement.appendChild(script)
