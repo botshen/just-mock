@@ -38,29 +38,12 @@ export default defineConfig({
     version: '0.0.1',
     permissions: [
       'sidePanel',
-      'storage',
-    ],
+     ],
     web_accessible_resources: [
       {
         resources: ['/injected.js'],
         matches: ['<all_urls>'],
       },
     ],
-    commands: {
-      'toggle-sidebar': {
-        suggested_key: {
-          default: 'Ctrl+Shift+S',
-          mac: 'Command+Shift+S',
-        },
-        description: 'Toggle sidebar',
-      },
-      'close-sidebar': {
-        suggested_key: {
-          default: 'Ctrl+Shift+W',
-          mac: 'Command+Shift+W',
-        },
-        description: 'Close sidebar',
-      },
-    },
   },
 })

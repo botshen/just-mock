@@ -19,17 +19,6 @@ export default defineBackground(() => {
     browser.sidePanel.open({ windowId: tab.windowId })
   })
 
-  browser.commands.onCommand.addListener((command) => {
-    if (command === 'toggle-sidebar') {
-      browser.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-        browser.sidePanel.open({ tabId: tab.id! })
-      })
-    }
-    if (command === 'close-sidebar') {
-      browser.runtime.sendMessage({ type: 'close-sidebar' })
-    }
-  })
-
   onMessage('sendMockRules', async (data) => {
      const todo = getTodosRepo()
     const allTodos = await todo.getAll()

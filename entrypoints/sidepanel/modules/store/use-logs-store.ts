@@ -1,15 +1,9 @@
 import { debounce } from 'lodash-es'
 import { computed } from 'vue'
-import { storage } from 'wxt/storage'
-
-// 定义 ruleList 存储项
-export const ruleListStorage = storage.defineItem<LogRule[]>('local:ruleList', {
-  fallback: [], // 设置默认值为空数组
-})
 
 // 定义类型
 export interface LogRule {
-  id?: string
+  id: string
   url: string
   status: string
   mock: string
@@ -18,7 +12,7 @@ export interface LogRule {
   delay: string
   response: string
   comments?: string
-  active?: boolean
+  active: boolean
 }
 
 const list = ref<LogRule[]>([])
@@ -67,8 +61,7 @@ export function useLogsStore() {
   return {
     list,
     formData,
-    ruleListStorage,
-    filter,
+     filter,
     filteredList,
     debouncedFilter,
     isCurrentDomain,
