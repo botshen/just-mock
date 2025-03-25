@@ -69,8 +69,7 @@ export const LogDetail = createComponent(null, () => {
   })
 
   const onSubmit = async () => {
-    console.log('formData.value', formData.value)
-     if (responseEditor.value) {
+      if (responseEditor.value) {
       const content = responseEditor.value.get()
       if (content.json) {
         formData.value.response = JSON.stringify(content.json)
@@ -92,8 +91,7 @@ export const LogDetail = createComponent(null, () => {
       comments: formData.value.comments,
       active: formData.value.active,
     }
-    console.log('newRule', newRule)
-     const todosRepo = getTodosRepo()
+      const todosRepo = getTodosRepo()
     await todosRepo.update(newRule)
 
     sendMessage('sendMockRules', undefined)
@@ -156,8 +154,7 @@ export const LogDetail = createComponent(null, () => {
             class="toggle"
             checked={formData.value.active}
             onChange={(e) => {
-              console.log('111', 111)
-              if (e && e.target && 'checked' in e.target) {
+               if (e && e.target && 'checked' in e.target) {
                 formData.value.active = (e.target as HTMLInputElement).checked
               }
             }}

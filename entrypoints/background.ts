@@ -31,11 +31,8 @@ export default defineBackground(() => {
   })
 
   onMessage('sendMockRules', async (data) => {
-    console.log('=====================================', 2222)
-    console.log('data', data)
-    const todo = getTodosRepo()
+     const todo = getTodosRepo()
     const allTodos = await todo.getAll()
-    console.log('allTodos', allTodos)
 
     // 获取所有标签页
     const tabs = await browser.tabs.query({})

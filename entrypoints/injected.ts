@@ -7,15 +7,13 @@ import Url from 'url-parse'
 
 async function mockCore(url: string, method: string) {
   const currentProject = getMockRules()
-  console.log('currentProject333', currentProject)
-  if (!currentProject) {
+   if (!currentProject) {
     throw new Error('没有匹配的规则')
   }
    const currentRule = currentProject.find((item) => {
      return url === item.url && item.active
   })
-  console.log('currentRule===', currentRule)
-  if (!currentRule?.active) {
+   if (!currentRule?.active) {
     throw new Error('没有匹配的规则')
   }
   if (currentRule) {
@@ -58,17 +56,12 @@ function handMockResult({
 }
 
 export default defineUnlistedScript(() => {
-  console.log('Injected script starting...')
-
   // 监听来自 content script 的 mock 规则
   window.addEventListener('mock-rules-message', (event: Event) => {
-    console.log('Mock rules message received in injected script,监听来自 content script 的 mock 规则')
-    const message = event as CustomEvent
-    console.log('message', message)
-    if (message.detail.type === 'setMockRules') {
+     const message = event as CustomEvent
+     if (message.detail.type === 'setMockRules') {
       window.__MOCK_RULES__ = message.detail.rules
-      console.log('Mock rules set in injected script:', window.__MOCK_RULES__)
-    }
+     }
   })
 
   proxy({
@@ -90,8 +83,7 @@ export default defineUnlistedScript(() => {
         handler.resolve(result)
       }
     catch (error) {
-      console.log('error', error)
-      handler.next(config)
+       handler.next(config)
     }
   },
     onError: async (err, handler) => {
@@ -141,6 +133,5 @@ export default defineUnlistedScript(() => {
   })
 
   // 发送就绪信号，通知 content script 注入脚本已准备好接收数据
-  console.log('Injected script is ready, dispatching ready event')
-  window.dispatchEvent(new CustomEvent('injected-script-ready'))
+   window.dispatchEvent(new CustomEvent('injected-script-ready'))
 })

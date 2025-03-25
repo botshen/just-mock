@@ -7,8 +7,7 @@ export function injectScriptToPage(): Promise<void> {
 
       // 创建一个监听器，等待注入脚本准备就绪的事件
       const readyListener = () => {
-        console.log('Injected script is ready')
-        window.removeEventListener('injected-script-ready', readyListener)
+         window.removeEventListener('injected-script-ready', readyListener)
         resolve()
       }
       window.addEventListener('injected-script-ready', readyListener)
@@ -93,8 +92,7 @@ export function sendMessageToContentScript2<T, R = any>(
 
 // 修改 sendMockRulesToInjectedScript 函数，直接发送数据而不是添加事件监听器
 export function sendMockRulesToInjectedScript(rules: any[]) {
-  console.log('Sending mock rules to injected script:', rules)
-  const event = new CustomEvent('mock-rules-message', {
+   const event = new CustomEvent('mock-rules-message', {
     detail: { type: 'setMockRules', rules },
   })
   window.dispatchEvent(event)

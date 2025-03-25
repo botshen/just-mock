@@ -24,8 +24,7 @@ export const ProjectsPage = createComponent(null, () => {
   onMounted(async () => {
      const todosRepo = getTodosRepo()
     const all = await todosRepo.getAll()
-    console.log('all', all)
-     ruleList.value = all
+      ruleList.value = all
   })
   return () => (
     <div class="h-full">
