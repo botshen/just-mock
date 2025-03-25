@@ -18,10 +18,24 @@ function createTodosRepo(idbPromise: Promise<IDBPDatabase>) {
       return idb.getAll('todos')
     },
     async update(todo: LogRule): Promise<void> {
-      await idb.put('todos', todo)
+      const { id, url, status, mock, payload, type, delay, response, comments, active } = todo
+      const updateData = {
+        id,
+        url,
+        status,
+        mock,
+        payload,
+        type,
+        delay,
+        response,
+        comments,
+        active,
+      }
+      console.log('updateData', updateData)
+      await idb.put('todos', updateData)
     },
-    async delete(id: string): Promise<void> {
-      await idb.delete('todos', id)
+    async delete(url: string): Promise<void> {
+      await idb.delete('todos', url)
     },
     async clear(): Promise<void> {
       await idb.clear('todos')

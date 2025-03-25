@@ -6,8 +6,7 @@ import { createComponent } from '@/share/create-component'
 import { tryParseJson } from '@/share/inject-help'
 import { sendMessage } from '@/utils/messaging'
 import { getTodosRepo } from '@/utils/service'
-import { nanoid } from 'nanoid'
-import { createJSONEditor } from 'vanilla-jsoneditor'
+ import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
 import './json.css'
 
@@ -80,7 +79,7 @@ export const LogDetail = createComponent(null, () => {
     }
 
     const newRule: LogRule = {
-      id: formData.value.id || nanoid(),
+      id: formData.value.url,
       url: formData.value.url,
       status: formData.value.status,
       mock: formData.value.mock || 'mock',
@@ -91,7 +90,8 @@ export const LogDetail = createComponent(null, () => {
       comments: formData.value.comments,
       active: formData.value.active,
     }
-      const todosRepo = getTodosRepo()
+    const todosRepo = getTodosRepo()
+    console.log('newRule', newRule)
     await todosRepo.update(newRule)
 
     sendMessage('sendMockRules', undefined)

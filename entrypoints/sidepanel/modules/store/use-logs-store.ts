@@ -9,7 +9,7 @@ export const ruleListStorage = storage.defineItem<LogRule[]>('local:ruleList', {
 
 // 定义类型
 export interface LogRule {
-  id: string
+  id?: string
   url: string
   status: string
   mock: string

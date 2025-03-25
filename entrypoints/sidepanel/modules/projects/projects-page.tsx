@@ -44,10 +44,7 @@ export const ProjectsPage = createComponent(null, () => {
             ),
             {
               width: 'auto',
-              class: row =>
-                row.mock === 'real'
-                  ? 'bg-white'
-                  : 'bg-yellow-100 rounded text-yellow-800',
+
             },
           ],
           [

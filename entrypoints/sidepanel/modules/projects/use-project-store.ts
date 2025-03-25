@@ -1,11 +1,14 @@
 import type { LogRule } from '../store/use-logs-store'
+import { sendMessage } from '@/utils/messaging'
+import { getTodosRepo } from '@/utils/service'
 
- const ruleList = ref<LogRule[]>([])
+const ruleList = ref<LogRule[]>([])
 
- async function onDelete(id: string) {
+async function onDelete(id: string) {
   const todosRepo = getTodosRepo()
   await todosRepo.delete(id)
   ruleList.value = await todosRepo.getAll()
+  sendMessage('sendMockRules', undefined)
 }
 
 export function useProjectStore() {
