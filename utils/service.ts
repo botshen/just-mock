@@ -31,8 +31,7 @@ function createTodosRepo(idbPromise: Promise<IDBPDatabase>) {
         comments,
         active,
       }
-      console.log('updateData', updateData)
-      await idb.put('todos', updateData)
+       await idb.put('todos', updateData)
     },
     async delete(url: string): Promise<void> {
       await idb.delete('todos', url)

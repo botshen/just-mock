@@ -4,10 +4,8 @@ import { proxy } from 'ajax-hook'
 import Url from 'url-parse'
 
 async function mockCore(url: string) {
-  console.log('url', url)
-  const currentProject = getMockRules()
-  console.log('currentProject', currentProject)
-  if (!currentProject) {
+   const currentProject = getMockRules()
+   if (!currentProject) {
     throw new Error('没有匹配的规则')
   }
   const currentRule = currentProject.find((item) => {
@@ -182,8 +180,7 @@ export default defineUnlistedScript(() => {
       async onBeforeRequest(request: Request) {
         try {
           const res = await mockCore(request.url)
-          console.log('res', res)
-          // 如果没有匹配的规则，直接返回 undefined，继续原始请求
+           // 如果没有匹配的规则，直接返回 undefined，继续原始请求
           if (!res)
             return
 
@@ -367,8 +364,6 @@ export default defineUnlistedScript(() => {
         }
       },
       onRequestFailure(error: any, request: Request) {
-        console.log('request', request)
-        console.log('error', error)
         // 处理请求失败的情况
         const response = error
         if (error instanceof Response) {
