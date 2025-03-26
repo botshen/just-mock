@@ -1,7 +1,6 @@
 import path, { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import Icons from 'unplugin-icons/vite'
 
 import { defineConfig } from 'wxt'
 
@@ -38,8 +37,8 @@ export default defineConfig({
       default_width: 800,
     },
     action: {},
-    name: 'just-mock',
-    description: 'A browser extension for mocking data in the sidebar.',
+    name: 'MockMaster: Browser API Response Simulator',
+    description: 'Effortlessly intercept and simulate browser network requests. Customize API responses, status codes, and delays to streamline frontend development without backend dependencies.',
     version: '0.0.1',
     permissions: [
       'sidePanel',
