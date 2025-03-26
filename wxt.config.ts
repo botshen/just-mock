@@ -1,6 +1,7 @@
 import path, { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import Icons from 'unplugin-icons/vite'
 
 import { defineConfig } from 'wxt'
 
@@ -13,7 +14,11 @@ const projectPath = (path: string) => join(projectRoot, path)
 
 export default defineConfig({
   extensionApi: 'chrome',
-  modules: ['@wxt-dev/module-vue'],
+  modules: [
+    '@wxt-dev/module-vue',
+    '@wxt-dev/i18n/module',
+    '@wxt-dev/auto-icons',
+  ],
   vite: () => ({
     plugins: [
       vueJsx({ transformOn: true, mergeProps: true, enableObjectSlots: true, isCustomElement, defineComponentName: ['defineComponent', 'createComponent'] }),
@@ -45,5 +50,8 @@ export default defineConfig({
         matches: ['<all_urls>'],
       },
     ],
+  },
+  autoIcons: {
+    grayscaleOnDevelopment: false,
   },
 })
