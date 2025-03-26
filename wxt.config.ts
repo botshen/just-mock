@@ -38,7 +38,7 @@ export default defineConfig({
     },
     action: {},
     name: 'MockMaster: Browser API Response Simulator',
-    description: 'Effortlessly intercept and simulate browser network requests. Customize API responses, status codes, and delays to streamline frontend development without backend dependencies.',
+    description: 'Intercept and simulate browser network requests. Customize API responses for frontend development without backend dependencies.',
     version: '0.0.1',
     permissions: [
       'sidePanel',
