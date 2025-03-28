@@ -8,7 +8,12 @@ import { createComponent } from '@/share/create-component'
 import { RouterLink, useRoute } from 'vue-router'
 
 export const Sidebar = createComponent(null, () => {
-  const linkClass = 'text-gray-600 text-center text-lg font-semibold   rounded-full p-2'
+  const linkClass = (path: string) => {
+    const baseClass = 'w-10 h-10 flex hover:bg-blue-50 items-center justify-center  text-gray-600 text-center text-lg font-semibold rounded-full p-2 mb-2'
+    return route.path === path
+      ? `${baseClass} bg-blue-50`
+      : baseClass
+  }
   const route = useRoute()
   const { t } = i18n
 
@@ -23,13 +28,13 @@ export const Sidebar = createComponent(null, () => {
 
   return () => (
     <div class="bg-white flex gap-4 w-full items-center justify-center">
-      <RouterLink to="/" class={linkClass}>
+      <RouterLink to="/" class={linkClass('/')}>
         {renderIcon('/', logoActiveUrl, logoUrl, t('interceptedApi'))}
       </RouterLink>
-      <RouterLink to="/projects" class={linkClass}>
+      <RouterLink to="/projects" class={linkClass('/projects')}>
         {renderIcon('/projects', projectActiveUrl, projectUrl, t('savedApi'))}
       </RouterLink>
-      <RouterLink to="/settings" class={linkClass}>
+      <RouterLink to="/settings" class={linkClass('/settings')}>
         {renderIcon('/settings', settingActiveUrl, settingUrl, t('settings'))}
       </RouterLink>
     </div>
