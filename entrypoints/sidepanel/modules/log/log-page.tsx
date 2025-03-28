@@ -1,21 +1,14 @@
-import { Button2 } from '@/components/button/button'
-import { Form, FormItem } from '@/components/form/form'
-import { Input } from '@/components/input/input'
 import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
-import { onMessage } from '@/utils/messaging'
-import { FilterOutline, RemoveOutline } from '@vicons/ionicons5'
-import { NFloatButton, NIcon, NTooltip } from 'naive-ui'
-import { nanoid } from 'nanoid'
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { HeaderPage } from '../header/header-page'
 
 export const LogPage = createComponent(null, () => {
   const tableStore = useTableStore('log')
-  const { list, filteredList, isCurrentDomain, currentDomain } = useLogsStore()
+  const { filteredList, isCurrentDomain, currentDomain } = useLogsStore()
 
   const Table = CreateTable<{
     id: string
@@ -107,19 +100,7 @@ export const LogPage = createComponent(null, () => {
         ]}
         list={domainFilteredList.value || []}
       />
-      <NFloatButton
-        position="fixed"
-        bottom="50px"
-        right="10px"
-        // @ts-expect-error
-        onClick={() => {
-          list.value = []
-        }}
-      >
-        <NIcon>
-          <RemoveOutline />
-        </NIcon>
-      </NFloatButton>
+
     </div>
   )
 })

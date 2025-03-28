@@ -48,7 +48,7 @@ export const ProjectsPage = createComponent(null, () => {
       ruleList.value = all
   })
   return () => (
-    <div class="h-full m-2">
+    <div class="m-2">
             <HeaderPage />
 
        <Table

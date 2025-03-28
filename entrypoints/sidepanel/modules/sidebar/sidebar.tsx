@@ -24,9 +24,9 @@ export const Sidebar = createComponent(null, () => {
       <RouterLink to="/projects" class={linkClass}>
         {renderIcon('/projects', projectActiveUrl, projectUrl, 'project')}
       </RouterLink>
-      {/* <RouterLink to="/settings" class={linkClass}>
+      <RouterLink to="/settings" class={linkClass}>
         {renderIcon('/settings', settingActiveUrl, settingUrl, 'setting')}
-      </RouterLink> */}
+      </RouterLink>
     </div>
   )
 })
