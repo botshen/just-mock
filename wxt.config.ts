@@ -38,8 +38,8 @@ export default defineConfig({
     },
     default_locale: 'en',
     action: {},
-    name: 'MockMaster: Browser API Response Simulator',
-    description: 'Intercept and simulate browser network requests. Customize API responses for frontend development without backend dependencies.',
+    name: '__MSG_name__',
+    description: '__MSG_description__',
     version: '0.0.1',
     permissions: [
       'sidePanel',

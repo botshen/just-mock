@@ -16,3 +16,9 @@ response: 返回结果
 requestHeaders: 请求头
 requestBody: 请求体
 delete: 删除
+name: Mock大师 浏览器网络模拟器
+description: 拦截和模拟浏览器网络请求。在不需要后端依赖的情况下，自定义API响应。
+totalSwitch: 总开关
+interceptSuccess: 拦截成功透传到后端
+consoleLog: 控制台打印日志
+interceptSuccessTip: 成功拦截页面提示
