@@ -1,0 +1,18 @@
+clearLog: Clear Log
+filterCurrentDomain: Filter Current Domain API
+interceptedApi: Intercepted API
+savedApi: Saved API
+settings: Settings
+filterPathPlaceholder: path keywords to filter
+back: Back
+submit: Submit
+switch: Switch
+path: Path
+method: Method
+statusCode: Status Code
+delay: Delay
+comment: Comment
+response: Response
+requestHeaders: Request Headers
+requestBody: Request Body
+delete: Delete

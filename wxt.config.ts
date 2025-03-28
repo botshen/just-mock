@@ -36,13 +36,14 @@ export default defineConfig({
       default_path: 'entrypoints/sidepanel/index.html',
       default_width: 800,
     },
+    default_locale: 'en',
     action: {},
     name: 'MockMaster: Browser API Response Simulator',
     description: 'Intercept and simulate browser network requests. Customize API responses for frontend development without backend dependencies.',
     version: '0.0.1',
     permissions: [
       'sidePanel',
-     ],
+    ],
     web_accessible_resources: [
       {
         resources: ['/injected.js'],

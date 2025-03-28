@@ -1,4 +1,4 @@
-import clearIcon from '@/assets/clear.svg'
+ import clearIcon from '@/assets/clear.svg'
 import filterIcon from '@/assets/filter.svg'
 import filterAllIcon from '@/assets/filter-all.svg'
 import { Input } from '@/components/input/input'
@@ -15,7 +15,7 @@ export const HeaderPage = createComponent(null, () => {
     currentDomain,
     list,
   } = useLogsStore()
-
+  const { t } = i18n
   // 获取当前标签页URL并提取域名
   const getCurrentTabUrl = async () => {
     try {
@@ -74,22 +74,20 @@ export const HeaderPage = createComponent(null, () => {
     <x-header class="flex items-center justify-between gap-2 mb-2">
       <Input
         class="w-full h-8 inline-flex "
-        placeholder="Filter URL"
+        placeholder={t('filterPathPlaceholder')}
         modelValue={filter.value}
         clearable
         onUpdate:modelValue={e => debouncedFilter(e)}
       />
-      <div class="tooltip tooltip-bottom" data-tip="清空日志">
+      <div class="tooltip tooltip-bottom" data-tip={t('clearLog')}>
         <span
           class="cursor-pointer text-2xl hover:opacity-70"
           onClick={() => clearLogs()}
-          title="清空日志"
         >
           <img src={clearIcon} />
         </span>
       </div>
-
-      <div class="tooltip tooltip-left flex items-center gap-2" data-tip="过滤当前域名接口">
+      <div class="tooltip tooltip-left flex items-center gap-2" data-tip={t('filterCurrentDomain')}>
       <span class=" inline-flex items-center  ">
         <label class="swap swap-flip text-2xl hover:opacity-70">
           <input

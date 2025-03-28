@@ -1,3 +1,4 @@
+import deleteUrl from '@/assets/delete.svg'
 import { Button2 } from '@/components/button/button'
 import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
@@ -41,7 +42,7 @@ export const ProjectsPage = createComponent(null, () => {
       }
     })
   })
-
+const { t } = i18n
   onMounted(async () => {
      const todosRepo = getTodosRepo()
     const all = await todosRepo.getAll()
@@ -58,7 +59,7 @@ export const ProjectsPage = createComponent(null, () => {
          actionsClass="flex gap-4"
          columns={[
           [
-            'URL',
+            () => { return t('path') },
             (row) => {
               const getDisplayUrl = (url: string) => {
                 if (isCurrentDomain.value) {
@@ -107,13 +108,8 @@ export const ProjectsPage = createComponent(null, () => {
                   class="cursor-pointer  hover:bg-gray-100 rounded"
                   onClick={() => onDelete(row.id)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4C5578" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                  </svg>
+                  <img src={deleteUrl}></img>
                 </div>
-
             ),
             { class: 'sticky right-0 bg-white border-l border-[#eee]' },
           ],

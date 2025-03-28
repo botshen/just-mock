@@ -10,8 +10,9 @@ import { RouterLink, useRoute } from 'vue-router'
 export const Sidebar = createComponent(null, () => {
   const linkClass = 'text-gray-600 text-center text-lg font-semibold   rounded-full p-2'
   const route = useRoute()
+  const { t } = i18n
 
-  const renderIcon = (path: string, activeIcon: string, defaultIcon: string, alt: string) => {
+   const renderIcon = (path: string, activeIcon: string, defaultIcon: string, alt: string) => {
     const iconUrl = route.path === path ? activeIcon : defaultIcon
     return (
 <div class="tooltip   tooltip-top" data-tip={alt}>
@@ -23,13 +24,13 @@ export const Sidebar = createComponent(null, () => {
   return () => (
     <div class="bg-white flex gap-4 w-full items-center justify-center">
       <RouterLink to="/" class={linkClass}>
-        {renderIcon('/', logoActiveUrl, logoUrl, '拦截的接口')}
+        {renderIcon('/', logoActiveUrl, logoUrl, t('interceptedApi'))}
       </RouterLink>
       <RouterLink to="/projects" class={linkClass}>
-        {renderIcon('/projects', projectActiveUrl, projectUrl, '已保存的接口')}
+        {renderIcon('/projects', projectActiveUrl, projectUrl, t('savedApi'))}
       </RouterLink>
       <RouterLink to="/settings" class={linkClass}>
-        {renderIcon('/settings', settingActiveUrl, settingUrl, '设置')}
+        {renderIcon('/settings', settingActiveUrl, settingUrl, t('settings'))}
       </RouterLink>
     </div>
   )

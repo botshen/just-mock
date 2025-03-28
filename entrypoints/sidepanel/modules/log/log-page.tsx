@@ -23,6 +23,7 @@ export const LogPage = createComponent(null, () => {
 
   const router = useRouter()
   const { formData } = useLogsStore()
+  const { t } = i18n
 
   // 根据当前域名过滤列表
   const domainFilteredList = computed(() => {
@@ -51,7 +52,7 @@ export const LogPage = createComponent(null, () => {
         actionsClass="flex gap-4"
         columns={[
           [
-            'URL',
+            () => { return t('path') },
             (row) => {
               // 处理 URL 显示
               const getDisplayUrl = (url: string) => {

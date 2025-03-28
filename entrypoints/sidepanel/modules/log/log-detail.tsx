@@ -17,7 +17,7 @@ export const LogDetail = createComponent(null, () => {
   const payloadEditorContainer = ref<HTMLDivElement>()
   const editor = ref<any>(null)
   const responseEditor = ref<any>(null)
-
+const { t } = i18n
   onMounted(() => {
     if (jsonEditorContainer.value) {
       responseEditor.value = createJSONEditor({
@@ -149,6 +149,8 @@ export const LogDetail = createComponent(null, () => {
       <Form class="space-y-2" onSubmit={onSubmit}>
 
         <div class="flex justify-between items-center  ">
+          <div class="flex items-center gap-2">
+          <label class="font-bold">{t('switch')}</label>
           <input
             type="checkbox"
             class="toggle"
@@ -159,26 +161,25 @@ export const LogDetail = createComponent(null, () => {
               }
             }}
           />
-
+          </div>
           <div class="flex gap-2">
             <Button2
               width="fit"
               type="submit"
-              class="px-8 py-2"
               onClick={() => {
                 router.back()
               }}
             >
-              BACK
+              {t('back')}
             </Button2>
-            <Button2 class="px-8 py-2" level="important" width="fit" type="submit">SUBMIT</Button2>
+            <Button2 level="important" width="fit" type="submit">{t('submit')}</Button2>
           </div>
         </div>
         <FormItem
           formItemClass="mb-4"
           type="text"
-          placeholder="Path Rule"
-          label="Path Rule"
+          placeholder={t('path')}
+          label={t('path')}
           class="w-full h-8"
           v-model={formData.value.url}
         />
@@ -186,8 +187,8 @@ export const LogDetail = createComponent(null, () => {
           <FormItem
             formItemClass="mb-4"
             type="select"
-            placeholder="Method"
-            label="Method"
+            placeholder={t('method')}
+            label={t('method')}
             class="w-full h-8"
             search
             v-model={formData.value.type}
@@ -197,8 +198,8 @@ export const LogDetail = createComponent(null, () => {
           <FormItem
             formItemClass="mb-4"
             type="select"
-            placeholder="Code"
-            label="Code"
+            placeholder={t('statusCode')}
+            label={t('statusCode')}
             class="w-full h-8"
             search
             v-model={formData.value.status}
@@ -210,16 +211,16 @@ export const LogDetail = createComponent(null, () => {
           <FormItem
             formItemClass="mb-4"
             type="text"
-            placeholder="Delay"
-            label="Delay"
+            placeholder={t('delay')}
+            label={t('delay')}
             class="w-full h-8"
             v-model={formData.value.delay}
           />
           <FormItem
             formItemClass="mb-4"
             type="text"
-            placeholder="Comments"
-            label="Comments"
+            placeholder={t('comment')}
+            label={t('comment')}
             class="w-full h-8"
             v-model={formData.value.comments}
           />
@@ -227,12 +228,12 @@ export const LogDetail = createComponent(null, () => {
         </div>
         {
           formData.value.payload && (
-            <FormItem label="Payload" class="min-h-[100px]" type="slot">
+            <FormItem label={t('requestBody')} class="min-h-[100px]" type="slot">
               <div ref={payloadEditorContainer} class="w-full !max-h-[400px] jse-theme-light"></div>
             </FormItem>
           )
         }
-        <FormItem label="Response" class="min-h-[80px]" type="slot">
+        <FormItem label={t('response')} class="min-h-[80px]" type="slot">
           <div ref={jsonEditorContainer} class="w-full !max-h-[400px] jse-theme-light"></div>
         </FormItem>
 
