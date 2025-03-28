@@ -44,7 +44,7 @@ export const LogPage = createComponent(null, () => {
 
   return () => (
     <div class="m-2">
-      <HeaderPage />
+      <HeaderPage showClearButton={true} />
       <Table
         cellClass="flex items-center px-2  py-2 border-b border-[#eee] text-sm  "
         headCellClass="bg-[#f6f6f6] border-b border-[#eee] text-xs "

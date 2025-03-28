@@ -6,7 +6,17 @@ import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-sto
 import { createComponent } from '@/share/create-component'
 import { onMounted, onUnmounted } from 'vue'
 
-export const HeaderPage = createComponent(null, () => {
+export interface Options {
+  props: {
+    showClearButton?: boolean
+  }
+}
+
+export const HeaderPage = createComponent<Options>({
+  props: {
+    showClearButton: false,
+  },
+}, (props) => {
   const {
     filter,
     debouncedFilter,
@@ -79,14 +89,18 @@ export const HeaderPage = createComponent(null, () => {
         clearable
         onUpdate:modelValue={e => debouncedFilter(e)}
       />
-      <div class="tooltip tooltip-bottom" data-tip={t('clearLog')}>
-        <span
-          class="cursor-pointer text-2xl hover:opacity-70"
-          onClick={() => clearLogs()}
-        >
-          <img src={clearIcon} />
-        </span>
-      </div>
+      {
+        props.showClearButton && (
+          <div class="tooltip tooltip-bottom" data-tip={t('clearLog')}>
+          <span
+            class="cursor-pointer text-2xl hover:opacity-70"
+            onClick={() => clearLogs()}
+          >
+            <img src={clearIcon} />
+          </span>
+          </div>
+        )
+      }
       <div class="tooltip tooltip-left flex items-center gap-2" data-tip={t('filterCurrentDomain')}>
       <span class=" inline-flex items-center  ">
         <label class="swap swap-flip text-2xl hover:opacity-70">
