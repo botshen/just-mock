@@ -2,6 +2,7 @@ import { createComponent } from '@/share/create-component'
 import { sendMessage } from '@/utils/messaging'
 import { consoleLog, interceptSuccessTip, interceptSuccessToBackend, totalSwitch } from '@/utils/storage'
 import { onMounted } from 'vue'
+import { DebuggerControl } from '../debugger-control/debugger-control'
 
 export const SettingsPage = createComponent(null, () => {
   const { t } = i18n
@@ -69,23 +70,30 @@ export const SettingsPage = createComponent(null, () => {
   })
   return () => (
     <div class="m-2">
-      <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">{t('totalSwitch')}</span>
-          <input type="checkbox" class="toggle" checked={mockConfig.value.totalSwitch} onChange={e => handleChangeTotalSwitch(e)} />
-        </label>
-        <label class="label cursor-pointer">
-          <span class="label-text">{t('interceptSuccessToBackend')}</span>
-          <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessToBackend} onChange={() => handleChangeInterceptSuccess()} />
-        </label>
-        <label class="label cursor-pointer">
-          <span class="label-text">{t('consoleLog')}</span>
-          <input type="checkbox" class="toggle" checked={mockConfig.value.consoleLog} onChange={() => handleChangeConsoleLog()} />
-        </label>
-        <label class="label cursor-pointer">
-          <span class="label-text">{t('interceptSuccessTip')}</span>
-          <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessTip} onChange={() => handleChangeInterceptSuccessTip()} />
-        </label>
+      {/* Debugger控制部分 */}
+      <DebuggerControl />
+
+      {/* 原有设置部分 */}
+      <h2 class="text-lg font-semibold mb-3">{t('generalSettings') || '常规设置'}</h2>
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">{t('totalSwitch')}</span>
+            <input type="checkbox" class="toggle" checked={mockConfig.value.totalSwitch} onChange={e => handleChangeTotalSwitch(e)} />
+          </label>
+          <label class="label cursor-pointer">
+            <span class="label-text">{t('interceptSuccessToBackend')}</span>
+            <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessToBackend} onChange={() => handleChangeInterceptSuccess()} />
+          </label>
+          <label class="label cursor-pointer">
+            <span class="label-text">{t('consoleLog')}</span>
+            <input type="checkbox" class="toggle" checked={mockConfig.value.consoleLog} onChange={() => handleChangeConsoleLog()} />
+          </label>
+          <label class="label cursor-pointer">
+            <span class="label-text">{t('interceptSuccessTip')}</span>
+            <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessTip} onChange={() => handleChangeInterceptSuccessTip()} />
+          </label>
+        </div>
       </div>
     </div>
   )

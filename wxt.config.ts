@@ -44,6 +44,7 @@ export default defineConfig({
     permissions: [
       'sidePanel',
       'storage',
+      'debugger',
     ],
     web_accessible_resources: [
       {

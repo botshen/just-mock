@@ -6,6 +6,11 @@ interface ProtocolMap {
   sendToSidePanel: (data: any) => void
   sendMockConfig: (data: any) => void
   sendMockConfigToContentScript: (data: any) => void
+  // Debugger 相关消息
+  activateDebugger: (tabId: number) => void
+  deactivateDebugger: (tabId: number) => void
+  updateDebuggerRules: (rules: any[]) => void
+  debuggerInterceptResult: (requestId: string, mockData: any) => void
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>()
