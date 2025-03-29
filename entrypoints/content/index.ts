@@ -1,10 +1,12 @@
 import {
+  getMockConfig,
   injectScriptToPage,
   sendMockConfigToInjectedScript,
   sendMockRulesToInjectedScript,
 } from '@/share/inject-help'
 import { onMessage, safeSendToSidePanel } from '@/utils/messaging'
 import { getTodosRepo } from '@/utils/service'
+import { consoleLog, interceptSuccessTip, interceptSuccessToBackend, totalSwitch } from '@/utils/storage'
 import { websiteMessenger } from '@/utils/website-messenging'
 
 export default defineContentScript({
@@ -15,6 +17,12 @@ export default defineContentScript({
     const todo = getTodosRepo()
     const allTodos = await todo.getAll()
     sendMockRulesToInjectedScript(allTodos)
+    sendMockConfigToInjectedScript({
+      totalSwitch: await totalSwitch.getValue(),
+      interceptSuccessToBackend: await interceptSuccessToBackend.getValue(),
+      consoleLog: await consoleLog.getValue(),
+      interceptSuccessTip: await interceptSuccessTip.getValue(),
+    })
     onMessage('sendRulesToContentScript', (message) => {
       sendMockRulesToInjectedScript(message.data)
     })
