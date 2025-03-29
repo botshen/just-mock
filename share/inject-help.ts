@@ -9,7 +9,7 @@ export function injectScriptToPage(): Promise<void> {
 
       // 创建一个监听器，等待注入脚本准备就绪的事件
       const readyListener = () => {
-         window.removeEventListener('injected-script-ready', readyListener)
+        window.removeEventListener('injected-script-ready', readyListener)
         resolve()
       }
       window.addEventListener('injected-script-ready', readyListener)
@@ -17,7 +17,7 @@ export function injectScriptToPage(): Promise<void> {
       script.onload = function () {
         // 脚本加载完成，但不一定执行完毕
         // 实际的准备就绪信号将由 injected-script-ready 事件提供
-         script.remove()
+        script.remove()
       }
 
       document.documentElement.appendChild(script)
@@ -34,6 +34,7 @@ export function injectScriptToPage(): Promise<void> {
 declare global {
   interface Window {
     __MOCK_RULES__: any[]
+    __MOCK_CONFIG__: any
   }
 }
 
@@ -41,10 +42,8 @@ declare global {
 export function getMockRules(): any[] {
   return window.__MOCK_RULES__ || []
 }
-
-// 更新 mock 规则
-export function setMockRules(rules: any[]) {
-  window.__MOCK_RULES__ = rules
+export function getMockConfig(): any {
+  return window.__MOCK_CONFIG__ || {}
 }
 
 export function sendMessageToContentScript<T>(message: T, eventName: string) {
@@ -63,8 +62,15 @@ export function tryParseJson<T>(data: string, defaultValue: T) {
 
 // 修改 sendMockRulesToInjectedScript 函数，直接发送数据而不是添加事件监听器
 export function sendMockRulesToInjectedScript(rules: any[]) {
-   const event = new CustomEvent('mock-rules-message', {
+  const event = new CustomEvent('mock-rules-message', {
     detail: { type: 'setMockRules', rules },
+  })
+  window.dispatchEvent(event)
+}
+
+export function sendMockConfigToInjectedScript(config: any) {
+  const event = new CustomEvent('mock-config-message', {
+    detail: { type: 'setMockConfig', config },
   })
   window.dispatchEvent(event)
 }

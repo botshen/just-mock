@@ -1,11 +1,11 @@
 import FetchInterceptor from '@/share/fetch'
-import { getMockRules } from '@/share/inject-help'
+import { getMockConfig, getMockRules } from '@/share/inject-help'
 import { proxy } from 'ajax-hook'
 import Url from 'url-parse'
 
 async function mockCore(url: string) {
-   const currentProject = getMockRules()
-   if (!currentProject) {
+  const currentProject = getMockRules()
+  if (!currentProject) {
     throw new Error('没有匹配的规则')
   }
   const currentRule = currentProject.find((item) => {
@@ -100,8 +100,20 @@ export default defineUnlistedScript(() => {
     }
   })
 
+  window.addEventListener('mock-config-message', (event: Event) => {
+    const message = event as CustomEvent
+    if (message.detail.type === 'setMockConfig') {
+      window.__MOCK_CONFIG__ = message.detail.config
+    }
+  })
   proxy({
     onRequest: async (config, handler) => {
+      const mockConfig = getMockConfig()
+      console.log('mockConfig', mockConfig)
+      if (!mockConfig.totalSwitch) {
+        handler.next(config)
+        return
+      }
       // 构建完整的 URL
       const fullUrl = new URL(config.url, window.location.origin).href
       const url = new Url(fullUrl)
@@ -130,6 +142,11 @@ export default defineUnlistedScript(() => {
       handler.next(err)
     },
     onResponse: async (response, handler) => {
+      const mockConfig = getMockConfig()
+      if (!mockConfig.totalSwitch) {
+        handler.next(response)
+        return
+      }
       const { statusText, status, config, headers, response: res } = response
 
       // 构建完整的 URL
@@ -180,7 +197,7 @@ export default defineUnlistedScript(() => {
       async onBeforeRequest(request: Request) {
         try {
           const res = await mockCore(request.url)
-           // 如果没有匹配的规则，直接返回 undefined，继续原始请求
+          // 如果没有匹配的规则，直接返回 undefined，继续原始请求
           if (!res)
             return
 
@@ -390,7 +407,7 @@ export default defineUnlistedScript(() => {
             isMock: false,
           })
         }
- else {
+        else {
           // 处理非Response类型的错误
           const payload = {
             request: {

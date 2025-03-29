@@ -19,6 +19,6 @@ delete: Delete
 name: MockMaster:Browser API Response Simulator
 description: Intercept and simulate browser network requests. Customize API responses for frontend development without backend dependencies.
 totalSwitch: Total Switch
-interceptSuccess: Intercept Success
+interceptSuccessToBackend: Intercept Success To Backend
 consoleLog: Console Log
 interceptSuccessTip: Intercept Success Tip

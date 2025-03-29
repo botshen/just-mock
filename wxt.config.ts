@@ -43,6 +43,7 @@ export default defineConfig({
     version: '0.0.1',
     permissions: [
       'sidePanel',
+      'storage',
     ],
     web_accessible_resources: [
       {
