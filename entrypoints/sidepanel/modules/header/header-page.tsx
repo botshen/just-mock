@@ -1,10 +1,11 @@
- import clearIcon from '@/assets/clear.svg'
+import clearIcon from '@/assets/clear.svg'
 import filterIcon from '@/assets/filter.svg'
 import filterAllIcon from '@/assets/filter-all.svg'
 import { Input } from '@/components/input/input'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
 import { onMounted, onUnmounted } from 'vue'
+import { useMockStore } from './use-mock-store'
 
 export interface Options {
   props: {
@@ -26,6 +27,7 @@ export const HeaderPage = createComponent<Options>({
     list,
   } = useLogsStore()
   const { t } = i18n
+  const { currentTabMocked, handleChangeCurrentTabMocked } = useMockStore()
   // 获取当前标签页URL并提取域名
   const getCurrentTabUrl = async () => {
     try {
@@ -40,7 +42,7 @@ export const HeaderPage = createComponent<Options>({
         currentDomain.value = url.hostname
       }
     }
- catch (error) {
+    catch (error) {
       console.error('获取当前标签页URL失败:', error)
     }
   }
@@ -91,32 +93,42 @@ export const HeaderPage = createComponent<Options>({
       />
       {
         props.showClearButton && (
+          <div class="tooltip tooltip-bottom" data-tip={t('activateMock')}>
+            <label class="label cursor-pointer">
+              <input type="checkbox" class="toggle toggle-sm toggle-success " checked={currentTabMocked.value} onChange={e => handleChangeCurrentTabMocked(e)} />
+            </label>
+          </div>
+
+        )
+      }
+      {
+        props.showClearButton && (
           <div class="tooltip tooltip-bottom" data-tip={t('clearLog')}>
-          <span
-            class="cursor-pointer text-2xl hover:opacity-70"
-            onClick={() => clearLogs()}
-          >
-            <img src={clearIcon} />
-          </span>
+            <span
+              class="cursor-pointer text-2xl hover:opacity-70"
+              onClick={() => clearLogs()}
+            >
+              <img src={clearIcon} />
+            </span>
           </div>
         )
       }
       <div class="tooltip tooltip-left flex items-center gap-2" data-tip={t('filterCurrentDomain')}>
-      <span class=" inline-flex items-center  ">
-        <label class="swap swap-flip text-2xl hover:opacity-70">
-          <input
-            type="checkbox"
-            checked={isCurrentDomain.value}
-            onChange={e => handleFilter(e)}
-          />
-          <div class="swap-on">
-            <img src={filterIcon} />
-          </div>
-          <div class="swap-off">
-            <img src={filterAllIcon} />
-          </div>
-        </label>
-      </span>
+        <span class=" inline-flex items-center  ">
+          <label class="swap swap-flip text-2xl hover:opacity-70">
+            <input
+              type="checkbox"
+              checked={isCurrentDomain.value}
+              onChange={e => handleFilter(e)}
+            />
+            <div class="swap-on">
+              <img src={filterIcon} />
+            </div>
+            <div class="swap-off">
+              <img src={filterAllIcon} />
+            </div>
+          </label>
+        </span>
       </div>
 
     </x-header>

@@ -27,3 +27,6 @@ yes: 是
 no: 否
 currentTabMocked: 当前标签页是否开启拦截
 refresh: 刷新
+deactivateAllDebugger: 停用所有调试器
+activateMock: 激活 mock
+deactivateMock: 停用 mock

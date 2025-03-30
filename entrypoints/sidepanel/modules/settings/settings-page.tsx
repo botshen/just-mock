@@ -1,84 +1,20 @@
 import { Button2 } from '@/components/button/button-2'
 import { createComponent } from '@/share/create-component'
 import { sendMessage } from '@/utils/messaging'
-import { consoleLog, interceptSuccessTip, interceptSuccessToBackend, totalSwitch } from '@/utils/storage'
+import { consoleLog, interceptSuccessTip, interceptSuccessToBackend } from '@/utils/storage'
 import { onMounted } from 'vue'
+import { useMockStore } from '../header/use-mock-store'
 
 export const SettingsPage = createComponent(null, () => {
   const { t } = i18n
   const mockConfig = ref({
-    totalSwitch: false,
     interceptSuccessToBackend: false,
     consoleLog: false,
     interceptSuccessTip: false,
   })
 
-  const currentTabMocked = ref(false)
-  const currentTabId = ref<number | null>(null)
+  const { currentTabMocked, currentTabId, handleChangeCurrentTabMocked, checkCurrentTabMocked, getCurrentTabId } = useMockStore()
 
-  // 获取当前标签页ID
-  const getCurrentTabId = async () => {
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-    if (tabs.length > 0 && tabs[0].id) {
-      currentTabId.value = tabs[0].id
-    }
-    return currentTabId.value
-  }
-
-  // 检查当前标签页是否被激活调试
-  const checkCurrentTabMocked = async () => {
-    const tabId = await getCurrentTabId()
-    if (tabId) {
-      try {
-        const status = await sendMessage('getDebuggerStatus', tabId)
-        if (status) {
-          currentTabMocked.value = status.active
-        }
-        else {
-          currentTabMocked.value = false
-        }
-      }
-      catch (error) {
-        console.error('获取调试器状态失败:', error)
-        currentTabMocked.value = false
-      }
-    }
-    else {
-      currentTabMocked.value = false
-    }
-  }
-
-  // 激活debugger
-  const activateDebugger = async () => {
-    const tabId = await getCurrentTabId()
-    console.log('tabId', tabId)
-    if (tabId) {
-      try {
-        await sendMessage('activateDebugger', tabId)
-        await checkCurrentTabMocked()
-      }
-      catch (error) {
-        console.error('激活debugger失败:', error)
-      }
-    }
-    else {
-      console.error('未找到当前标签页')
-    }
-  }
-
-  // 停用debugger
-  const deactivateDebugger = async () => {
-    const tabId = currentTabId.value
-    if (tabId) {
-      try {
-        await sendMessage('deactivateDebugger', tabId)
-        currentTabMocked.value = false
-      }
-      catch (error) {
-        console.error('停用debugger失败:', error)
-      }
-    }
-  }
   // 停用所有debugger
   const deactivateAllDebugger = async () => {
     try {
@@ -101,10 +37,6 @@ export const SettingsPage = createComponent(null, () => {
   }
 
   // 监听存储变化
-  totalSwitch.watch((newValue) => {
-    mockConfig.value.totalSwitch = newValue
-  })
-
   interceptSuccessToBackend.watch((newValue) => {
     mockConfig.value.interceptSuccessToBackend = newValue
   })
@@ -116,30 +48,6 @@ export const SettingsPage = createComponent(null, () => {
   interceptSuccessTip.watch((newValue) => {
     mockConfig.value.interceptSuccessTip = newValue
   })
-  const handleChangeCurrentTabMocked = (e: Event) => {
-    const target = e.target as HTMLInputElement
-    const checked = target.checked
-    currentTabMocked.value = checked
-    if (checked) {
-      activateDebugger()
-    }
-    else {
-      deactivateDebugger()
-    }
-  }
-
-  const handleChangeTotalSwitch = async (e: Event) => {
-    const target = e.target as HTMLInputElement
-    const checked = target.checked
-    mockConfig.value.totalSwitch = checked
-    await totalSwitch.setValue(checked)
-    if (checked) {
-      await activateDebugger()
-    }
-    else {
-      await deactivateAllDebugger()
-    }
-  }
 
   const handleChangeInterceptSuccess = async () => {
     const newValue = !mockConfig.value.interceptSuccessToBackend
@@ -161,7 +69,6 @@ export const SettingsPage = createComponent(null, () => {
 
   // 在组件挂载后获取存储的值和设置监听器
   onMounted(async () => {
-    mockConfig.value.totalSwitch = await totalSwitch.getValue()
     mockConfig.value.interceptSuccessToBackend = await interceptSuccessToBackend.getValue()
     mockConfig.value.consoleLog = await consoleLog.getValue()
     mockConfig.value.interceptSuccessTip = await interceptSuccessTip.getValue()
@@ -183,10 +90,6 @@ export const SettingsPage = createComponent(null, () => {
             <input type="checkbox" class="toggle" checked={currentTabMocked.value} onChange={e => handleChangeCurrentTabMocked(e)} />
           </label>
           <label class="label cursor-pointer">
-            <span class="label-text">{t('totalSwitch')}</span>
-            <input type="checkbox" class="toggle" checked={mockConfig.value.totalSwitch} onChange={e => handleChangeTotalSwitch(e)} />
-          </label>
-          <label class="label cursor-pointer">
             <span class="label-text">{t('interceptSuccessToBackend')}</span>
             <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessToBackend} onChange={() => handleChangeInterceptSuccess()} />
           </label>
@@ -198,6 +101,11 @@ export const SettingsPage = createComponent(null, () => {
             <span class="label-text">{t('interceptSuccessTip')}</span>
             <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessTip} onChange={() => handleChangeInterceptSuccessTip()} />
           </label>
+          <div class="mt-4">
+            <Button2 onClick={deactivateAllDebugger} class="w-full flex justify-center items-center bg-red-500 hover:bg-red-600 text-white">
+              {t('deactivateAllDebugger')}
+            </Button2>
+          </div>
         </div>
       </div>
     </div>

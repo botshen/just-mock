@@ -27,3 +27,6 @@ yes: Yes
 no: No
 currentTabMocked: Current Tab Mocked
 refresh: Refresh
+deactivateAllDebugger: Deactivate All Debugger
+activateMock: Activate Mock
+deactivateMock: Deactivate Mock
