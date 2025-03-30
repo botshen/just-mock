@@ -22,3 +22,6 @@ totalSwitch: Total Switch
 interceptSuccessToBackend: Intercept Success To Backend
 consoleLog: Console Log
 interceptSuccessTip: Intercept Success Tip
+isMocked: Is Mocked
+yes: Yes
+no: No

@@ -92,10 +92,12 @@ export const LogPage = createComponent(null, () => {
             },
             {
               width: 'auto',
-              class: row =>
-                row.mock === 'real'
-                  ? 'bg-white'
-                  : 'bg-yellow-100 rounded text-yellow-800',
+            },
+          ],
+          [
+            () => { return t('isMocked') },
+            (row) => {
+              return row.mock === 'real' ? t('no') : t('yes')
             },
           ],
         ]}

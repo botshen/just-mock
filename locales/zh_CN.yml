@@ -22,3 +22,6 @@ totalSwitch: 总开关
 interceptSuccess: 拦截成功透传到后端
 consoleLog: 控制台打印日志
 interceptSuccessTip: 成功拦截页面提示
+isMocked: 是否模拟
+yes: 是
+no: 否
