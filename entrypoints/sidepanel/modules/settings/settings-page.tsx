@@ -89,18 +89,14 @@ export const SettingsPage = createComponent(null, () => {
             <span class="label-text">{t('currentTabMocked')}</span>
             <input type="checkbox" class="toggle" checked={currentTabMocked.value} onChange={e => handleChangeCurrentTabMocked(e)} />
           </label>
-          <label class="label cursor-pointer">
-            <span class="label-text">{t('interceptSuccessToBackend')}</span>
-            <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessToBackend} onChange={() => handleChangeInterceptSuccess()} />
-          </label>
-          <label class="label cursor-pointer">
+          {/* <label class="label cursor-pointer">
             <span class="label-text">{t('consoleLog')}</span>
             <input type="checkbox" class="toggle" checked={mockConfig.value.consoleLog} onChange={() => handleChangeConsoleLog()} />
           </label>
           <label class="label cursor-pointer">
             <span class="label-text">{t('interceptSuccessTip')}</span>
             <input type="checkbox" class="toggle" checked={mockConfig.value.interceptSuccessTip} onChange={() => handleChangeInterceptSuccessTip()} />
-          </label>
+          </label> */}
           <div class="mt-4">
             <Button2 onClick={deactivateAllDebugger} class="w-full flex justify-center items-center bg-red-500 hover:bg-red-600 text-white">
               {t('deactivateAllDebugger')}
