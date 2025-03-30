@@ -55,7 +55,6 @@ export const SettingsPage = createComponent(null, () => {
     if (tabId) {
       try {
         await sendMessage('activateDebugger', tabId)
-        mockConfig.value.totalSwitch = true
         await checkCurrentTabMocked()
       }
       catch (error) {
@@ -73,7 +72,6 @@ export const SettingsPage = createComponent(null, () => {
     if (tabId) {
       try {
         await sendMessage('deactivateDebugger', tabId)
-        mockConfig.value.totalSwitch = false
         currentTabMocked.value = false
       }
       catch (error) {
@@ -81,17 +79,26 @@ export const SettingsPage = createComponent(null, () => {
       }
     }
   }
-  // 在组件挂载后获取存储的值
-  onMounted(async () => {
-    mockConfig.value.totalSwitch = await totalSwitch.getValue()
-    mockConfig.value.interceptSuccessToBackend = await interceptSuccessToBackend.getValue()
-    mockConfig.value.consoleLog = await consoleLog.getValue()
-    mockConfig.value.interceptSuccessTip = await interceptSuccessTip.getValue()
-
-    // 获取当前标签和检查其调试状态
-    await getCurrentTabId()
-    await checkCurrentTabMocked()
-  })
+  // 停用所有debugger
+  const deactivateAllDebugger = async () => {
+    try {
+      await sendMessage('deactivateAllDebugger', undefined)
+      currentTabMocked.value = false
+    }
+    catch (error) {
+      console.error('停用所有debugger失败:', error)
+    }
+  }
+  // 监听标签页切换
+  const setupTabChangeListener = () => {
+    browser.tabs.onActivated.addListener(async (activeInfo) => {
+      // 当标签页切换时，更新当前标签页ID
+      currentTabId.value = activeInfo.tabId
+      // 检查新标签页的调试状态
+      await checkCurrentTabMocked()
+      console.log('标签页切换，当前标签页状态:', currentTabMocked.value)
+    })
+  }
 
   // 监听存储变化
   totalSwitch.watch((newValue) => {
@@ -113,25 +120,11 @@ export const SettingsPage = createComponent(null, () => {
     const target = e.target as HTMLInputElement
     const checked = target.checked
     currentTabMocked.value = checked
-  }
-
-  const handleRefreshCurrentTabMocked = async () => {
-    await checkCurrentTabMocked()
-    console.log('当前标签页状态:', currentTabMocked.value)
-
-    // 直接从background获取最新的debuggerSessions状态
-    try {
-      const tabId = currentTabId.value
-      if (tabId) {
-        const status = await sendMessage('getDebuggerStatus', tabId)
-        if (status) {
-          currentTabMocked.value = status.active
-          console.log('从background获取的状态:', status)
-        }
-      }
+    if (checked) {
+      activateDebugger()
     }
-    catch (error) {
-      console.error('获取调试器状态失败:', error)
+    else {
+      deactivateDebugger()
     }
   }
 
@@ -144,7 +137,7 @@ export const SettingsPage = createComponent(null, () => {
       await activateDebugger()
     }
     else {
-      await deactivateDebugger()
+      await deactivateAllDebugger()
     }
   }
 
@@ -166,13 +159,27 @@ export const SettingsPage = createComponent(null, () => {
     await interceptSuccessTip.setValue(newValue)
   }
 
+  // 在组件挂载后获取存储的值和设置监听器
+  onMounted(async () => {
+    mockConfig.value.totalSwitch = await totalSwitch.getValue()
+    mockConfig.value.interceptSuccessToBackend = await interceptSuccessToBackend.getValue()
+    mockConfig.value.consoleLog = await consoleLog.getValue()
+    mockConfig.value.interceptSuccessTip = await interceptSuccessTip.getValue()
+
+    // 获取当前标签和检查其调试状态
+    await getCurrentTabId()
+    await checkCurrentTabMocked()
+
+    // 设置标签页切换监听器
+    setupTabChangeListener()
+  })
+
   return () => (
     <div class="m-2">
       <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
         <div class="form-control">
           <label class="label cursor-pointer">
             <span class="label-text">{t('currentTabMocked')}</span>
-            <Button2 onClick={() => handleRefreshCurrentTabMocked()}>{t('refresh')}</Button2>
             <input type="checkbox" class="toggle" checked={currentTabMocked.value} onChange={e => handleChangeCurrentTabMocked(e)} />
           </label>
           <label class="label cursor-pointer">

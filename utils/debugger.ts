@@ -61,6 +61,12 @@ export async function deactivateDebugger(tabId: number) {
     return false
   }
 }
+// 停用所有debugger
+export async function deactivateAllDebugger() {
+  debuggerSessions.forEach((session) => {
+    deactivateDebugger(session.tabId)
+  })
+}
 
 // 查找匹配URL的规则
 export async function findMatchingRule(url: string): Promise<LogRule | undefined> {

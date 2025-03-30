@@ -43,6 +43,11 @@ export default defineBackground(() => {
     }
   })
 
+  // 停用所有debugger
+  onMessage('deactivateAllDebugger', async () => {
+    await debuggerUtils.deactivateAllDebugger()
+  })
+
   // 获取特定标签页的debugger状态
   onMessage('getDebuggerStatus', (message) => {
     if (typeof message.data === 'number') {
