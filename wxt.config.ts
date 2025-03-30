@@ -40,18 +40,18 @@ export default defineConfig({
     action: {},
     name: '__MSG_name__',
     description: '__MSG_description__',
-    version: '0.0.1',
+    version: '0.0.2',
     permissions: [
       'sidePanel',
       'storage',
       'debugger',
     ],
-    web_accessible_resources: [
-      {
-        resources: ['/injected.js'],
-        matches: ['<all_urls>'],
-      },
-    ],
+    // web_accessible_resources: [
+    //   {
+    //     resources: ['/injected.js'],
+    //     matches: ['<all_urls>'],
+    //   },
+    // ],
   },
   autoIcons: {
     grayscaleOnDevelopment: false,
