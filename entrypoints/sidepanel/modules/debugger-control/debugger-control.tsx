@@ -1,22 +1,19 @@
+import { Button2 } from '@/components/button/button-2'
 import { createComponent } from '@/share/create-component'
 import { sendMessage } from '@/utils/messaging'
 
 export const DebuggerControl = createComponent(null, () => {
   const { t } = i18n
 
-  // debugger状态
-  const debuggerState = ref({
-    active: false,
-    currentTabId: null as number | null,
-  })
+  const currentTabId = ref<number | null>(null)
 
   // 获取当前标签页ID
   const getCurrentTabId = async () => {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true })
     if (tabs.length > 0 && tabs[0].id) {
-      debuggerState.value.currentTabId = tabs[0].id
+      currentTabId.value = tabs[0].id
     }
-    return debuggerState.value.currentTabId
+    return currentTabId.value
   }
 
   // 激活debugger
@@ -77,38 +74,22 @@ export const DebuggerControl = createComponent(null, () => {
   })
   return () => (
     <div class="mb-6">
-      <h2 class="text-lg font-semibold mb-3">{t('debugger') || 'Debugger控制'}</h2>
-
       <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-sm font-medium">{t('debuggerStatus') || 'Debugger状态'}</span>
-          <span class={`px-2 py-1 rounded-full text-xs font-medium ${debuggerState.value.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-            {debuggerState.value.active ? (t('active') || '已激活') : (t('inactive') || '未激活')}
-          </span>
+
+        <div class="flex gap-2">
+          <Button2
+            onClick={activateDebugger}
+            class="rounded-md text-white font-medium text-sm transition-colors bg-blue-500 hover:bg-blue-600"
+          >
+            {t('activateDebugger') || '激活Debugger'}
+          </Button2>
+          <Button2
+            onClick={deactivateDebugger}
+            class="rounded-md text-white font-medium text-sm transition-colors bg-red-500 hover:bg-red-600"
+          >
+            {t('deactivateDebugger') || '停用Debugger'}
+          </Button2>
         </div>
-
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium">{t('currentTab') || '当前标签页'}</span>
-          <span class="text-xs text-gray-500">
-            {debuggerState.value.currentTabId ? `ID: ${debuggerState.value.currentTabId}` : (t('noTab') || '无标签页')}
-          </span>
-        </div>
-
-        <button
-          onClick={toggleDebugger}
-          class={`mt-4 w-full py-2 px-4 rounded-md text-white font-medium text-sm transition-colors ${debuggerState.value.active
-            ? 'bg-red-500 hover:bg-red-600'
-            : 'bg-blue-500 hover:bg-blue-600'
-            }`}
-        >
-          {debuggerState.value.active
-            ? (t('deactivateDebugger') || '停用Debugger')
-            : (t('activateDebugger') || '激活Debugger')}
-        </button>
-
-        <p class="mt-3 text-xs text-gray-500">
-          {t('debuggerDesc') || '激活Debugger后，将使用浏览器调试API拦截匹配的网络请求并返回Mock数据'}
-        </p>
       </div>
     </div>
   )

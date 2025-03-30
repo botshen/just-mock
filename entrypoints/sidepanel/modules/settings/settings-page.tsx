@@ -13,6 +13,47 @@ export const SettingsPage = createComponent(null, () => {
     interceptSuccessTip: false,
   })
 
+    const currentTabId = ref<number | null>(null)
+
+    // 获取当前标签页ID
+    const getCurrentTabId = async () => {
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+      if (tabs.length > 0 && tabs[0].id) {
+      currentTabId.value = tabs[0].id
+    }
+    return currentTabId.value
+  }
+  // 激活debugger
+  const activateDebugger = async () => {
+    const tabId = await getCurrentTabId()
+    console.log('tabId', tabId)
+    if (tabId) {
+      try {
+        await sendMessage('activateDebugger', tabId)
+        mockConfig.value.totalSwitch = true
+      }
+      catch (error) {
+        console.error('激活debugger失败:', error)
+      }
+    }
+    else {
+      console.error('未找到当前标签页')
+    }
+  }
+
+  // 停用debugger
+  const deactivateDebugger = async () => {
+    const tabId = currentTabId.value
+    if (tabId) {
+      try {
+        await sendMessage('deactivateDebugger', tabId)
+        mockConfig.value.totalSwitch = false
+      }
+      catch (error) {
+        console.error('停用debugger失败:', error)
+      }
+    }
+  }
   // 在组件挂载后获取存储的值
   onMounted(async () => {
     mockConfig.value.totalSwitch = await totalSwitch.getValue()
@@ -43,6 +84,12 @@ export const SettingsPage = createComponent(null, () => {
     const checked = target.checked
     mockConfig.value.totalSwitch = checked
     await totalSwitch.setValue(checked)
+    if (checked) {
+      await activateDebugger()
+    }
+    else {
+      await deactivateDebugger()
+    }
   }
 
   const handleChangeInterceptSuccess = async () => {
