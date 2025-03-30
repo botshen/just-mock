@@ -75,26 +75,22 @@ export async function handleMockResponse(tabId: number, requestId: string, rule:
     // 解析响应数据
     const responseBody = rule.response
 
-    // 解析状态码，默认200
-    const statusCode = Number.parseInt(rule.status) || 200
-
-    // 计算延迟
-    const delay = Number.parseInt(rule.delay) || 0
-
-    // 如果设置了延迟，等待指定时间
-    if (delay > 0) {
-      await new Promise(resolve => setTimeout(resolve, delay))
-    }
+    // 使用 UTF-8 编码处理响应体
+    const encodedBody = btoa(
+      Array.from(new TextEncoder().encode(responseBody))
+        .map(byte => String.fromCharCode(byte))
+        .join(''),
+    )
 
     // 使用Fetch.fulfillRequest返回mock数据
     await browser.debugger.sendCommand({ tabId }, 'Fetch.fulfillRequest', {
       requestId,
-      responseCode: statusCode,
+      responseCode: Number.parseInt(rule.status) || 200,
       responseHeaders: [
         { name: 'Content-Type', value: 'application/json' },
         { name: 'Access-Control-Allow-Origin', value: '*' },
       ],
-      body: btoa(responseBody), // 转为base64
+      body: encodedBody, // 使用编码后的响应体
     })
 
     console.log(`成功mock请求: ${rule.url}`)
