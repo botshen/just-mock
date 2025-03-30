@@ -62,7 +62,7 @@ export async function findMatchingRule(url: string): Promise<LogRule | undefined
   const todo = getTodosRepo()
   const rules = await todo.getAll()
   console.log('rules', rules)
-   return rules.find((rule) => {
+  return rules.find((rule) => {
     // 简单匹配URL，可以根据需要扩展为正则匹配
     return rule.active && url.includes(rule.url)
   })
@@ -70,7 +70,6 @@ export async function findMatchingRule(url: string): Promise<LogRule | undefined
 
 // 处理mock响应
 export async function handleMockResponse(tabId: number, requestId: string, rule: LogRule) {
-  console.log('rule-=-=-', rule)
   try {
     // 解析响应数据
     const responseBody = rule.response
@@ -103,11 +102,11 @@ export async function handleMockResponse(tabId: number, requestId: string, rule:
 }
 
 // 处理调试器事件
-export async function handleDebuggerEvent(debuggeeId: any, method: string, params: any) {
-  const { tabId } = debuggeeId
+export async function handleDebuggerEvent(debuggerId: any, method: string, params: any) {
+  const { tabId } = debuggerId
 
   if (method === 'Fetch.requestPaused') {
-     const { requestId, request } = params
+    const { requestId, request } = params
 
     // 检查是否有匹配的mock规则
     const matchedRule = await findMatchingRule(request.url)
@@ -128,15 +127,10 @@ export async function handleDebuggerEvent(debuggeeId: any, method: string, param
   else if (method === 'Network.responseReceived') {
     const { requestId, response } = params
 
-    // 过滤掉包含socket的路径
-    if (response.url.includes('socket')) {
-      return Promise.resolve()
-    }
-
     try {
       // 获取响应体
       const responseBodyResult = await browser.debugger.sendCommand({ tabId }, 'Network.getResponseBody', { requestId })
-      const responseBody = responseBodyResult.body || ''
+      const responseBody = responseBodyResult && 'body' in responseBodyResult ? responseBodyResult.body : ''
 
       // 检查是否有匹配的mock规则
       const matchedRule = await findMatchingRule(response.url)
@@ -159,7 +153,7 @@ export async function handleDebuggerEvent(debuggeeId: any, method: string, param
   }
   else if (method === 'Network.loadingFinished') {
     console.log('Network.loadingFinished')
-   }
+  }
 
   return Promise.resolve()
 }

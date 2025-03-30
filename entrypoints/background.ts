@@ -1,4 +1,3 @@
-import type { LogRule } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import * as debuggerUtils from '@/utils/debugger'
 import { onMessage, sendMessage } from '@/utils/messaging'
 import { getTodosRepo, registerTodosRepo } from '@/utils/service'
