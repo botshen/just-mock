@@ -6,23 +6,8 @@ interface DebuggerSession {
   active: boolean
 }
 
-// 保存当前的mock规则
-let mockRules: LogRule[] = []
 // 保存活跃的debugger会话
 const debuggerSessions: Map<number, DebuggerSession> = new Map()
-// 请求ID到Mock规则的映射
-const requestMockMap: Map<string, LogRule> = new Map()
-
-// 初始化mock规则
-export function initMockRules(rules: LogRule[]) {
-  mockRules = rules
-}
-
-// 更新mock规则
-export function updateMockRules(rules: LogRule[]) {
-  mockRules = rules
-  updateDebuggerInterception()
-}
 
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
@@ -72,31 +57,12 @@ export async function deactivateDebugger(tabId: number) {
   }
 }
 
-// 更新所有活跃debugger会话的拦截规则
-function updateDebuggerInterception() {
-  // 对于每个活跃的debugger会话，重新设置拦截
-  debuggerSessions.forEach(async (session) => {
-    if (session.active) {
-      try {
-        // 获取活跃的规则
-        const activeRules = mockRules.filter(rule => rule.active)
-
-        // 如果有活跃规则，设置拦截
-        if (activeRules.length > 0) {
-          console.log(`为标签页 ${session.tabId} 更新 ${activeRules.length} 条拦截规则`)
-        }
-      }
-      catch (error) {
-        console.error(`更新标签页 ${session.tabId} 的拦截规则失败:`, error)
-      }
-    }
-  })
-}
-
 // 查找匹配URL的规则
-export function findMatchingRule(url: string): LogRule | undefined {
-  console.log('mockRules', mockRules)
-  return mockRules.find((rule) => {
+export async function findMatchingRule(url: string): Promise<LogRule | undefined> {
+  const todo = getTodosRepo()
+  const rules = await todo.getAll()
+  console.log('rules', rules)
+   return rules.find((rule) => {
     // 简单匹配URL，可以根据需要扩展为正则匹配
     return rule.active && url.includes(rule.url)
   })
@@ -104,6 +70,7 @@ export function findMatchingRule(url: string): LogRule | undefined {
 
 // 处理mock响应
 export async function handleMockResponse(tabId: number, requestId: string, rule: LogRule) {
+  console.log('rule-=-=-', rule)
   try {
     // 解析响应数据
     const responseBody = rule.response
@@ -140,46 +107,63 @@ export async function handleMockResponse(tabId: number, requestId: string, rule:
 }
 
 // 处理调试器事件
-export function handleDebuggerEvent(debuggeeId: any, method: string, params: any) {
+export async function handleDebuggerEvent(debuggeeId: any, method: string, params: any) {
   const { tabId } = debuggeeId
-  console.log('method=====', method)
-  // 处理Fetch请求拦截
+
   if (method === 'Fetch.requestPaused') {
-    const { requestId, request } = params
+     const { requestId, request } = params
 
     // 检查是否有匹配的mock规则
-    const matchedRule = findMatchingRule(request.url)
-
+    const matchedRule = await findMatchingRule(request.url)
+    console.log('matchedRule', matchedRule)
     if (matchedRule && matchedRule.active) {
-      // 记录请求与规则的对应关系
-      requestMockMap.set(requestId, matchedRule)
-
       // 拦截并返回mock数据
       return handleMockResponse(tabId!, requestId, matchedRule)
     }
     else {
-      // 继续请求
+      // 继续请求，无需打印日志
       return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', { requestId })
     }
   }
-  // 处理XHR请求拦截
-  if (method === 'Network.requestWillBeSent') {
-    console.log('params', params)
-    const { request } = params
-    const matchedRule = findMatchingRule(request.url)
+  else if (method === 'Network.requestWillBeSent') {
+    // 移除不必要的日志
+  }
+  // 只保留响应完成的打印信息
+  else if (method === 'Network.responseReceived') {
+    const { requestId, response } = params
 
-    if (matchedRule && matchedRule.active) {
-      // 记录请求与规则的对应关系
-      requestMockMap.set(request.requestId, matchedRule)
-
-      // 拦截并返回mock数据
-      return handleMockResponse(tabId!, request.requestId, matchedRule)
+    // 过滤掉包含socket的路径
+    if (response.url.includes('socket')) {
+      return Promise.resolve()
     }
-    else {
-      // 继续请求
-      return browser.debugger.sendCommand({ tabId }, 'Network.continueRequest', { requestId: request.requestId })
+
+    try {
+      // 获取响应体
+      const responseBodyResult = await browser.debugger.sendCommand({ tabId }, 'Network.getResponseBody', { requestId })
+      const responseBody = responseBodyResult.body || ''
+
+      // 检查是否有匹配的mock规则
+      const matchedRule = await findMatchingRule(response.url)
+      const isMocked = Boolean(matchedRule?.active)
+
+      // 发送完整信息到侧边栏（也排除socket请求）
+      await sendMessage('sendToSidePanel', {
+        url: response.url,
+        status: response.status,
+        mock: isMocked,
+        type: 'xhr',
+        payload: '',
+        response: responseBody,
+      })
+    }
+    catch (error) {
+      // 保留错误日志，便于调试
+      console.error(`获取响应体失败:`, error)
     }
   }
+  else if (method === 'Network.loadingFinished') {
+    console.log('Network.loadingFinished')
+   }
 
   return Promise.resolve()
 }

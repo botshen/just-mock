@@ -91,10 +91,7 @@ const { t } = i18n
       active: formData.value.active,
     }
     const todosRepo = getTodosRepo()
-    console.log('newRule', newRule)
-    await todosRepo.update(newRule)
-
-    sendMessage('sendMockRules', undefined)
+     await todosRepo.update(newRule)
      router.back()
   }
 

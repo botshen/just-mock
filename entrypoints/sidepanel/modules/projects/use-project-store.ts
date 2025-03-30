@@ -8,7 +8,6 @@ async function onDelete(id: string) {
   const todosRepo = getTodosRepo()
   await todosRepo.delete(id)
   ruleList.value = await todosRepo.getAll()
-  sendMessage('sendMockRules', undefined)
 }
 
 export function useProjectStore() {

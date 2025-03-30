@@ -63,7 +63,7 @@ export const DebuggerControl = createComponent(null, () => {
 
   // 组件挂载时获取当前标签页
   onMounted(async () => {
-    await getCurrentTabId()
+    await activateDebugger()
   })
 
   // 监听标签页变化
@@ -72,7 +72,9 @@ export const DebuggerControl = createComponent(null, () => {
     // 重置debugger状态
     debuggerState.value.active = false
   })
-
+  onMounted(() => {
+    console.log('debuggerState', debuggerState.value)
+  })
   return () => (
     <div class="mb-6">
       <h2 class="text-lg font-semibold mb-3">{t('debugger') || 'Debugger控制'}</h2>

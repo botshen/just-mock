@@ -109,8 +109,7 @@ export default defineUnlistedScript(() => {
   proxy({
     onRequest: async (config, handler) => {
       const mockConfig = getMockConfig()
-      console.log('mockConfig', mockConfig)
-      if (!mockConfig.totalSwitch) {
+       if (!mockConfig.totalSwitch) {
         handler.next(config)
         return
       }

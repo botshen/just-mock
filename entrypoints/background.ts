@@ -21,9 +21,7 @@ export default defineBackground(() => {
   const initMockRules = async () => {
     const todo = getTodosRepo()
     const rules = await todo.getAll()
-    console.log('rules', rules)
-    debuggerUtils.initMockRules(rules)
-  }
+   }
   initMockRules()
 
   browser.action.onClicked.addListener((tab) => {
@@ -31,59 +29,18 @@ export default defineBackground(() => {
     browser.sidePanel.open({ windowId: tab.windowId })
   })
 
-  // 处理mock规则更新
-  onMessage('sendMockRules', async (data) => {
-    const todo = getTodosRepo()
-    const rules = await todo.getAll()
-
-    // 更新debugger模块中的规则
-    debuggerUtils.updateMockRules(rules)
-
-    // 获取所有标签页
-    const tabs = await browser.tabs.query({})
-
-    // 向所有标签页的 content script 发送数据
-    for (const tab of tabs) {
-      if (tab.id) {
-        try {
-          await sendMessage('sendRulesToContentScript', rules, tab.id)
-        }
-        catch (error) {
-          // console.error(`向标签页 ${tab.id} 发送消息失败:`, error)
-        }
-      }
-    }
-  })
-
-  onMessage('sendMockConfig', async (data) => {
-    // 获取所有标签页
-    const tabs = await browser.tabs.query({})
-
-    // 向所有标签页的 content script 发送数据
-    for (const tab of tabs) {
-      if (tab.id) {
-        try {
-          await sendMessage('sendMockConfigToContentScript', data, tab.id)
-        }
-        catch (error) {
-          // console.error(`向标签页 ${tab.id} 发送消息失败:`, error)
-        }
-      }
-    }
-  })
-
   // 激活特定标签页的debugger
   onMessage('activateDebugger', async (message) => {
-    console.log('message', message)
-    if (typeof message.data === 'number') {
+     if (typeof message.data === 'number') {
       await debuggerUtils.activateDebugger(message.data)
     }
   })
 
   // 停用特定标签页的debugger
   onMessage('deactivateDebugger', async (message) => {
-    if (typeof message === 'number') {
-      await debuggerUtils.deactivateDebugger(message)
+    console.log('message定标签页的deb', message)
+    if (typeof message.data === 'number') {
+      await debuggerUtils.deactivateDebugger(message.data)
     }
   })
 

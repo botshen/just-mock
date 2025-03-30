@@ -62,12 +62,7 @@ export const SettingsPage = createComponent(null, () => {
     mockConfig.value.interceptSuccessTip = newValue
     await interceptSuccessTip.setValue(newValue)
   }
-  watch(mockConfig, () => {
-    sendMessage('sendMockConfig', mockConfig.value)
-  }, {
-    deep: true,
-    immediate: true,
-  })
+
   return () => (
     <div class="m-2">
       {/* Debugger控制部分 */}

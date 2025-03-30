@@ -13,19 +13,20 @@ export const App = createComponent(null, () => {
 
   const { renderPopovers } = usePopoverStore()
   const sendToPanelHandler = (message: any) => {
+    console.log('side-message', message)
      if (!Array.isArray(logsList.value)) {
       logsList.value = []
     }
     const rule = message.data
     logsList.value.unshift({
       id: nanoid(),
-      url: rule.request.url,
-      status: rule.response.status,
-      mock: rule.isMock ? 'mock' : 'real',
-      type: rule.request.method,
-      payload: rule.request.body,
-      delay: rule.response?.delay ?? 0,
-      response: rule.response?.responseTxt,
+      url: rule.url,
+      status: rule.status,
+      mock: rule.mock ? 'mock' : 'real',
+      type: rule.type,
+      payload: rule.payload,
+      delay: rule?.delay ?? 0,
+      response: rule?.response,
       active: true,
     })
   }

@@ -29,7 +29,7 @@ export const Sidebar = createComponent(null, () => {
   return () => (
     <div class="bg-white flex gap-4 w-full items-center justify-center">
       <RouterLink to="/" class={linkClass('/')}>
-        {renderIcon('/', logoActiveUrl, logoUrl, t('interceptedApi'))}
+        {renderIcon('/log', logoActiveUrl, logoUrl, t('interceptedApi'))}
       </RouterLink>
       <RouterLink to="/projects" class={linkClass('/projects')}>
         {renderIcon('/projects', projectActiveUrl, projectUrl, t('savedApi'))}
