@@ -43,6 +43,19 @@ export default defineBackground(() => {
     }
   })
 
+  // 获取特定标签页的debugger状态
+  onMessage('getDebuggerStatus', (message) => {
+    if (typeof message.data === 'number') {
+      const tabId = message.data
+      const hasSession = debuggerUtils.debuggerSessions.has(tabId)
+      if (hasSession) {
+        return debuggerUtils.debuggerSessions.get(tabId)
+      }
+      return { tabId, active: false }
+    }
+    return null
+  })
+
   // 监听调试器事件
   browser.debugger.onEvent.addListener((debuggeeId, method, params) => {
     debuggerUtils.handleDebuggerEvent(debuggeeId, method, params)

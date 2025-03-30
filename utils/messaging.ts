@@ -7,6 +7,7 @@ interface ProtocolMap {
   // Debugger 相关消息
   activateDebugger: (tabId: number) => void
   deactivateDebugger: (tabId: number) => void
+  getDebuggerStatus: (tabId: number) => { tabId: number, active: boolean } | null
   updateDebuggerRules: (rules: any[]) => void
   debuggerInterceptResult: (requestId: string, mockData: any) => void
 }

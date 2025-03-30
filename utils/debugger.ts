@@ -1,4 +1,6 @@
 import type { LogRule } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
+import { sendMessage } from '@/utils/messaging'
+import { getTodosRepo } from '@/utils/service'
 
 // Debugger会话管理
 interface DebuggerSession {
@@ -7,14 +9,16 @@ interface DebuggerSession {
 }
 
 // 保存活跃的debugger会话
-const debuggerSessions: Map<number, DebuggerSession> = new Map()
+export const debuggerSessions: Map<number, DebuggerSession> = new Map()
 
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
+  console.log('activateDebugger', tabId)
   try {
     // 如果此标签页已有debugger会话，先分离
     if (debuggerSessions.has(tabId)) {
       await browser.debugger.detach({ tabId })
+      console.log('detach', tabId)
     }
 
     // 附加debugger
@@ -27,11 +31,12 @@ export async function activateDebugger(tabId: number) {
     await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
       patterns: [{ urlPattern: '*' }],
     })
-
+    console.log('enable', tabId)
     // 记录会话
     debuggerSessions.set(tabId, { tabId, active: true })
 
     console.log(`成功为标签页 ${tabId} 附加调试器`)
+    console.log('debuggerSessions', debuggerSessions)
     return true
   }
   catch (error) {

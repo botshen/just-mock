@@ -25,3 +25,5 @@ interceptSuccessTip: 成功拦截页面提示
 isMocked: 是否模拟
 yes: 是
 no: 否
+currentTabMocked: 当前标签页是否开启拦截
+refresh: 刷新
