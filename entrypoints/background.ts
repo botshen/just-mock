@@ -21,7 +21,7 @@ export default defineBackground(() => {
   const initMockRules = async () => {
     const todo = getTodosRepo()
     const rules = await todo.getAll()
-   }
+  }
   initMockRules()
 
   browser.action.onClicked.addListener((tab) => {
@@ -31,7 +31,7 @@ export default defineBackground(() => {
 
   // 激活特定标签页的debugger
   onMessage('activateDebugger', async (message) => {
-     if (typeof message.data === 'number') {
+    if (typeof message.data === 'number') {
       await debuggerUtils.activateDebugger(message.data)
     }
   })
@@ -41,13 +41,6 @@ export default defineBackground(() => {
     console.log('message定标签页的deb', message)
     if (typeof message.data === 'number') {
       await debuggerUtils.deactivateDebugger(message.data)
-    }
-  })
-
-  // 更新debugger规则
-  onMessage('updateDebuggerRules', async (message) => {
-    if (Array.isArray(message)) {
-      debuggerUtils.updateMockRules(message as LogRule[])
     }
   })
 

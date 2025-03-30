@@ -13,12 +13,12 @@ export const SettingsPage = createComponent(null, () => {
     interceptSuccessTip: false,
   })
 
-    const currentTabId = ref<number | null>(null)
+  const currentTabId = ref<number | null>(null)
 
-    // 获取当前标签页ID
-    const getCurrentTabId = async () => {
-      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-      if (tabs.length > 0 && tabs[0].id) {
+  // 获取当前标签页ID
+  const getCurrentTabId = async () => {
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    if (tabs.length > 0 && tabs[0].id) {
       currentTabId.value = tabs[0].id
     }
     return currentTabId.value
@@ -112,11 +112,6 @@ export const SettingsPage = createComponent(null, () => {
 
   return () => (
     <div class="m-2">
-      {/* Debugger控制部分 */}
-      <DebuggerControl />
-
-      {/* 原有设置部分 */}
-      <h2 class="text-lg font-semibold mb-3">{t('generalSettings') || '常规设置'}</h2>
       <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
         <div class="form-control">
           <label class="label cursor-pointer">

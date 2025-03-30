@@ -3,7 +3,7 @@ import { defineExtensionMessaging } from '@webext-core/messaging'
 interface ProtocolMap {
   sendRulesToContentScript: (data: any) => void
   sendToSidePanel: (data: any) => void
-   sendMockConfigToContentScript: (data: any) => void
+  sendMockConfigToContentScript: (data: any) => void
   // Debugger 相关消息
   activateDebugger: (tabId: number) => void
   deactivateDebugger: (tabId: number) => void
