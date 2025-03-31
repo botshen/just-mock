@@ -30,3 +30,5 @@ refresh: 刷新
 deactivateAllDebugger: 停用所有调试器
 activateMock: 激活 mock
 deactivateMock: 停用 mock
+deactivateDebugger: 停用调试器
+activateDebugger: 激活调试器

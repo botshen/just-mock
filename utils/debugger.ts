@@ -178,3 +178,59 @@ export function cleanupDebuggerSession(tabId: number) {
   }
   return false
 }
+
+// 获取特定标签页的调试状态
+export async function getDebuggerStatus(tabId: number): Promise<DebuggerSession> {
+  try {
+    // 获取所有活跃的调试器目标
+    const targets = await browser.debugger.getTargets()
+    console.log('targets', targets)
+    // 查找是否存在匹配的tabId的活跃调试会话
+    const activeTarget = targets.find(target =>
+      target.tabId === tabId && target.attached === true,
+    )
+
+    // 如果找到匹配的活跃调试会话，返回活跃状态
+    if (activeTarget) {
+      // 同步更新本地缓存
+      const session = { tabId, active: true }
+      debuggerSessions.set(tabId, session)
+      return session
+    }
+    else {
+      // 如果没有找到，返回非活跃状态
+      // 同步更新本地缓存
+      if (debuggerSessions.has(tabId)) {
+        debuggerSessions.delete(tabId)
+      }
+      return { tabId, active: false }
+    }
+  }
+  catch (error) {
+    console.error(`获取调试器状态失败:`, error)
+    return { tabId, active: false }
+  }
+}
+
+// 获取所有活跃的调试会话
+export async function getAllDebuggerSessions(): Promise<DebuggerSession[]> {
+  try {
+    const targets = await browser.debugger.getTargets()
+    console.log('targets', targets)
+    const activeSessions = targets
+      .filter(target => target.attached === true && target.tabId !== undefined)
+      .map(target => ({ tabId: target.tabId!, active: true }))
+
+    // 同步更新本地缓存
+    debuggerSessions.clear()
+    activeSessions.forEach((session) => {
+      debuggerSessions.set(session.tabId, session)
+    })
+
+    return activeSessions
+  }
+  catch (error) {
+    console.error(`获取所有调试会话失败:`, error)
+    return []
+  }
+}

@@ -49,16 +49,17 @@ export default defineBackground(() => {
   })
 
   // 获取特定标签页的debugger状态
-  onMessage('getDebuggerStatus', (message) => {
+  onMessage('getDebuggerStatus', async (message) => {
     if (typeof message.data === 'number') {
       const tabId = message.data
-      const hasSession = debuggerUtils.debuggerSessions.has(tabId)
-      if (hasSession) {
-        return debuggerUtils.debuggerSessions.get(tabId)
-      }
-      return { tabId, active: false }
+      return await debuggerUtils.getDebuggerStatus(tabId)
     }
     return null
+  })
+
+  // 获取所有活跃的调试会话
+  onMessage('getAllDebuggerSessions', async () => {
+    return await debuggerUtils.getAllDebuggerSessions()
   })
 
   // 监听调试器事件
