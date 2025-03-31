@@ -153,7 +153,7 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
         status: response.status,
         mock: isMocked,
         type: 'xhr',
-        payload: '',
+        payload: await getRequestPayload(tabId, requestId),
         response: responseBody,
       })
     }
@@ -232,5 +232,28 @@ export async function getAllDebuggerSessions(): Promise<DebuggerSession[]> {
   catch (error) {
     console.error(`获取所有调试会话失败:`, error)
     return []
+  }
+}
+
+// 获取请求的payload数据
+async function getRequestPayload(tabId: number, requestId: string): Promise<string> {
+  try {
+    // 获取请求详情
+    const requestDetails = await browser.debugger.sendCommand(
+      { tabId },
+      'Network.getRequestPostData',
+      { requestId },
+    )
+
+    // 如果有postData，返回它
+    if (requestDetails && 'postData' in requestDetails) {
+      return requestDetails.postData
+    }
+
+    return ''
+  }
+  catch (error) {
+    console.error('获取请求payload失败:', error)
+    return ''
   }
 }
