@@ -27,7 +27,7 @@ export const HeaderPage = createComponent<Options>({
     list,
   } = useLogsStore()
   const { t } = i18n
-  const { currentTabMocked, handleChangeCurrentTabMocked } = useMockStore()
+  const { currentTabMocked, handleChangeCurrentTabMocked, checkCurrentTabMocked } = useMockStore()
   // 获取当前标签页URL并提取域名
   const getCurrentTabUrl = async () => {
     try {
@@ -36,10 +36,13 @@ export const HeaderPage = createComponent<Options>({
         currentWindow: true,
       })
       if (tabs && tabs.length > 0 && tabs[0].url) {
+        console.log('tabs[0]', tabs[0])
+
         currentTabUrl.value = tabs[0].url
         // 提取域名
         const url = new URL(tabs[0].url)
         currentDomain.value = url.hostname
+        await checkCurrentTabMocked()
       }
     }
     catch (error) {
