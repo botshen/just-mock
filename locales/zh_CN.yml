@@ -32,3 +32,4 @@ activateMock: 激活 mock
 deactivateMock: 停用 mock
 deactivateDebugger: 停用调试器
 activateDebugger: 激活调试器
+reroute: 重定向路由
