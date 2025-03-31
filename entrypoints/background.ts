@@ -1,12 +1,11 @@
 import * as debuggerUtils from '@/utils/debugger'
 import { onMessage } from '@/utils/messaging'
-import { getTodosRepo, registerTodosRepo } from '@/utils/service'
+import { registerRerouteRepo, registerTodosRepo } from '@/utils/service'
 import { openDB } from 'idb'
 
 export default defineBackground(() => {
   const db = openDB('todos', 1, {
     upgrade(db) {
-      // 创建一个名为 'todos' 的对象存储
       if (!db.objectStoreNames.contains('todos')) {
         db.createObjectStore('todos', {
           keyPath: 'id',
@@ -15,6 +14,15 @@ export default defineBackground(() => {
     },
   })
   registerTodosRepo(db)
+
+  const rerouteDb = openDB('reroutes', 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains('reroutes')) {
+        db.createObjectStore('reroutes', { keyPath: 'id' })
+      }
+    },
+  })
+  registerRerouteRepo(rerouteDb)
 
   browser.action.onClicked.addListener((tab) => {
     // 打开侧边栏

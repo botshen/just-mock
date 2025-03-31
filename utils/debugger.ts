@@ -1,6 +1,7 @@
 import type { LogRule } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
+import type { RerouteRule } from '@/utils/service'
 import { sendMessage } from '@/utils/messaging'
-import { getTodosRepo } from '@/utils/service'
+import { getRerouteRepo, getTodosRepo } from '@/utils/service'
 
 // Debugger会话管理
 interface DebuggerSession {
@@ -10,7 +11,6 @@ interface DebuggerSession {
 
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
-  console.log('activateDebugger', tabId)
   try {
     // 直接尝试分离可能存在的调试器
     try {
@@ -71,6 +71,32 @@ export async function findMatchingRule(url: string): Promise<LogRule | undefined
   })
 }
 
+// 查找匹配URL的reroute规则
+export async function findMatchingRerouteRule(url: string): Promise<RerouteRule | undefined> {
+  const rerouteRepo = getRerouteRepo()
+  const rules = await rerouteRepo.getAll()
+
+  return rules.find((rule) => {
+    if (!rule.enabled)
+      return false
+
+    if (rule.urlType === 'REGEX') {
+      try {
+        const regex = new RegExp(rule.url)
+        return regex.test(url)
+      }
+      catch (error) {
+        console.error('Invalid regex pattern:', rule.url)
+        return false
+      }
+    }
+    else {
+      // PLAIN 类型使用精确匹配
+      return url === rule.url
+    }
+  })
+}
+
 // 处理mock响应
 export async function handleMockResponse(tabId: number, requestId: string, rule: LogRule) {
   try {
@@ -104,6 +130,31 @@ export async function handleMockResponse(tabId: number, requestId: string, rule:
   }
 }
 
+// 处理reroute响应
+export async function handleRerouteResponse(tabId: number, requestId: string, rule: RerouteRule, request: { headers: Record<string, string>, url: string }) {
+  const headersArray = Object.entries(request.headers).map(([name, value]) => ({
+    name,
+    value: String(value),
+  }))
+
+  // 处理正则替换
+  let targetUrl = rule.rerouteUrl
+  if (rule.urlType === 'REGEX') {
+    const regex = new RegExp(rule.url)
+    const matches = request.url.match(regex)
+    if (matches) {
+      // 使用正则替换，matches[1]对应$1，matches[2]对应$2，以此类推
+      targetUrl = rule.rerouteUrl.replace(/\$(\d+)/g, (_, index) => matches[index] || '')
+    }
+  }
+
+  return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', {
+    requestId,
+    url: targetUrl,
+    headers: headersArray,
+  })
+}
+
 // 处理调试器事件
 export async function handleDebuggerEvent(debuggerId: any, method: string, params: any) {
   const { tabId } = debuggerId
@@ -113,20 +164,20 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
 
     // 检查是否有匹配的mock规则
     const matchedRule = await findMatchingRule(request.url)
-    console.log('matchedRule', matchedRule)
     if (matchedRule && matchedRule.active) {
       // 拦截并返回mock数据
       return handleMockResponse(tabId!, requestId, matchedRule)
     }
-    else {
-      // 继续请求，无需打印日志
-      return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', { requestId })
+    // 检查是否有匹配的reroute规则
+    const matchedRerouteRule = await findMatchingRerouteRule(request.url)
+    if (matchedRerouteRule && matchedRerouteRule.enabled) {
+      // 拦截并返回reroute数据
+      return handleRerouteResponse(tabId!, requestId, matchedRerouteRule, request)
     }
+
+    // 继续请求
+    return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', { requestId })
   }
-  else if (method === 'Network.requestWillBeSent') {
-    // 移除不必要的日志
-  }
-  // 只保留响应完成的打印信息
   else if (method === 'Network.responseReceived') {
     const { requestId, response } = params
 
