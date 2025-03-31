@@ -139,7 +139,7 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
       const matchedRule = await findMatchingRule(response.url)
       const isMocked = Boolean(matchedRule?.active)
 
-      // 发送完整信息到侧边栏（也排除socket请求）
+      // 发送完整信息到侧边栏
       await sendMessage('sendToSidePanel', {
         url: response.url,
         status: response.status,
@@ -165,10 +165,26 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
 export async function getDebuggerStatus(tabId: number): Promise<DebuggerSession> {
   try {
     const targets = await browser.debugger.getTargets()
-    const activeTarget = targets.find(target =>
-      target.tabId === tabId && target.attached === true,
-    )
-    return { tabId, active: !!activeTarget }
+    console.log('targets', targets)
+
+    const activeTarget = targets.find(target => target.tabId === tabId && target.attached === true)
+
+    if (!activeTarget) {
+      return { tabId, active: false }
+    }
+
+    try {
+      // 检查 Network 和 Fetch 是否启用
+      await browser.debugger.sendCommand({ tabId }, 'Network.enable')
+      await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
+        patterns: [{ urlPattern: '*' }],
+      })
+      return { tabId, active: true }
+    }
+    catch (error) {
+      console.error('调试器功能未完全启用:', error)
+      return { tabId, active: false }
+    }
   }
   catch (error) {
     console.error(`获取调试器状态失败:`, error)

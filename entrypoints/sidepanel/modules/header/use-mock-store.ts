@@ -1,12 +1,13 @@
 import { ref } from 'vue'
 
-const currentTabMocked = ref(false)
+const currentTabMocked = ref<boolean | undefined>(undefined)
 const currentTabId = ref<number | null>(null) // 检查当前标签页是否被激活调试
 async function checkCurrentTabMocked() {
   const tabId = await getCurrentTabId()
   if (tabId) {
     try {
       const status = await sendMessage('getDebuggerStatus', tabId)
+      console.log('status', status)
       if (status) {
         currentTabMocked.value = status.active
       }
@@ -38,10 +39,12 @@ async function activateDebugger() {
   if (tabId) {
     try {
       await sendMessage('activateDebugger', tabId)
-      await checkCurrentTabMocked()
     }
     catch (error) {
       console.error('激活debugger失败:', error)
+    }
+    finally {
+      await checkCurrentTabMocked()
     }
   }
   else {
@@ -55,23 +58,25 @@ async function deactivateDebugger() {
   if (tabId) {
     try {
       await sendMessage('deactivateDebugger', tabId)
-      currentTabMocked.value = false
     }
     catch (error) {
       console.error('停用debugger失败:', error)
     }
+    finally {
+      await checkCurrentTabMocked()
+    }
   }
 }
-function handleChangeCurrentTabMocked(e: Event) {
+async function handleChangeCurrentTabMocked(e: Event) {
   const target = e.target as HTMLInputElement
   const checked = target.checked
-  currentTabMocked.value = checked
   if (checked) {
-    activateDebugger()
+    await activateDebugger()
   }
   else {
-    deactivateDebugger()
+    await deactivateDebugger()
   }
+  await checkCurrentTabMocked()
 }
 export function useMockStore() {
   return { currentTabMocked, handleChangeCurrentTabMocked, currentTabId, activateDebugger, deactivateDebugger, checkCurrentTabMocked, getCurrentTabId }

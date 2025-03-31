@@ -36,8 +36,6 @@ export const HeaderPage = createComponent<Options>({
         currentWindow: true,
       })
       if (tabs && tabs.length > 0 && tabs[0].url) {
-        console.log('tabs[0]', tabs[0])
-
         currentTabUrl.value = tabs[0].url
         // 提取域名
         const url = new URL(tabs[0].url)
@@ -69,6 +67,7 @@ export const HeaderPage = createComponent<Options>({
 
     // 设置标签页监听器
     setupTabListeners()
+    await checkCurrentTabMocked()
     onUnmounted(() => {
       // 移除标签页监听器
       browser.tabs.onActivated.removeListener(getCurrentTabUrl)
