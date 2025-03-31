@@ -29,7 +29,7 @@ const formData = ref<LogRule>({
   active: true,
 })
 const filter = ref('')
-const isCurrentDomain = ref(true)
+const isCurrentDomain = ref(false)
 const currentTabUrl = ref('')
 const currentDomain = ref('')
 const filteredList = computed(() => {
@@ -61,7 +61,7 @@ export function useLogsStore() {
   return {
     list,
     formData,
-     filter,
+    filter,
     filteredList,
     debouncedFilter,
     isCurrentDomain,
