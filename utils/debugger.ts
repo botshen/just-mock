@@ -8,35 +8,26 @@ interface DebuggerSession {
   active: boolean
 }
 
-// 保存活跃的debugger会话
-export const debuggerSessions: Map<number, DebuggerSession> = new Map()
-
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
   console.log('activateDebugger', tabId)
   try {
-    // 如果此标签页已有debugger会话，先分离
-    if (debuggerSessions.has(tabId)) {
+    // 直接尝试分离可能存在的调试器
+    try {
       await browser.debugger.detach({ tabId })
-      console.log('detach', tabId)
+    }
+    catch (e) {
+      // 忽略错误，可能本来就没有附加的调试器
     }
 
-    // 附加debugger
+    // 附加新的调试器
     await browser.debugger.attach({ tabId }, '1.3')
-
-    // 启用网络请求跟踪
     await browser.debugger.sendCommand({ tabId }, 'Network.enable')
-
-    // 启用Fetch域，用于拦截请求
     await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
       patterns: [{ urlPattern: '*' }],
     })
-    console.log('enable', tabId)
-    // 记录会话
-    debuggerSessions.set(tabId, { tabId, active: true })
 
     console.log(`成功为标签页 ${tabId} 附加调试器`)
-    console.log('debuggerSessions', debuggerSessions)
     return true
   }
   catch (error) {
@@ -48,24 +39,25 @@ export async function activateDebugger(tabId: number) {
 // 停用特定标签页的debugger
 export async function deactivateDebugger(tabId: number) {
   try {
-    if (debuggerSessions.has(tabId)) {
-      await browser.debugger.detach({ tabId })
-      debuggerSessions.delete(tabId)
-      console.log(`成功从标签页 ${tabId} 分离调试器`)
-      return true
-    }
-    return false
+    await browser.debugger.detach({ tabId })
+    return true
   }
   catch (error) {
     console.error(`停用调试器失败:`, error)
     return false
   }
 }
+
 // 停用所有debugger
 export async function deactivateAllDebugger() {
-  debuggerSessions.forEach((session) => {
-    deactivateDebugger(session.tabId)
-  })
+  const targets = await browser.debugger.getTargets()
+  const attachedTargets = targets.filter(target => target.attached)
+
+  for (const target of attachedTargets) {
+    if (target.tabId) {
+      await deactivateDebugger(target.tabId)
+    }
+  }
 }
 
 // 查找匹配URL的规则
@@ -169,42 +161,14 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
   return Promise.resolve()
 }
 
-// 清理指定标签页的debugger会话
-export function cleanupDebuggerSession(tabId: number) {
-  if (debuggerSessions.has(tabId)) {
-    debuggerSessions.delete(tabId)
-    console.log(`标签页 ${tabId} 关闭，已清理调试器会话`)
-    return true
-  }
-  return false
-}
-
 // 获取特定标签页的调试状态
 export async function getDebuggerStatus(tabId: number): Promise<DebuggerSession> {
   try {
-    // 获取所有活跃的调试器目标
     const targets = await browser.debugger.getTargets()
-    console.log('targets', targets)
-    // 查找是否存在匹配的tabId的活跃调试会话
     const activeTarget = targets.find(target =>
       target.tabId === tabId && target.attached === true,
     )
-
-    // 如果找到匹配的活跃调试会话，返回活跃状态
-    if (activeTarget) {
-      // 同步更新本地缓存
-      const session = { tabId, active: true }
-      debuggerSessions.set(tabId, session)
-      return session
-    }
-    else {
-      // 如果没有找到，返回非活跃状态
-      // 同步更新本地缓存
-      if (debuggerSessions.has(tabId)) {
-        debuggerSessions.delete(tabId)
-      }
-      return { tabId, active: false }
-    }
+    return { tabId, active: !!activeTarget }
   }
   catch (error) {
     console.error(`获取调试器状态失败:`, error)
@@ -216,18 +180,12 @@ export async function getDebuggerStatus(tabId: number): Promise<DebuggerSession>
 export async function getAllDebuggerSessions(): Promise<DebuggerSession[]> {
   try {
     const targets = await browser.debugger.getTargets()
-    console.log('targets', targets)
-    const activeSessions = targets
+    return targets
       .filter(target => target.attached === true && target.tabId !== undefined)
-      .map(target => ({ tabId: target.tabId!, active: true }))
-
-    // 同步更新本地缓存
-    debuggerSessions.clear()
-    activeSessions.forEach((session) => {
-      debuggerSessions.set(session.tabId, session)
-    })
-
-    return activeSessions
+      .map(target => ({
+        tabId: target.tabId!,
+        active: true,
+      }))
   }
   catch (error) {
     console.error(`获取所有调试会话失败:`, error)
@@ -247,7 +205,7 @@ async function getRequestPayload(tabId: number, requestId: string): Promise<stri
 
     // 如果有postData，返回它
     if (requestDetails && 'postData' in requestDetails) {
-      return requestDetails.postData
+      return requestDetails.postData as string
     }
 
     return ''
