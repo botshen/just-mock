@@ -180,33 +180,30 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
   }
   else if (method === 'Network.responseReceived') {
     const { requestId, response } = params
-
     try {
       // 获取响应体
       const responseBodyResult = await browser.debugger.sendCommand({ tabId }, 'Network.getResponseBody', { requestId })
       const responseBody = responseBodyResult && 'body' in responseBodyResult ? responseBodyResult.body : ''
-
       // 检查是否有匹配的mock规则
       const matchedRule = await findMatchingRule(response.url)
       const isMocked = Boolean(matchedRule?.active)
-
-      // 发送完整信息到侧边栏
-      await sendMessage('sendToSidePanel', {
-        url: response.url,
-        status: response.status,
-        mock: isMocked,
-        type: 'xhr',
-        payload: await getRequestPayload(tabId, requestId),
-        response: responseBody,
-      })
+      const requestType = response.mimeType
+      if (requestType === 'application/json') {
+        // 发送完整信息到侧边栏
+        await sendMessage('sendToSidePanel', {
+          url: response.url,
+          status: response.status,
+          mock: isMocked,
+          type: 'xhr',
+          payload: await getRequestPayload(tabId, requestId),
+          response: responseBody,
+        })
+      }
     }
     catch (error) {
       // 保留错误日志，便于调试
       console.error(`获取响应体失败:`, error)
     }
-  }
-  else if (method === 'Network.loadingFinished') {
-    console.log('Network.loadingFinished')
   }
 
   return Promise.resolve()
