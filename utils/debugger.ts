@@ -100,10 +100,13 @@ export async function findMatchingRerouteRule(url: string): Promise<RerouteRule 
 // 处理mock响应
 export async function handleMockResponse(tabId: number, requestId: string, rule: LogRule) {
   try {
-    // 解析响应数据
-    const responseBody = rule.response
+    // 如果设置了延迟，先等待指定时间
+    const delayMs = Number(rule.delay)
+    if (delayMs && delayMs > 0) {
+      await new Promise(resolve => setTimeout(resolve, delayMs))
+    }
 
-    // 使用 UTF-8 编码处理响应体
+    const responseBody = rule.response
     const encodedBody = btoa(
       Array.from(new TextEncoder().encode(responseBody))
         .map(byte => String.fromCharCode(byte))
