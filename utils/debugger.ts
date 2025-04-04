@@ -8,7 +8,14 @@ interface DebuggerSession {
   tabId: number
   active: boolean
 }
-
+export async function activateAllDebugger() {
+  const tabs = await browser.tabs.query({ currentWindow: true })
+  for (const tab of tabs) {
+    if (tab.id) {
+      await activateDebugger(tab.id)
+    }
+  }
+}
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
   try {
@@ -280,5 +287,19 @@ async function getRequestPayload(tabId: number, requestId: string): Promise<stri
   catch (error) {
     console.error('获取请求payload失败:', error)
     return ''
+  }
+}
+
+export async function shouldActivateDebugger(tabId: number) {
+  const rerouteRepo = getRerouteRepo()
+  const reroutes = await rerouteRepo.getAll()
+  const todosRepo = getTodosRepo()
+  const todos = await todosRepo.getAll()
+
+  const hasEnabledRules = reroutes.some(rule => rule.enabled)
+  const hasEnabledTodos = todos.some(todo => todo.active)
+
+  if (hasEnabledRules || hasEnabledTodos) {
+    await activateDebugger(tabId)
   }
 }

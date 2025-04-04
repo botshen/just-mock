@@ -36,6 +36,10 @@ export default defineBackground(() => {
     }
   })
 
+  onMessage('activateAllDebugger', async () => {
+    await debuggerUtils.activateAllDebugger()
+  })
+
   // 停用特定标签页的debugger
   onMessage('deactivateDebugger', async (message) => {
     if (typeof message.data === 'number') {
@@ -65,5 +69,20 @@ export default defineBackground(() => {
   // 监听调试器事件
   browser.debugger.onEvent.addListener((debuggerId, method, params) => {
     debuggerUtils.handleDebuggerEvent(debuggerId, method, params)
+  })
+
+  // 监控所有加载的标签页
+  browser.webNavigation.onCommitted.addListener(async (details) => {
+    // 只处理主框架的导航，忽略iframe等
+    if (details.frameId === 0) {
+      debuggerUtils.shouldActivateDebugger(details.tabId)
+    }
+  })
+
+  // 监听标签页关闭事件，清理相关资源
+  browser.tabs.onRemoved.addListener((tabId) => {
+    debuggerUtils.deactivateDebugger(tabId).catch(err =>
+      console.error(`关闭标签页 ${tabId} 时停用调试器失败:`, err),
+    )
   })
 })

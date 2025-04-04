@@ -5,6 +5,7 @@ interface ProtocolMap {
   // Debugger 相关消息
   activateDebugger: (tabId: number) => void
   deactivateDebugger: (tabId: number) => void
+  activateAllDebugger: () => void
   deactivateAllDebugger: () => void
   getDebuggerStatus: (tabId: number) => { tabId: number, active: boolean } | null
   updateDebuggerRules: (rules: any[]) => void

@@ -45,13 +45,8 @@ export default defineConfig({
       'sidePanel',
       'storage',
       'debugger',
+      'webNavigation',
     ],
-    // web_accessible_resources: [
-    //   {
-    //     resources: ['/injected.js'],
-    //     matches: ['<all_urls>'],
-    //   },
-    // ],
   },
   autoIcons: {
     grayscaleOnDevelopment: false,

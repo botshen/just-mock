@@ -27,7 +27,7 @@ export const HeaderPage = createComponent<Options>({
     list,
   } = useLogsStore()
   const { t } = i18n
-  const { currentTabMocked, handleChangeCurrentTabMocked, checkCurrentTabMocked } = useMockStore()
+  const { checkCurrentTabMocked, globalMocked, handleChangeGlobalMocked } = useMockStore()
   // 获取当前标签页URL并提取域名
   const getCurrentTabUrl = async () => {
     try {
@@ -95,9 +95,9 @@ export const HeaderPage = createComponent<Options>({
       />
       {
         props.showClearButton && (
-          <div class="tooltip tooltip-bottom" data-tip={t('activateMock')}>
+          <div class="tooltip tooltip-bottom" data-tip={t('globalMocked')}>
             <label class="label cursor-pointer">
-              <input type="checkbox" class="toggle toggle-sm toggle-success " checked={currentTabMocked.value} onChange={e => handleChangeCurrentTabMocked(e)} />
+              <input type="checkbox" class="toggle toggle-sm toggle-success " checked={globalMocked.value} onChange={e => handleChangeGlobalMocked(e)} />
             </label>
           </div>
 

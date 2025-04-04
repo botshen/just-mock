@@ -1,7 +1,20 @@
 import { ref } from 'vue'
 
 const currentTabMocked = ref<boolean | undefined>(undefined)
+// 总开关
+const globalMocked = ref<boolean>(false)
 const currentTabId = ref<number | null>(null) // 检查当前标签页是否被激活调试
+async function handleChangeGlobalMocked(e: Event) {
+  const target = e.target as HTMLInputElement
+  const checked = target.checked
+  if (checked) {
+    await activateALLDebugger()
+  }
+  else {
+    await deactivateALLDebugger()
+  }
+  globalMocked.value = checked
+}
 async function checkCurrentTabMocked() {
   const tabId = await getCurrentTabId()
   if (tabId) {
@@ -31,6 +44,13 @@ async function getCurrentTabId() {
     currentTabId.value = tabs[0].id
   }
   return currentTabId.value
+}
+
+async function activateALLDebugger() {
+  await sendMessage('activateAllDebugger', undefined)
+}
+async function deactivateALLDebugger() {
+  await sendMessage('deactivateAllDebugger', undefined)
 }
 // 激活debugger
 async function activateDebugger() {
@@ -79,5 +99,5 @@ async function handleChangeCurrentTabMocked(e: Event) {
   await checkCurrentTabMocked()
 }
 export function useMockStore() {
-  return { currentTabMocked, handleChangeCurrentTabMocked, currentTabId, activateDebugger, deactivateDebugger, checkCurrentTabMocked, getCurrentTabId }
+  return { handleChangeGlobalMocked, globalMocked, currentTabMocked, handleChangeCurrentTabMocked, currentTabId, activateDebugger, deactivateDebugger, checkCurrentTabMocked, getCurrentTabId }
 }
