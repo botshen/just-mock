@@ -33,3 +33,4 @@ deactivateMock: Deactivate Mock
 deactivateDebugger: Deactivate Debugger
 activateDebugger: Activate Debugger
 reroute: Reroute
+noRerouteTip: You have no reroute rules. Add a reroute rule to get started.

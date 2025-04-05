@@ -33,3 +33,4 @@ deactivateMock: 停用 mock
 deactivateDebugger: 停用调试器
 activateDebugger: 激活调试器
 reroute: 重定向路由
+noRerouteTip: 您没有重定向规则，请添加重定向规则

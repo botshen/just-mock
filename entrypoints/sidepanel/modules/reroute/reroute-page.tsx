@@ -10,18 +10,38 @@ export const ReroutePage = createComponent(null, () => {
 
   // 添加新规则
   const addNewRule = async () => {
+    // 获取当前活跃标签页，而不是使用getCurrent
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    const currentTab = tabs[0]
+    const currentTabDomain = currentTab?.url?.split('://')[1]?.split('/')[0]
+
+    // 转义域名中的点号，将其替换为 \. 以便在正则表达式中正确匹配
+    const escapedDomain = currentTabDomain ? currentTabDomain.replace(/\./g, '\\.') : 'localhost:8081'
+
     const newRule: RerouteRule = {
       id: createNanoId(),
       actionType: 'REROUTE',
       comment: '',
-      enabled: false,
-      rerouteUrl: 'https://model.sankuai.com/$1',
-      url: 'http://localhost:8081/(.*)',
+      enabled: true,
+      url: currentTabDomain ? `https://${escapedDomain}/(.*)` : 'http://localhost:8081/(.*)',
+      rerouteUrl: `http://localhost:3000/$1`,
       urlType: 'REGEX',
     }
+    await sendMessage('activateAllDebugger', undefined)
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.create(newRule)
     rules.value = await rerouteRepo.getAll()
+  }
+
+  // 检查是否需要停用调试器
+  const checkAndDeactivateDebuggerIfNeeded = async () => {
+    if (rules.value.every(rule => !rule.enabled)) {
+      const todosRepo = getTodosRepo()
+      const allTodos = await todosRepo.getAll()
+      if (allTodos.length === 0 || allTodos.every(todo => !todo.active)) {
+        await sendMessage('deactivateAllDebugger', undefined)
+      }
+    }
   }
 
   // 删除规则
@@ -29,16 +49,24 @@ export const ReroutePage = createComponent(null, () => {
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.delete(id)
     rules.value = await rerouteRepo.getAll()
+    await checkAndDeactivateDebuggerIfNeeded()
   }
 
   // 更新规则启用状态
-  const toggleRuleStatus = async (id: string) => {
+  const toggleRuleStatus = async (e: Event, id: string) => {
+    const isChecked = (e.target as HTMLInputElement).checked
     const rule = rules.value.find(r => r.id === id)
     if (!rule)
       return
-    rule.enabled = !rule.enabled
+    rule.enabled = isChecked
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.update(rule)
+    if (isChecked) {
+      await sendMessage('activateAllDebugger', undefined)
+    }
+    if (!isChecked) {
+      await checkAndDeactivateDebuggerIfNeeded()
+    }
   }
 
   // 更新规则字段
@@ -64,7 +92,9 @@ export const ReroutePage = createComponent(null, () => {
           {rules.value.length === 0
             ? (
               <div class="text-center py-8 text-gray-500">
-                <span>暂无重定向规则，请点击"添加规则"按钮创建</span>
+                <span>
+                  {t('noRerouteTip')}
+                </span>
               </div>
             )
             : (
@@ -78,7 +108,7 @@ export const ReroutePage = createComponent(null, () => {
                           type="checkbox"
                           class="toggle toggle-sm mr-2"
                           checked={rule.enabled}
-                          onChange={() => toggleRuleStatus(rule.id)}
+                          onChange={e => toggleRuleStatus(e, rule.id)}
                         />
                         <button
                           class="text-error"
