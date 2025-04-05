@@ -2,8 +2,8 @@ import { defineExtensionMessaging } from '@webext-core/messaging'
 
 interface ProtocolMap {
   sendToSidePanel: (data: any) => void
-  // Debugger 相关消息
-  activateDebugger: (tabId: number) => void
+
+  doDebugger: () => void
   deactivateDebugger: (tabId: number) => void
   activateAllDebugger: () => void
   deactivateAllDebugger: () => void

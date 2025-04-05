@@ -8,11 +8,13 @@ async function handleChangeGlobalMocked(e: Event) {
   const target = e.target as HTMLInputElement
   const checked = target.checked
   if (checked) {
+    console.log('444', 444)
     await activateALLDebugger()
   }
   else {
     await deactivateALLDebugger()
   }
+  totalSwitch.setValue(checked)
   globalMocked.value = checked
 }
 async function checkCurrentTabMocked() {
@@ -53,24 +55,24 @@ async function deactivateALLDebugger() {
   await sendMessage('deactivateAllDebugger', undefined)
 }
 // 激活debugger
-async function activateDebugger() {
-  const tabId = await getCurrentTabId()
-  console.log('tabId', tabId)
-  if (tabId) {
-    try {
-      await sendMessage('activateDebugger', tabId)
-    }
-    catch (error) {
-      console.error('激活debugger失败:', error)
-    }
-    finally {
-      await checkCurrentTabMocked()
-    }
-  }
-  else {
-    console.error('未找到当前标签页')
-  }
-}
+// async function activateDebugger() {
+//   const tabId = await getCurrentTabId()
+//   console.log('tabId', tabId)
+//   if (tabId) {
+//     try {
+//       await sendMessage('activateDebugger', tabId)
+//     }
+//     catch (error) {
+//       console.error('激活debugger失败:', error)
+//     }
+//     finally {
+//       await checkCurrentTabMocked()
+//     }
+//   }
+//   else {
+//     console.error('未找到当前标签页')
+//   }
+// }
 
 // 停用debugger
 async function deactivateDebugger() {
@@ -87,17 +89,17 @@ async function deactivateDebugger() {
     }
   }
 }
-async function handleChangeCurrentTabMocked(e: Event) {
-  const target = e.target as HTMLInputElement
-  const checked = target.checked
-  if (checked) {
-    await activateDebugger()
+
+// 初始化函数，从存储中读取全局状态
+async function initializeStore() {
+  try {
+    const result = await totalSwitch.getValue()
+    globalMocked.value = result
   }
-  else {
-    await deactivateDebugger()
+  catch (error) {
+    console.error('初始化存储状态失败:', error)
   }
-  await checkCurrentTabMocked()
 }
 export function useMockStore() {
-  return { handleChangeGlobalMocked, globalMocked, currentTabMocked, handleChangeCurrentTabMocked, currentTabId, activateDebugger, deactivateDebugger, checkCurrentTabMocked, getCurrentTabId }
+  return { handleChangeGlobalMocked, globalMocked, currentTabMocked, currentTabId, deactivateDebugger, checkCurrentTabMocked, getCurrentTabId, initializeStore }
 }

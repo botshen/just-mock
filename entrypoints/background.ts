@@ -29,22 +29,12 @@ export default defineBackground(() => {
     browser.sidePanel.open({ windowId: tab.windowId })
   })
 
-  // 激活特定标签页的debugger
-  onMessage('activateDebugger', async (message) => {
-    if (typeof message.data === 'number') {
-      await debuggerUtils.activateDebugger(message.data)
-    }
+  onMessage('doDebugger', async () => {
+    await debuggerUtils.doDebugger()
   })
 
   onMessage('activateAllDebugger', async () => {
     await debuggerUtils.activateAllDebugger()
-  })
-
-  // 停用特定标签页的debugger
-  onMessage('deactivateDebugger', async (message) => {
-    if (typeof message.data === 'number') {
-      await debuggerUtils.deactivateDebugger(message.data)
-    }
   })
 
   // 停用所有debugger

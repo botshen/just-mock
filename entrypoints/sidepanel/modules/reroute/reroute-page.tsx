@@ -3,11 +3,12 @@ import clearIcon from '@/assets/delete.svg'
 import { createComponent } from '@/share/create-component'
 import { createNanoId } from '@/share/id-helper'
 import { onMounted, ref } from 'vue'
+import { useMockStore } from '../header/use-mock-store'
 
 export const ReroutePage = createComponent(null, () => {
   const { t } = i18n
   const rules = ref<RerouteRule[]>([])
-
+  const { globalMocked } = useMockStore()
   // 添加新规则
   const addNewRule = async () => {
     // 获取当前活跃标签页，而不是使用getCurrent
@@ -86,7 +87,7 @@ export const ReroutePage = createComponent(null, () => {
   })
 
   return () => (
-    <div class="m-2">
+    <div class={`m-2 ${!globalMocked.value ? 'opacity-50 pointer-events-none' : ''}`}>
       <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
         <div>
           {rules.value.length === 0

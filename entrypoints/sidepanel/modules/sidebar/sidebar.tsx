@@ -38,9 +38,9 @@ export const Sidebar = createComponent(null, () => {
       <RouterLink to="/reroute" class={linkClass('/reroute')}>
         {renderIcon('/reroute', routeUrl, routeUrl, t('reroute'))}
       </RouterLink>
-      <RouterLink to="/settings" class={linkClass('/settings')}>
+      {/* <RouterLink to="/settings" class={linkClass('/settings')}>
         {renderIcon('/settings', settingActiveUrl, settingUrl, t('settings'))}
-      </RouterLink>
+      </RouterLink> */}
     </div>
   )
 })

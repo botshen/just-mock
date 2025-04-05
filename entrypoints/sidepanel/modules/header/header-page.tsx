@@ -4,6 +4,7 @@ import filterAllIcon from '@/assets/filter-all.svg'
 import { Input } from '@/components/input/input'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
+import { totalSwitch } from '@/utils/storage'
 import { onMounted, onUnmounted } from 'vue'
 import { useMockStore } from './use-mock-store'
 
@@ -27,7 +28,7 @@ export const HeaderPage = createComponent<Options>({
     list,
   } = useLogsStore()
   const { t } = i18n
-  const { checkCurrentTabMocked, globalMocked, handleChangeGlobalMocked } = useMockStore()
+  const { checkCurrentTabMocked, globalMocked, handleChangeGlobalMocked, initializeStore } = useMockStore()
   // 获取当前标签页URL并提取域名
   const getCurrentTabUrl = async () => {
     try {
@@ -68,13 +69,24 @@ export const HeaderPage = createComponent<Options>({
     // 设置标签页监听器
     setupTabListeners()
     await checkCurrentTabMocked()
+    initializeStore()
+
     onUnmounted(() => {
       // 移除标签页监听器
       browser.tabs.onActivated.removeListener(getCurrentTabUrl)
       browser.tabs.onUpdated.removeListener(getCurrentTabUrl)
     })
   })
-
+  watch(globalMocked, async (newValue) => {
+    console.log('newValue', newValue)
+    if (newValue) {
+      sendMessage('activateAllDebugger', undefined)
+    }
+    else {
+      sendMessage('deactivateAllDebugger', undefined)
+    }
+    await totalSwitch.setValue(newValue)
+  })
   const handleFilter = (e: Event) => {
     const target = e.target as HTMLInputElement
     isCurrentDomain.value = target.checked

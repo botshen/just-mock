@@ -13,7 +13,7 @@ export const SettingsPage = createComponent(null, () => {
     interceptSuccessTip: false,
   })
 
-  const { currentTabMocked, currentTabId, handleChangeCurrentTabMocked, checkCurrentTabMocked, getCurrentTabId } = useMockStore()
+  const { currentTabMocked, currentTabId, checkCurrentTabMocked, getCurrentTabId } = useMockStore()
 
   // 停用所有debugger
   const deactivateAllDebugger = async () => {
@@ -85,10 +85,10 @@ export const SettingsPage = createComponent(null, () => {
     <div class="m-2">
       <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
         <div class="form-control">
-          <label class="label cursor-pointer">
+          {/* <label class="label cursor-pointer">
             <span class="label-text">{t('currentTabMocked')}</span>
             <input type="checkbox" class="toggle" checked={currentTabMocked.value} onChange={e => handleChangeCurrentTabMocked(e)} />
-          </label>
+          </label> */}
           {/* <label class="label cursor-pointer">
             <span class="label-text">{t('consoleLog')}</span>
             <input type="checkbox" class="toggle" checked={mockConfig.value.consoleLog} onChange={() => handleChangeConsoleLog()} />

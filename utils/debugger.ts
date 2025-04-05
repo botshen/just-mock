@@ -2,13 +2,52 @@ import type { LogRule } from '@/entrypoints/sidepanel/modules/store/use-logs-sto
 import type { RerouteRule } from '@/utils/service'
 import { sendMessage } from '@/utils/messaging'
 import { getRerouteRepo, getTodosRepo } from '@/utils/service'
-
+import { totalSwitch } from '@/utils/storage'
 // Debugger会话管理
 interface DebuggerSession {
   tabId: number
   active: boolean
 }
+export async function doDebugger() {
+  if (!(await totalSwitch.getValue())) {
+    await deactivateAllDebugger()
+    return
+  }
+  const todoRepo = getTodosRepo()
+  const todos = await todoRepo.getAll()
+  console.log('todos', todos)
+  const rerouteRepo = getRerouteRepo()
+  const reroutes = await rerouteRepo.getAll()
+  console.log('reroutes', reroutes)
+  if (todos.length === 0 && reroutes.length === 0) {
+    await deactivateAllDebugger()
+    return
+  }
+  if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
+    await deactivateAllDebugger()
+    return
+  }
+  await activateAllDebugger()
+}
 export async function activateAllDebugger() {
+  // console.log('1111441', 1111441)
+  // console.log('totalSwitch.getValue()', await totalSwitch.getValue())
+  // if (!(await totalSwitch.getValue())) {
+  //   return
+  // }
+  // const todoRepo = getTodosRepo()
+  // const todos = await todoRepo.getAll()
+  // console.log('todos', todos)
+  // const rerouteRepo = getRerouteRepo()
+  // const reroutes = await rerouteRepo.getAll()
+  // console.log('reroutes', reroutes)
+  // if (todos.length === 0 && reroutes.length === 0) {
+  //   return
+  // }
+  // if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
+  //   return
+  // }
+  // console.log('22222', 22222)
   const tabs = await browser.tabs.query({ currentWindow: true })
   for (const tab of tabs) {
     if (tab.id) {
@@ -291,6 +330,9 @@ async function getRequestPayload(tabId: number, requestId: string): Promise<stri
 }
 
 export async function shouldActivateDebugger(tabId: number) {
+  if (!(await totalSwitch.getValue())) {
+    return
+  }
   const rerouteRepo = getRerouteRepo()
   const reroutes = await rerouteRepo.getAll()
   const todosRepo = getTodosRepo()
@@ -300,6 +342,6 @@ export async function shouldActivateDebugger(tabId: number) {
   const hasEnabledTodos = todos.some(todo => todo.active)
 
   if (hasEnabledRules || hasEnabledTodos) {
-    await activateDebugger(tabId)
+    await activateAllDebugger()
   }
 }

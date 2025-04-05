@@ -6,7 +6,7 @@ import { createComponent } from '@/share/create-component'
 import { tryParseJson } from '@/share/inject-help'
 import { sendMessage } from '@/utils/messaging'
 import { getTodosRepo } from '@/utils/service'
- import { createJSONEditor } from 'vanilla-jsoneditor'
+import { createJSONEditor } from 'vanilla-jsoneditor'
 import { useRouter } from 'vue-router'
 import './json.css'
 
@@ -17,7 +17,7 @@ export const LogDetail = createComponent(null, () => {
   const payloadEditorContainer = ref<HTMLDivElement>()
   const editor = ref<any>(null)
   const responseEditor = ref<any>(null)
-const { t } = i18n
+  const { t } = i18n
   onMounted(() => {
     if (jsonEditorContainer.value) {
       responseEditor.value = createJSONEditor({
@@ -34,7 +34,7 @@ const { t } = i18n
             if (updatedContent.json) {
               formData.value.response = JSON.stringify(updatedContent.json)
             }
- else if (updatedContent.text) {
+            else if (updatedContent.text) {
               formData.value.response = updatedContent.text
             }
           },
@@ -68,12 +68,12 @@ const { t } = i18n
   })
 
   const onSubmit = async () => {
-      if (responseEditor.value) {
+    if (responseEditor.value) {
       const content = responseEditor.value.get()
       if (content.json) {
         formData.value.response = JSON.stringify(content.json)
       }
- else if (content.text) {
+      else if (content.text) {
         formData.value.response = content.text
       }
     }
@@ -91,8 +91,10 @@ const { t } = i18n
       active: formData.value.active,
     }
     const todosRepo = getTodosRepo()
-     await todosRepo.update(newRule)
-     router.back()
+    await todosRepo.update(newRule)
+
+    await sendMessage('doDebugger', undefined)
+    router.back()
   }
 
   const codeOptions = ref([{
@@ -147,17 +149,17 @@ const { t } = i18n
 
         <div class="flex justify-between items-center  ">
           <div class="flex items-center gap-2">
-          <label class="font-bold">{t('switch')}</label>
-          <input
-            type="checkbox"
-            class="toggle"
-            checked={formData.value.active}
-            onChange={(e) => {
-               if (e && e.target && 'checked' in e.target) {
-                formData.value.active = (e.target as HTMLInputElement).checked
-              }
-            }}
-          />
+            <label class="font-bold">{t('switch')}</label>
+            <input
+              type="checkbox"
+              class="toggle"
+              checked={formData.value.active}
+              onChange={(e) => {
+                if (e && e.target && 'checked' in e.target) {
+                  formData.value.active = (e.target as HTMLInputElement).checked
+                }
+              }}
+            />
           </div>
           <div class="flex gap-2">
             <Button2
