@@ -7,13 +7,6 @@ const currentTabId = ref<number | null>(null) // 检查当前标签页是否被�
 async function handleChangeGlobalMocked(e: Event) {
   const target = e.target as HTMLInputElement
   const checked = target.checked
-  if (checked) {
-    console.log('444', 444)
-    await activateALLDebugger()
-  }
-  else {
-    await deactivateALLDebugger()
-  }
   totalSwitch.setValue(checked)
   globalMocked.value = checked
 }

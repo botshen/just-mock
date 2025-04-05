@@ -30,24 +30,19 @@ export async function doDebugger() {
   await activateAllDebugger()
 }
 export async function activateAllDebugger() {
-  // console.log('1111441', 1111441)
-  // console.log('totalSwitch.getValue()', await totalSwitch.getValue())
-  // if (!(await totalSwitch.getValue())) {
-  //   return
-  // }
-  // const todoRepo = getTodosRepo()
-  // const todos = await todoRepo.getAll()
-  // console.log('todos', todos)
-  // const rerouteRepo = getRerouteRepo()
-  // const reroutes = await rerouteRepo.getAll()
-  // console.log('reroutes', reroutes)
-  // if (todos.length === 0 && reroutes.length === 0) {
-  //   return
-  // }
-  // if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
-  //   return
-  // }
-  // console.log('22222', 22222)
+  if (!(await totalSwitch.getValue())) {
+    return
+  }
+  const todoRepo = getTodosRepo()
+  const todos = await todoRepo.getAll()
+  const rerouteRepo = getRerouteRepo()
+  const reroutes = await rerouteRepo.getAll()
+  if (todos.length === 0 && reroutes.length === 0) {
+    return
+  }
+  if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
+    return
+  }
   const tabs = await browser.tabs.query({ currentWindow: true })
   for (const tab of tabs) {
     if (tab.id) {
