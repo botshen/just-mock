@@ -37,12 +37,12 @@ export async function activateAllDebugger() {
   const todos = await todoRepo.getAll()
   const rerouteRepo = getRerouteRepo()
   const reroutes = await rerouteRepo.getAll()
-  if (todos.length === 0 && reroutes.length === 0) {
-    return
-  }
-  if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
-    return
-  }
+  // if (todos.length === 0 && reroutes.length === 0) {
+  //   return
+  // }
+  // if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
+  //   return
+  // }
   const tabs = await browser.tabs.query({ currentWindow: true })
   for (const tab of tabs) {
     if (tab.id) {
@@ -68,7 +68,11 @@ export async function activateDebugger(tabId: number) {
       patterns: [{ urlPattern: '*' }],
     })
 
-    console.log(`成功为标签页 ${tabId} 附加调试器`)
+    // tabId 的url
+    const tab = await browser.tabs.get(tabId)
+    const url = tab.url
+    console.log(`成功为标签页 ${url} 附加调试器`)
+
     return true
   }
   catch (error) {
@@ -105,7 +109,6 @@ export async function deactivateAllDebugger() {
 export async function findMatchingRule(url: string): Promise<LogRule | undefined> {
   const todo = getTodosRepo()
   const rules = await todo.getAll()
-  console.log('rules', rules)
   return rules.find((rule) => {
     // 简单匹配URL，可以根据需要扩展为正则匹配
     return rule.active && url.includes(rule.url)
@@ -202,6 +205,10 @@ export async function handleRerouteResponse(tabId: number, requestId: string, ru
 // 处理调试器事件
 export async function handleDebuggerEvent(debuggerId: any, method: string, params: any) {
   const { tabId } = debuggerId
+  // 打印tab的url
+  const tab = await browser.tabs.get(tabId)
+  const url = tab.url
+  console.log(`tab的url: ${url}`)
 
   if (method === 'Fetch.requestPaused') {
     const { requestId, request } = params
