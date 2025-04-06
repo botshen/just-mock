@@ -62,16 +62,45 @@ export default defineBackground(() => {
   })
 
   // 监控所有加载的标签页
-  browser.webNavigation.onBeforeNavigate.addListener(async (details) => {
-    // 只处理主框架的导航，忽略iframe等
-    // if (details.frameId === 0) {
+  const ke = new Set<number>() // 已附加调试器的标签页
+  const Ce = new Set<number>() // 已启用 Fetch 的标签页
+  const processedTabs = new Set<number>() // 已经处理过的标签页
 
-    // }
-    debuggerUtils.shouldActivateDebugger(details.tabId)
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+    if (changeInfo.status === 'loading' && !processedTabs.has(tabId)) {
+      // 检查是否需要激活调试器
+      const todoRepo = getTodosRepo()
+      const todos = await todoRepo.getAll()
+      const rerouteRepo = getRerouteRepo()
+      const reroutes = await rerouteRepo.getAll()
+
+      // 检查是否有启用的规则
+      const hasEnabledRules = reroutes.some(rule => rule.enabled)
+      const hasEnabledTodos = todos.some(todo => todo.active)
+
+      if (hasEnabledRules || hasEnabledTodos) {
+        // 启用调试器和 Fetch
+        const success = await debuggerUtils.activateDebugger(tabId)
+        if (success) {
+          ke.add(tabId)
+          Ce.add(tabId)
+          processedTabs.add(tabId)
+
+          // 获取标签页信息
+          const tab = await browser.tabs.get(tabId)
+          if (tab.active && tab.status === 'loading') {
+            await browser.tabs.reload(tabId)
+          }
+        }
+      }
+    }
   })
 
   // 监听标签页关闭事件，清理相关资源
   browser.tabs.onRemoved.addListener((tabId) => {
+    ke.delete(tabId)
+    Ce.delete(tabId)
+    processedTabs.delete(tabId)
     debuggerUtils.deactivateDebugger(tabId).catch(err =>
       console.error(`关闭标签页 ${tabId} 时停用调试器失败:`, err),
     )
