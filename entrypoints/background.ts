@@ -62,11 +62,12 @@ export default defineBackground(() => {
   })
 
   // 监控所有加载的标签页
-  browser.webNavigation.onCommitted.addListener(async (details) => {
+  browser.webNavigation.onBeforeNavigate.addListener(async (details) => {
     // 只处理主框架的导航，忽略iframe等
-    if (details.frameId === 0) {
-      debuggerUtils.shouldActivateDebugger(details.tabId)
-    }
+    // if (details.frameId === 0) {
+
+    // }
+    debuggerUtils.shouldActivateDebugger(details.tabId)
   })
 
   // 监听标签页关闭事件，清理相关资源

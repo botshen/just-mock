@@ -335,15 +335,16 @@ export async function shouldActivateDebugger(tabId: number) {
   if (!(await totalSwitch.getValue())) {
     return
   }
-  const rerouteRepo = getRerouteRepo()
-  const reroutes = await rerouteRepo.getAll()
-  const todosRepo = getTodosRepo()
-  const todos = await todosRepo.getAll()
+  // const rerouteRepo = getRerouteRepo()
+  // const reroutes = await rerouteRepo.getAll()
+  // const todosRepo = getTodosRepo()
+  // const todos = await todosRepo.getAll()
 
-  const hasEnabledRules = reroutes.some(rule => rule.enabled)
-  const hasEnabledTodos = todos.some(todo => todo.active)
+  // const hasEnabledRules = reroutes.some(rule => rule.enabled)
+  // const hasEnabledTodos = todos.some(todo => todo.active)
 
-  if (hasEnabledRules || hasEnabledTodos) {
-    await activateAllDebugger()
-  }
+  // if (hasEnabledRules || hasEnabledTodos) {
+  //   await activateAllDebugger()
+  // }
+  await activateAllDebugger()
 }
