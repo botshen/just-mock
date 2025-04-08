@@ -29,7 +29,7 @@ const formData = ref<LogRule>({
   active: true,
 })
 const filter = ref('')
-const isCurrentDomain = ref(false)
+const isCurrentDomain = ref(true)
 const currentTabUrl = ref('')
 const currentDomain = ref('')
 const filteredList = computed(() => {

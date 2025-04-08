@@ -78,7 +78,6 @@ export const HeaderPage = createComponent<Options>({
     })
   })
   watch(globalMocked, async (newValue) => {
-    console.log('newValue', newValue)
     if (newValue) {
       sendMessage('activateAllDebugger', undefined)
     }
@@ -112,7 +111,6 @@ export const HeaderPage = createComponent<Options>({
               <input type="checkbox" class="toggle toggle-sm toggle-success " checked={globalMocked.value} onChange={e => handleChangeGlobalMocked(e)} />
             </label>
           </div>
-
         )
       }
       {

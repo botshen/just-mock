@@ -33,22 +33,9 @@ export async function activateAllDebugger() {
   if (!(await totalSwitch.getValue())) {
     return
   }
-  const todoRepo = getTodosRepo()
-  const todos = await todoRepo.getAll()
-  const rerouteRepo = getRerouteRepo()
-  const reroutes = await rerouteRepo.getAll()
-  // if (todos.length === 0 && reroutes.length === 0) {
-  //   return
-  // }
-  // if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
-  //   return
-  // }
   const tabs = await browser.tabs.query({ currentWindow: true })
-  for (const tab of tabs) {
-    if (tab.id) {
-      await activateDebugger(tab.id)
-    }
-  }
+  const activationPromises = tabs.map(tab => tab.id ? activateDebugger(tab.id) : Promise.resolve(false))
+  await Promise.all(activationPromises)
 }
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
@@ -65,7 +52,11 @@ export async function activateDebugger(tabId: number) {
     await browser.debugger.attach({ tabId }, '1.3')
     await browser.debugger.sendCommand({ tabId }, 'Network.enable')
     await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
-      patterns: [{ urlPattern: '*' }],
+      patterns: [{
+        urlPattern: 'http://*',
+      }, {
+        urlPattern: 'https://*',
+      }],
     })
 
     // tabId 的url
@@ -263,30 +254,28 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
 // 获取特定标签页的调试状态
 export async function getDebuggerStatus(tabId: number): Promise<DebuggerSession> {
   try {
-    const targets = await browser.debugger.getTargets()
-    console.log('targets', targets)
-
+    const targets = (await browser.debugger.getTargets()).filter(e => e.tabId && (e.url.startsWith('http://') || e.url.startsWith('https://')))
     const activeTarget = targets.find(target => target.tabId === tabId && target.attached === true)
-
     if (!activeTarget) {
       return { tabId, active: false }
     }
-
     try {
       // 检查 Network 和 Fetch 是否启用
       await browser.debugger.sendCommand({ tabId }, 'Network.enable')
       await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
-        patterns: [{ urlPattern: '*' }],
+        patterns: [{
+          urlPattern: 'http://*',
+        }, {
+          urlPattern: 'https://*',
+        }],
       })
       return { tabId, active: true }
     }
     catch (error) {
-      console.error('调试器功能未完全启用:', error)
       return { tabId, active: false }
     }
   }
   catch (error) {
-    console.error(`获取调试器状态失败:`, error)
     return { tabId, active: false }
   }
 }
@@ -326,7 +315,6 @@ async function getRequestPayload(tabId: number, requestId: string): Promise<stri
     return ''
   }
   catch (error) {
-    console.error('获取请求payload失败:', error)
     return ''
   }
 }
@@ -335,16 +323,5 @@ export async function shouldActivateDebugger(tabId: number) {
   if (!(await totalSwitch.getValue())) {
     return
   }
-  // const rerouteRepo = getRerouteRepo()
-  // const reroutes = await rerouteRepo.getAll()
-  // const todosRepo = getTodosRepo()
-  // const todos = await todosRepo.getAll()
-
-  // const hasEnabledRules = reroutes.some(rule => rule.enabled)
-  // const hasEnabledTodos = todos.some(todo => todo.active)
-
-  // if (hasEnabledRules || hasEnabledTodos) {
-  //   await activateAllDebugger()
-  // }
   await activateAllDebugger()
 }
