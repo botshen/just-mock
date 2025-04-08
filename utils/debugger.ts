@@ -40,6 +40,21 @@ export async function activateAllDebugger() {
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
   try {
+    // 检查标签页 URL
+    const tab = await browser.tabs.get(tabId)
+    const url = tab.url || ''
+
+    // 过滤掉不支持的协议
+    const unsupportedProtocols = ['chrome:', 'chrome-extension:', 'about:', 'edge:', 'data:', 'view-source:']
+    if (unsupportedProtocols.some(protocol => url.toLowerCase().startsWith(protocol))) {
+      return false
+    }
+
+    // 只支持 http 和 https 协议
+    if (!url.toLowerCase().startsWith('http://') && !url.toLowerCase().startsWith('https://')) {
+      return false
+    }
+
     // 直接尝试分离可能存在的调试器
     try {
       await browser.debugger.detach({ tabId })
@@ -50,7 +65,13 @@ export async function activateDebugger(tabId: number) {
 
     // 附加新的调试器
     await browser.debugger.attach({ tabId }, '1.3')
-    await browser.debugger.sendCommand({ tabId }, 'Network.enable')
+    await browser.debugger.sendCommand({ tabId }, 'Network.enable', {
+      patterns: [{
+        urlPattern: 'http://*',
+      }, {
+        urlPattern: 'https://*',
+      }],
+    })
     await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
       patterns: [{
         urlPattern: 'http://*',
@@ -58,11 +79,6 @@ export async function activateDebugger(tabId: number) {
         urlPattern: 'https://*',
       }],
     })
-
-    // tabId 的url
-    const tab = await browser.tabs.get(tabId)
-    const url = tab.url
-    console.log(`成功为标签页 ${url} 附加调试器`)
 
     return true
   }
@@ -79,7 +95,6 @@ export async function deactivateDebugger(tabId: number) {
     return true
   }
   catch (error) {
-    console.error(`停用调试器失败:`, error)
     return false
   }
 }
@@ -196,13 +211,12 @@ export async function handleRerouteResponse(tabId: number, requestId: string, ru
 // 处理调试器事件
 export async function handleDebuggerEvent(debuggerId: any, method: string, params: any) {
   const { tabId } = debuggerId
-  // 打印tab的url
-  const tab = await browser.tabs.get(tabId)
-  const url = tab.url
-  console.log(`tab的url: ${url}`)
 
   if (method === 'Fetch.requestPaused') {
-    const { requestId, request } = params
+    const { requestId, request, type } = params
+    if (type === 'Other') {
+      return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', { requestId })
+    }
 
     // 检查是否有匹配的mock规则
     const matchedRule = await findMatchingRule(request.url)
@@ -223,6 +237,12 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
   else if (method === 'Network.responseReceived') {
     const { requestId, response } = params
     try {
+      // 过滤掉静态资源文件
+      const staticFileExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.css', '.js', '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot']
+      if (staticFileExtensions.some(ext => response.url.toLowerCase().endsWith(ext))) {
+        return
+      }
+
       // 获取响应体
       const responseBodyResult = await browser.debugger.sendCommand({ tabId }, 'Network.getResponseBody', { requestId })
       const responseBody = responseBodyResult && 'body' in responseBodyResult ? responseBodyResult.body : ''
@@ -243,8 +263,16 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
       }
     }
     catch (error) {
-      // 保留错误日志，便于调试
-      console.error(`获取响应体失败:`, error)
+      // 如果是 No data found 错误，静默处理
+      if (error
+        && typeof error === 'object'
+        && 'message' in error
+        && typeof (error as { message: unknown }).message === 'string'
+        && (error as { message: string }).message.includes('No data found for resource with given identifier')) {
+        return
+      }
+      // 其他类型错误仍然记录
+      console.error(`获取响应体失败 [${response.url}]:`, error)
     }
   }
 

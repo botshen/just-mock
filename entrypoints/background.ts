@@ -88,7 +88,9 @@ export default defineBackground(() => {
 
           // 获取标签页信息
           const tab = await browser.tabs.get(tabId)
-          if (tab.active && tab.status === 'loading') {
+          // 只有当标签页是新打开的（url 从 about:blank 变为实际 URL）时才重新加载
+          if (tab.active && tab.status === 'loading'
+            && changeInfo.url && tab.url === 'about:blank') {
             await browser.tabs.reload(tabId)
           }
         }
@@ -101,8 +103,6 @@ export default defineBackground(() => {
     ke.delete(tabId)
     Ce.delete(tabId)
     processedTabs.delete(tabId)
-    debuggerUtils.deactivateDebugger(tabId).catch(err =>
-      console.error(`关闭标签页 ${tabId} 时停用调试器失败:`, err),
-    )
+    debuggerUtils.deactivateDebugger(tabId)
   })
 })

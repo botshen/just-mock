@@ -13,8 +13,7 @@ export const App = createComponent(null, () => {
 
   const { renderPopovers } = usePopoverStore()
   const sendToPanelHandler = (message: any) => {
-    console.log('side-message', message)
-     if (!Array.isArray(logsList.value)) {
+    if (!Array.isArray(logsList.value)) {
       logsList.value = []
     }
     const rule = message.data
