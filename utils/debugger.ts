@@ -37,6 +37,15 @@ export async function activateAllDebugger() {
   const activationPromises = tabs.map(tab => tab.id ? activateDebugger(tab.id) : Promise.resolve(false))
   await Promise.all(activationPromises)
 }
+async function setCommand(tabId: number, command: string) {
+  await browser.debugger.sendCommand({ tabId }, command, {
+    patterns: [{
+      urlPattern: 'http://*',
+    }, {
+      urlPattern: 'https://*',
+    }],
+  })
+}
 // 激活特定标签页的debugger
 export async function activateDebugger(tabId: number) {
   try {
@@ -65,20 +74,8 @@ export async function activateDebugger(tabId: number) {
 
     // 附加新的调试器
     await browser.debugger.attach({ tabId }, '1.3')
-    await browser.debugger.sendCommand({ tabId }, 'Network.enable', {
-      patterns: [{
-        urlPattern: 'http://*',
-      }, {
-        urlPattern: 'https://*',
-      }],
-    })
-    await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
-      patterns: [{
-        urlPattern: 'http://*',
-      }, {
-        urlPattern: 'https://*',
-      }],
-    })
+    await setCommand(tabId, 'Network.enable')
+    await setCommand(tabId, 'Fetch.enable')
 
     return true
   }
@@ -290,13 +287,7 @@ export async function getDebuggerStatus(tabId: number): Promise<DebuggerSession>
     try {
       // 检查 Network 和 Fetch 是否启用
       await browser.debugger.sendCommand({ tabId }, 'Network.enable')
-      await browser.debugger.sendCommand({ tabId }, 'Fetch.enable', {
-        patterns: [{
-          urlPattern: 'http://*',
-        }, {
-          urlPattern: 'https://*',
-        }],
-      })
+      await browser.debugger.sendCommand({ tabId }, 'Fetch.enable')
       return { tabId, active: true }
     }
     catch (error) {
