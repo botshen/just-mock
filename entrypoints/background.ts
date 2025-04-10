@@ -67,6 +67,14 @@ export default defineBackground(() => {
   const processedTabs = new Set<number>() // 已经处理过的标签页
 
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+    if (!await totalSwitch.getValue()) {
+      const targets = await browser.debugger.getTargets()
+      const target = targets.find(target => target.tabId === tabId)
+      if (target?.attached) {
+        debuggerUtils.deactivateDebugger(tabId)
+      }
+      return
+    }
     if (changeInfo.status === 'loading' && !processedTabs.has(tabId)) {
       // 检查是否需要激活调试器
       const todoRepo = getTodosRepo()
