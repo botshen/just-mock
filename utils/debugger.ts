@@ -247,7 +247,9 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
       const matchedRule = await findMatchingRule(response.url)
       const isMocked = Boolean(matchedRule?.active)
       const requestType = response.mimeType
-      if (requestType === 'application/json') {
+
+      // 处理API响应，包括JSON和错误状态码
+      if (requestType === 'application/json' || response.status >= 400) {
         // 发送完整信息到侧边栏
         await sendMessage('sendToSidePanel', {
           url: response.url,
