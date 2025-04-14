@@ -1,14 +1,19 @@
 import type { RerouteRule } from '@/utils/service'
 import clearIcon from '@/assets/delete.svg'
+import { Button2 } from '@/components/button/button'
+import { openDialog } from '@/components/dialog/open-dialog'
 import { createComponent } from '@/share/create-component'
 import { createNanoId } from '@/share/id-helper'
 import { onMounted, ref } from 'vue'
 import { useMockStore } from '../header/use-mock-store'
+import { RuleConfigDialog } from './rule-config-dialog'
+import { useRerouterStore } from './use-rerouter-store'
 
 export const ReroutePage = createComponent(null, () => {
   const { t } = i18n
   const rules = ref<RerouteRule[]>([])
   const { globalMocked } = useMockStore()
+  const { showModal } = useRerouterStore()
   // 添加新规则
   const addNewRule = async () => {
     // 获取当前活跃标签页，而不是使用getCurrent
@@ -79,7 +84,6 @@ export const ReroutePage = createComponent(null, () => {
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.update(rule)
   }
-
   onMounted(async () => {
     const rerouteRepo = getRerouteRepo()
     const all = await rerouteRepo.getAll()
@@ -146,7 +150,12 @@ export const ReroutePage = createComponent(null, () => {
             )}
         </div>
         <div class="flex justify-between mb-4">
-          <button class="btn btn-square btn-sm" onClick={addNewRule}>
+          <button
+            class="btn btn-square btn-sm"
+            onClick={() => {
+              showModal()
+            }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -164,6 +173,7 @@ export const ReroutePage = createComponent(null, () => {
           </button>
         </div>
       </div>
+      <RuleConfigDialog />
     </div>
   )
 })

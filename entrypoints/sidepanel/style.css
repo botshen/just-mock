@@ -7,11 +7,11 @@
   margin: 0;
   padding: 0;
 }
- dialog::backdrop {
+ /* dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(3px);
   transition: backdrop-filter 0.3s ease;
-}
+} */
 
 .jse-main {
   min-height: 100px;

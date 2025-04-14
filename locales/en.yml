@@ -32,6 +32,6 @@ activateMock: Activate Mock
 deactivateMock: Deactivate Mock
 deactivateDebugger: Deactivate Debugger
 activateDebugger: Activate Debugger
-reroute: Reroute
-noRerouteTip: You have no reroute rules. Add a reroute rule to get started.
+reroute: Interception address configuration
+noRerouteTip: YThere is no intercepted address yet.
 globalMocked: Global Mocked

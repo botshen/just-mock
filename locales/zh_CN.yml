@@ -32,6 +32,6 @@ activateMock: 激活 mock
 deactivateMock: 停用 mock
 deactivateDebugger: 停用调试器
 activateDebugger: 激活调试器
-reroute: 重定向路由
-noRerouteTip: 您没有重定向规则，请添加重定向规则
+reroute: 拦截地址配置
+noRerouteTip: 还没有任何拦截地址
 globalMocked: 全局拦截
