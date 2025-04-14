@@ -15,7 +15,7 @@ export const ReroutePage = createComponent(null, () => {
   const { globalMocked } = useMockStore()
   const { showModal } = useRerouterStore()
   // 添加新规则
-  const addNewRule = async () => {
+  const addReRouteRule = async () => {
     // 获取当前活跃标签页，而不是使用getCurrent
     const tabs = await browser.tabs.query({ active: true, currentWindow: true })
     const currentTab = tabs[0]
@@ -38,7 +38,28 @@ export const ReroutePage = createComponent(null, () => {
     await rerouteRepo.create(newRule)
     rules.value = await rerouteRepo.getAll()
   }
+  const addReplayRule = async () => {
+    // 获取当前活跃标签页，而不是使用getCurrent
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    const currentTab = tabs[0]
+    const currentTabDomain = currentTab?.url?.split('://')[1]?.split('/')[0]
 
+    // 转义域名中的点号，将其替换为 \. 以便在正则表达式中正确匹配
+    const escapedDomain = currentTabDomain ? currentTabDomain.replace(/\./g, '\\.') : 'localhost:8081'
+
+    const newRule: RerouteRule = {
+      id: createNanoId(),
+      actionType: 'REPLAY',
+      comment: '',
+      enabled: true,
+      url: currentTabDomain ? `https://${escapedDomain}/(.*)` : 'http://localhost:8081/(.*)',
+      urlType: 'REGEX',
+    }
+    await sendMessage('activateAllDebugger', undefined)
+    const rerouteRepo = getRerouteRepo()
+    await rerouteRepo.create(newRule)
+    rules.value = await rerouteRepo.getAll()
+  }
   // 检查是否需要停用调试器
   const checkAndDeactivateDebuggerIfNeeded = async () => {
     if (rules.value.every(rule => !rule.enabled)) {
@@ -133,18 +154,20 @@ export const ReroutePage = createComponent(null, () => {
                     />
                   </div>
 
-                  <div class="form-control">
-                    <label class="label">
-                      <span class="label-text">重定向到</span>
-                    </label>
-                    <input
-                      type="text"
-                      class="input input-bordered w-full input-sm"
-                      placeholder="例如: http://localhost:3000/$1"
-                      value={rule.rerouteUrl}
-                      onInput={e => updateRuleField(rule.id, 'rerouteUrl', (e.target as HTMLInputElement).value)}
-                    />
-                  </div>
+                  {rule.actionType === 'REROUTE' && (
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text">重定向到</span>
+                      </label>
+                      <input
+                        type="text"
+                        class="input input-bordered w-full input-sm"
+                        placeholder="例如: http://localhost:3000/$1"
+                        value={rule.rerouteUrl}
+                        onInput={e => updateRuleField(rule.id, 'rerouteUrl', (e.target as HTMLInputElement).value)}
+                      />
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -173,7 +196,16 @@ export const ReroutePage = createComponent(null, () => {
           </button>
         </div>
       </div>
-      <RuleConfigDialog />
+      <RuleConfigDialog
+        onSelectOption={(option) => {
+          if (option === 'reroute') {
+            addReRouteRule()
+          }
+          else if (option === 'replay') {
+            addReplayRule()
+          }
+        }}
+      />
     </div>
   )
 })

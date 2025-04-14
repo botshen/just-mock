@@ -5,10 +5,10 @@ import { defineProxyService, flattenPromise } from '@webext-core/proxy-service'
 // 添加重定向规则的类型定义
 export interface RerouteRule {
   id: string
-  actionType: 'REROUTE'
+  actionType: 'REROUTE' | 'REPLAY'
   comment: string
   enabled: boolean
-  rerouteUrl: string
+  rerouteUrl?: string
   url: string
   urlType: 'REGEX' | 'PLAIN'
 }
