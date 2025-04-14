@@ -240,38 +240,53 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
         return
       }
 
-      // 获取响应体
-      const responseBodyResult = await browser.debugger.sendCommand({ tabId }, 'Network.getResponseBody', { requestId })
-      const responseBody = responseBodyResult && 'body' in responseBodyResult ? responseBodyResult.body : ''
       // 检查是否有匹配的mock规则
       const matchedRule = await findMatchingRule(response.url)
       const isMocked = Boolean(matchedRule?.active)
-      const requestType = response.mimeType
 
-      // 处理API响应，包括JSON和错误状态码
-      if (requestType === 'application/json' || response.status >= 400) {
+      // 仅在状态码小于400时尝试获取响应体，或当响应类型为application/json时
+      if (response.mimeType === 'application/json' || response.status >= 400) {
+        let responseBody = ''
+        let payload = ''
+
+        // 仅在状态码小于400时尝试获取响应体
+        if (response.status < 400) {
+          try {
+            const result = await browser.debugger.sendCommand({ tabId }, 'Network.getResponseBody', { requestId })
+            if (result && typeof result === 'object' && 'body' in result) {
+              responseBody = result.body as string
+            }
+
+            // 仅在状态码小于400时尝试获取请求负载
+            payload = await getRequestPayload(tabId, requestId)
+          }
+          catch {
+            // 忽略响应体获取错误
+            responseBody = '{}'
+          }
+        }
+        else {
+          // 对于错误响应，提供默认响应体
+          responseBody = JSON.stringify({
+            error: `${response.status} ${response.statusText || '错误'}`,
+            url: response.url,
+          })
+        }
+
         // 发送完整信息到侧边栏
         await sendMessage('sendToSidePanel', {
           url: response.url,
           status: response.status,
           mock: isMocked,
           type: 'xhr',
-          payload: await getRequestPayload(tabId, requestId),
+          payload,
           response: responseBody,
         })
       }
     }
     catch (error) {
-      // 如果是 No data found 错误，静默处理
-      if (error
-        && typeof error === 'object'
-        && 'message' in error
-        && typeof (error as { message: unknown }).message === 'string'
-        && (error as { message: string }).message.includes('No data found for resource with given identifier')) {
-        return
-      }
-      // 其他类型错误仍然记录
-      console.error(`获取响应体失败 [${response.url}]:`, error)
+      // 静默处理所有错误，避免打印到控制台
+      // console.error(`获取响应体失败 [${response.url}]:`, error)
     }
   }
 
