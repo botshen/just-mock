@@ -88,12 +88,7 @@ export const ReroutePage = createComponent(null, () => {
     rule.enabled = isChecked
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.update(rule)
-    if (isChecked) {
-      // await sendMessage('activateAllDebugger', undefined)
-    }
-    if (!isChecked) {
-      await checkAndDeactivateDebuggerIfNeeded()
-    }
+    await sendMessage('doDebugger', undefined)
   }
 
   // 更新规则字段

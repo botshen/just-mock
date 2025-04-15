@@ -30,7 +30,42 @@ export default defineBackground(() => {
   })
 
   onMessage('doDebugger', async () => {
-    await debuggerUtils.doDebugger()
+    // 获取所有 HTTP/HTTPS 标签页
+    const tabs = await browser.tabs.query({
+      url: ['http://*/*', 'https://*/*'],
+    })
+
+    // 检查是否需要激活调试器
+    const rerouteRepo = getRerouteRepo()
+    const reroutes = await rerouteRepo.getAll()
+    const enabledRules = reroutes.filter(rule => rule.enabled)
+    if (enabledRules.length === 0) {
+      await debuggerUtils.deactivateAllDebugger()
+      return
+    }
+
+    // 对每个标签页检查是否需要激活调试器
+    for (const tab of tabs) {
+      if (!tab.id || !tab.url)
+        continue
+
+      // 检查当前标签页是否匹配任何规则
+      const hasMatch = enabledRules.some((rule) => {
+        try {
+          const pattern = new RegExp(rule.url)
+          return pattern.test(tab.url!)
+        }
+        catch (e) {
+          console.error('Invalid regex pattern:', rule.url, e)
+          return false
+        }
+      })
+
+      if (hasMatch) {
+        // 启用调试器和 Fetch
+        await debuggerUtils.activateDebugger(tab.id)
+      }
+    }
   })
   onMessage('activeTabWithUrl', async (message) => {
     const url = message.data as string
@@ -64,41 +99,7 @@ export default defineBackground(() => {
   onMessage('getAllDebuggerSessions', async () => {
     return await debuggerUtils.getAllDebuggerSessions()
   })
-  // 根据匹配的正则激活对应tab的debugger
-  onMessage('activateDebugger', async () => {
-    // 获取所有 HTTP/HTTPS 标签页
-    const tabs = await browser.tabs.query({
-      url: ['http://*/*', 'https://*/*'],
-    })
 
-    // 检查是否需要激活调试器
-    const rerouteRepo = getRerouteRepo()
-    const reroutes = await rerouteRepo.getAll()
-    const enabledRules = reroutes.filter(rule => rule.enabled)
-
-    // 对每个标签页检查是否需要激活调试器
-    for (const tab of tabs) {
-      if (!tab.id || !tab.url)
-        continue
-
-      // 检查当前标签页是否匹配任何规则
-      const hasMatch = enabledRules.some((rule) => {
-        try {
-          const pattern = new RegExp(rule.url)
-          return pattern.test(tab.url!)
-        }
-        catch (e) {
-          console.error('Invalid regex pattern:', rule.url, e)
-          return false
-        }
-      })
-
-      if (hasMatch) {
-        // 启用调试器和 Fetch
-        await debuggerUtils.activateDebugger(tab.id)
-      }
-    }
-  })
   // 监听调试器事件
   browser.debugger.onEvent.addListener((debuggerId, method, params) => {
     debuggerUtils.handleDebuggerEvent(debuggerId, method, params)
