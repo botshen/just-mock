@@ -26,10 +26,9 @@ export default defineBackground(() => {
   })
   registerRerouteRepo(rerouteDb)
 
-  browser.action.onClicked.addListener((tab) => {
-    // 打开侧边栏
-    browser.sidePanel.open({ windowId: tab.windowId })
-  })
+  browser.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch(error => console.error(error))
 
   onMessage('doDebugger', async () => {
     await setPauseState(false)
