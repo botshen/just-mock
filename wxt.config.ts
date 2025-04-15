@@ -45,7 +45,8 @@ export default defineConfig({
       'sidePanel',
       'storage',
       'debugger',
-      'webNavigation',
+      'activeTab',
+      'tabs',
     ],
   },
   autoIcons: {
