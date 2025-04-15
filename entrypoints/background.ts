@@ -1,3 +1,5 @@
+import iconPlay from '@/assets/icon.png'
+import iconPause from '@/assets/icon-gray.png'
 import * as debuggerUtils from '@/utils/debugger'
 import { onMessage } from '@/utils/messaging'
 import { registerRerouteRepo, registerTodosRepo } from '@/utils/service'
@@ -30,6 +32,7 @@ export default defineBackground(() => {
   })
 
   onMessage('doDebugger', async () => {
+    await setPauseState(false)
     // 获取所有 HTTP/HTTPS 标签页
     const tabs = await browser.tabs.query({
       url: ['http://*/*', 'https://*/*'],
@@ -84,6 +87,7 @@ export default defineBackground(() => {
   // 停用所有debugger
   onMessage('deactivateAllDebugger', async () => {
     await debuggerUtils.deactivateAllDebugger()
+    await setPauseState(true)
   })
 
   // 获取特定标签页的debugger状态
@@ -108,7 +112,21 @@ export default defineBackground(() => {
   // 监控所有加载的标签页
   const ke = new Set<number>() // 已附加调试器的标签页
   const Ce = new Set<number>() // 已启用 Fetch 的标签页
-  const processedTabs = new Set<number>() // 已经处理过的标签页
+
+  async function se(e: { text: string }) {
+    return new Promise<void>(t => chrome.action.setBadgeText(e, t))
+  }
+  async function oe(e: { color: string }) {
+    return new Promise<void>(t => chrome.action.setBadgeBackgroundColor(e, t))
+  }
+
+  // 设置图标暂停状态
+  async function setPauseState(isPaused: boolean) {
+    await Promise.all([
+      se({ text: isPaused ? '❚❚' : '' }), // 设置徽章文字
+      oe({ color: isPaused ? '#666666' : '#1aa179' }), // 设置徽章背景色
+    ])
+  }
 
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     if (!await totalSwitch.getValue()) {
@@ -117,8 +135,10 @@ export default defineBackground(() => {
       if (target?.attached) {
         debuggerUtils.deactivateDebugger(tabId)
       }
+      await setPauseState(true)
       return
     }
+    await setPauseState(false)
     if (changeInfo.status === 'loading') {
       // 检查是否需要激活调试器
       const rerouteRepo = getRerouteRepo()
