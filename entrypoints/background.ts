@@ -32,9 +32,18 @@ export default defineBackground(() => {
   onMessage('doDebugger', async () => {
     await debuggerUtils.doDebugger()
   })
+  onMessage('activeTabWithUrl', async (message) => {
+    const url = message.data as string
+    // 获取所有标签页
+    const tabs = await browser.tabs.query({})
 
-  onMessage('activateAllDebugger', async () => {
-    await debuggerUtils.activateAllDebugger()
+    // 遍历所有标签页，检查 URL 是否匹配
+    for (const tab of tabs) {
+      if (tab.url && new RegExp(url).test(tab.url)) {
+        // 如果 URL 匹配，停用该标签页的 debugger
+        await debuggerUtils.deactivateDebugger(tab.id!)
+      }
+    }
   })
 
   // 停用所有debugger
@@ -55,7 +64,41 @@ export default defineBackground(() => {
   onMessage('getAllDebuggerSessions', async () => {
     return await debuggerUtils.getAllDebuggerSessions()
   })
+  // 根据匹配的正则激活对应tab的debugger
+  onMessage('activateDebugger', async () => {
+    // 获取所有 HTTP/HTTPS 标签页
+    const tabs = await browser.tabs.query({
+      url: ['http://*/*', 'https://*/*'],
+    })
 
+    // 检查是否需要激活调试器
+    const rerouteRepo = getRerouteRepo()
+    const reroutes = await rerouteRepo.getAll()
+    const enabledRules = reroutes.filter(rule => rule.enabled)
+
+    // 对每个标签页检查是否需要激活调试器
+    for (const tab of tabs) {
+      if (!tab.id || !tab.url)
+        continue
+
+      // 检查当前标签页是否匹配任何规则
+      const hasMatch = enabledRules.some((rule) => {
+        try {
+          const pattern = new RegExp(rule.url)
+          return pattern.test(tab.url!)
+        }
+        catch (e) {
+          console.error('Invalid regex pattern:', rule.url, e)
+          return false
+        }
+      })
+
+      if (hasMatch) {
+        // 启用调试器和 Fetch
+        await debuggerUtils.activateDebugger(tab.id)
+      }
+    }
+  })
   // 监听调试器事件
   browser.debugger.onEvent.addListener((debuggerId, method, params) => {
     debuggerUtils.handleDebuggerEvent(debuggerId, method, params)
@@ -75,24 +118,27 @@ export default defineBackground(() => {
       }
       return
     }
-    if (changeInfo.status === 'loading' && !processedTabs.has(tabId)) {
+    if (changeInfo.status === 'loading') {
       // 检查是否需要激活调试器
-      const todoRepo = getTodosRepo()
-      const todos = await todoRepo.getAll()
       const rerouteRepo = getRerouteRepo()
       const reroutes = await rerouteRepo.getAll()
-
+      const currentTabUrl = await browser.tabs.get(tabId).then(tab => tab.url)
+      console.log('currentTabUrl', currentTabUrl)
       // 检查是否有启用的规则
-      const hasEnabledRules = reroutes.some(rule => rule.enabled)
-      const hasEnabledTodos = todos.some(todo => todo.active)
+      const hasEnabledRules = reroutes.some((rule) => {
+        if (!rule.enabled)
+          return false
+        console.log('rule.url', rule.url)
+        const pattern = new RegExp(rule.url)
+        return pattern.test(currentTabUrl ?? '')
+      })
 
-      if (hasEnabledRules || hasEnabledTodos) {
+      if (hasEnabledRules) {
         // 启用调试器和 Fetch
         const success = await debuggerUtils.activateDebugger(tabId)
         if (success) {
           ke.add(tabId)
           Ce.add(tabId)
-          processedTabs.add(tabId)
 
           // 获取标签页信息
           const tab = await browser.tabs.get(tabId)
@@ -110,7 +156,6 @@ export default defineBackground(() => {
   browser.tabs.onRemoved.addListener((tabId) => {
     ke.delete(tabId)
     Ce.delete(tabId)
-    processedTabs.delete(tabId)
     debuggerUtils.deactivateDebugger(tabId)
   })
 })

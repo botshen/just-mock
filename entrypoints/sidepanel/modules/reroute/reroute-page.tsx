@@ -33,7 +33,7 @@ export const ReroutePage = createComponent(null, () => {
       rerouteUrl: `http://localhost:3000/$1`,
       urlType: 'REGEX',
     }
-    await sendMessage('activateAllDebugger', undefined)
+    // await sendMessage('activateAllDebugger', undefined)
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.create(newRule)
     rules.value = await rerouteRepo.getAll()
@@ -45,17 +45,17 @@ export const ReroutePage = createComponent(null, () => {
     const currentTabDomain = currentTab?.url?.split('://')[1]?.split('/')[0]
 
     // 转义域名中的点号，将其替换为 \. 以便在正则表达式中正确匹配
-    const escapedDomain = currentTabDomain ? currentTabDomain.replace(/\./g, '\\.') : 'localhost:8081'
-
+    const escapedDomain = currentTabDomain?.replace(/\./g, '\\.') ?? ''
+    const url = `https://${escapedDomain}/(.*)`
     const newRule: RerouteRule = {
       id: createNanoId(),
       actionType: 'REPLAY',
       comment: '',
       enabled: true,
-      url: currentTabDomain ? `https://${escapedDomain}/(.*)` : 'http://localhost:8081/(.*)',
+      url,
       urlType: 'REGEX',
     }
-    await sendMessage('activateAllDebugger', undefined)
+    await sendMessage('activeTabWithUrl', url)
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.create(newRule)
     rules.value = await rerouteRepo.getAll()
@@ -89,7 +89,7 @@ export const ReroutePage = createComponent(null, () => {
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.update(rule)
     if (isChecked) {
-      await sendMessage('activateAllDebugger', undefined)
+      // await sendMessage('activateAllDebugger', undefined)
     }
     if (!isChecked) {
       await checkAndDeactivateDebuggerIfNeeded()

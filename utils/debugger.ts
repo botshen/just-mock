@@ -25,18 +25,9 @@ export async function doDebugger() {
   }
   if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
     await deactivateAllDebugger()
-    return
   }
-  await activateAllDebugger()
 }
-export async function activateAllDebugger() {
-  if (!(await totalSwitch.getValue())) {
-    return
-  }
-  const tabs = await browser.tabs.query({ currentWindow: true })
-  const activationPromises = tabs.map(tab => tab.id ? activateDebugger(tab.id) : Promise.resolve(false))
-  await Promise.all(activationPromises)
-}
+
 async function setCommand(tabId: number, command: string) {
   await browser.debugger.sendCommand({ tabId }, command, {
     patterns: [{
@@ -194,7 +185,7 @@ export async function handleRerouteResponse(tabId: number, requestId: string, ru
     const matches = request.url.match(regex)
     if (matches) {
       // 使用正则替换，matches[1]对应$1，matches[2]对应$2，以此类推
-      targetUrl = rule.rerouteUrl.replace(/\$(\d+)/g, (_, index) => matches[index] || '')
+      targetUrl = rule.rerouteUrl?.replace(/\$(\d+)/g, (_, index) => matches[index] || '')
     }
   }
 
@@ -353,11 +344,4 @@ async function getRequestPayload(tabId: number, requestId: string): Promise<stri
   catch (error) {
     return ''
   }
-}
-
-export async function shouldActivateDebugger(tabId: number) {
-  if (!(await totalSwitch.getValue())) {
-    return
-  }
-  await activateAllDebugger()
 }

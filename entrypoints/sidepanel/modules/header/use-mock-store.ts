@@ -41,32 +41,6 @@ async function getCurrentTabId() {
   return currentTabId.value
 }
 
-async function activateALLDebugger() {
-  await sendMessage('activateAllDebugger', undefined)
-}
-async function deactivateALLDebugger() {
-  await sendMessage('deactivateAllDebugger', undefined)
-}
-// 激活debugger
-// async function activateDebugger() {
-//   const tabId = await getCurrentTabId()
-//   console.log('tabId', tabId)
-//   if (tabId) {
-//     try {
-//       await sendMessage('activateDebugger', tabId)
-//     }
-//     catch (error) {
-//       console.error('激活debugger失败:', error)
-//     }
-//     finally {
-//       await checkCurrentTabMocked()
-//     }
-//   }
-//   else {
-//     console.error('未找到当前标签页')
-//   }
-// }
-
 // 停用debugger
 async function deactivateDebugger() {
   const tabId = currentTabId.value

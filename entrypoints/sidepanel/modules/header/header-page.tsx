@@ -79,7 +79,7 @@ export const HeaderPage = createComponent<Options>({
   })
   watch(globalMocked, async (newValue) => {
     if (newValue) {
-      sendMessage('activateAllDebugger', undefined)
+      sendMessage('activateDebugger', undefined)
     }
     else {
       sendMessage('deactivateAllDebugger', undefined)
