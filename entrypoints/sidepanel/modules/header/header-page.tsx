@@ -79,10 +79,10 @@ export const HeaderPage = createComponent<Options>({
   })
   watch(globalMocked, async (newValue) => {
     if (newValue) {
-      sendMessage('doDebugger', undefined)
+      await sendMessage('doDebugger', undefined)
     }
     else {
-      sendMessage('deactivateAllDebugger', undefined)
+      await sendMessage('deactivateAllDebugger', undefined)
     }
     await totalSwitch.setValue(newValue)
   })

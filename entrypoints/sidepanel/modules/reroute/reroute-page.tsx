@@ -76,7 +76,7 @@ export const ReroutePage = createComponent(null, () => {
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.delete(id)
     rules.value = await rerouteRepo.getAll()
-    await checkAndDeactivateDebuggerIfNeeded()
+    await sendMessage('doDebugger', undefined)
   }
 
   // 更新规则启用状态
