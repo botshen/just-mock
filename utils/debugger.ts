@@ -65,7 +65,6 @@ export async function activateDebugger(tabId: number) {
 
     // 附加新的调试器
     await browser.debugger.attach({ tabId }, '1.3')
-    await setCommand(tabId, 'Network.enable')
     await setCommand(tabId, 'Fetch.enable')
 
     return true
@@ -136,7 +135,7 @@ export async function findMatchingRerouteRule(url: string): Promise<RerouteRule 
 }
 
 // 处理mock响应
-export async function handleMockResponse(tabId: number, requestId: string, rule: LogRule) {
+export async function handleMockResponse(tabId: number, requestId: string, rule: LogRule, request?: any) {
   try {
     // 如果设置了延迟，先等待指定时间
     const delayMs = Number(rule.delay)
@@ -150,6 +149,18 @@ export async function handleMockResponse(tabId: number, requestId: string, rule:
         .map(byte => String.fromCharCode(byte))
         .join(''),
     )
+
+    // 发送 mock 数据到侧边栏
+    if (request) {
+      await sendMessage('sendToSidePanel', {
+        url: request.url,
+        status: Number.parseInt(rule.status) || 200,
+        mock: true,
+        type: request.method,
+        response: responseBody,
+        payload: request.postData,
+      })
+    }
 
     // 使用Fetch.fulfillRequest返回mock数据
     await browser.debugger.sendCommand({ tabId }, 'Fetch.fulfillRequest', {
@@ -199,89 +210,80 @@ export async function handleRerouteResponse(tabId: number, requestId: string, ru
 // 处理调试器事件
 export async function handleDebuggerEvent(debuggerId: any, method: string, params: any) {
   const { tabId } = debuggerId
+  console.log('method', method, params)
+  const { requestId, request, responseStatusCode, resourceType, responseHeaders } = params
 
-  if (method === 'Fetch.requestPaused') {
-    const { requestId, request, type } = params
-    if (type === 'Other') {
-      return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', { requestId })
-    }
+  if (method === 'Fetch.requestPaused' && params.resourceType === 'XHR') {
+    // 如果存在responseStatusCode，说明这是响应阶段
+    if (responseStatusCode !== undefined) {
+      let responseBody = ''
+      try {
+        console.log('===========', request.url)
 
-    // 检查是否有匹配的mock规则
-    const matchedRule = await findMatchingRule(request.url)
-    if (matchedRule && matchedRule.active) {
-      // 拦截并返回mock数据
-      return handleMockResponse(tabId!, requestId, matchedRule)
-    }
-    // 检查是否有匹配的reroute规则
-    const matchedRerouteRule = await findMatchingRerouteRule(request.url)
-    if (matchedRerouteRule && matchedRerouteRule.enabled) {
-      // 拦截并返回reroute数据
-      return handleRerouteResponse(tabId!, requestId, matchedRerouteRule, request)
-    }
+        const response = await browser.debugger.sendCommand({ tabId }, 'Fetch.getResponseBody', {
+          requestId,
+        }) as { body: string, base64Encoded: boolean }
 
-    // 继续请求
-    return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', { requestId })
-  }
-  else if (method === 'Network.responseReceived') {
-    const { requestId, response } = params
-    try {
-      // 过滤掉静态资源文件
-      const staticFileExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.css', '.js', '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot']
-      if (staticFileExtensions.some(ext => response.url.toLowerCase().endsWith(ext))) {
-        return
-      }
-
-      // 检查是否有匹配的mock规则
-      const matchedRule = await findMatchingRule(response.url)
-      const isMocked = Boolean(matchedRule?.active)
-
-      // 仅在状态码小于400时尝试获取响应体，或当响应类型为application/json时
-      if (response.mimeType === 'application/json' || response.status >= 400) {
-        let responseBody = ''
-        let payload = ''
-
-        // 仅在状态码小于400时尝试获取响应体
-        if (response.status < 400) {
-          try {
-            const result = await browser.debugger.sendCommand({ tabId }, 'Network.getResponseBody', { requestId })
-            if (result && typeof result === 'object' && 'body' in result) {
-              responseBody = result.body as string
-            }
-
-            // 仅在状态码小于400时尝试获取请求负载
-            payload = await getRequestPayload(tabId, requestId)
+        if (response.base64Encoded) {
+          // 使用浏览器内置的 atob 函数进行 base64 解码
+          const base64String = response.body
+          const binaryString = atob(base64String)
+          // 将二进制字符串转换为文本
+          const bytes = new Uint8Array(binaryString.length)
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i)
           }
-          catch {
-            // 忽略响应体获取错误
-            responseBody = '{}'
-          }
+          responseBody = new TextDecoder().decode(bytes)
         }
         else {
-          // 对于错误响应，提供默认响应体
-          responseBody = JSON.stringify({
-            error: `${response.status} ${response.statusText || '错误'}`,
-            url: response.url,
-          })
+          responseBody = response.body
         }
-
-        // 发送完整信息到侧边栏
-        await sendMessage('sendToSidePanel', {
-          url: response.url,
-          status: response.status,
-          mock: isMocked,
-          type: 'xhr',
-          payload,
-          response: responseBody,
-        })
       }
+      catch (error) {
+        console.error('处理响应失败', error)
+        responseBody = '处理响应失败'
+      }
+
+      // 发送完整信息到侧边栏
+      await sendMessage('sendToSidePanel', {
+        url: request.url,
+        status: responseStatusCode,
+        mock: false,
+        type: request.method,
+        response: responseBody,
+        payload: request.postData,
+      })
+      // 处理响应，这里可以根据需要修改响应
+      return browser.debugger.sendCommand({ tabId }, 'Fetch.continueResponse', {
+        requestId,
+
+      })
     }
-    catch (error) {
-      // 静默处理所有错误，避免打印到控制台
-      // console.error(`获取响应体失败 [${response.url}]:`, error)
+    // 检查是否有匹配的reroute或mock规则
+    // const rerouteRule = await findMatchingRerouteRule(request.url)
+    // if (rerouteRule) {
+    //   return handleRerouteResponse(tabId, requestId, rerouteRule, request)
+    // }
+
+    const mockRule = await findMatchingRule(request.url)
+    if (mockRule) {
+      return handleMockResponse(tabId, requestId, mockRule, request)
     }
+
+    // 请求阶段
+    console.log('请求被拦截', request.url)
+
+    // 继续请求，设置interceptResponse为true以在响应时再次触发
+    return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', {
+      requestId,
+      interceptResponse: true,
+    })
   }
 
-  return Promise.resolve()
+  // 剩余的请求继续
+  return browser.debugger.sendCommand({ tabId }, 'Fetch.continueRequest', {
+    requestId,
+  })
 }
 
 // 获取特定标签页的调试状态
@@ -294,7 +296,6 @@ export async function getDebuggerStatus(tabId: number): Promise<DebuggerSession>
     }
     try {
       // 检查 Network 和 Fetch 是否启用
-      await browser.debugger.sendCommand({ tabId }, 'Network.enable')
       await browser.debugger.sendCommand({ tabId }, 'Fetch.enable')
       return { tabId, active: true }
     }

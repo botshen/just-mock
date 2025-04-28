@@ -138,44 +138,10 @@ export default defineBackground(() => {
       return
     }
     await setPauseState(false)
-    if (changeInfo.status === 'loading') {
-      // 检查是否需要激活调试器
-      const rerouteRepo = getRerouteRepo()
-      const reroutes = await rerouteRepo.getAll()
-      const currentTabUrl = await browser.tabs.get(tabId).then(tab => tab.url)
-      console.log('currentTabUrl', currentTabUrl)
-      // 检查是否有启用的规则
-      const hasEnabledRules = reroutes.some((rule) => {
-        if (!rule.enabled)
-          return false
-        console.log('rule.url', rule.url)
-        const pattern = new RegExp(rule.url)
-        return pattern.test(currentTabUrl ?? '')
-      })
-
-      if (hasEnabledRules) {
-        // 启用调试器和 Fetch
-        const success = await debuggerUtils.activateDebugger(tabId)
-        if (success) {
-          ke.add(tabId)
-          Ce.add(tabId)
-
-          // 获取标签页信息
-          const tab = await browser.tabs.get(tabId)
-          // 只有当标签页是新打开的（url 从 about:blank 变为实际 URL）时才重新加载
-          if (tab.active && tab.status === 'loading'
-            && changeInfo.url && tab.url === 'about:blank') {
-            await browser.tabs.reload(tabId)
-          }
-        }
-      }
-    }
   })
 
   // 监听标签页关闭事件，清理相关资源
   browser.tabs.onRemoved.addListener((tabId) => {
-    ke.delete(tabId)
-    Ce.delete(tabId)
     debuggerUtils.deactivateDebugger(tabId)
   })
 })
