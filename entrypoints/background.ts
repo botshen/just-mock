@@ -2,7 +2,8 @@ import iconPlay from '@/assets/icon.png'
 import iconPause from '@/assets/icon-gray.png'
 import * as debuggerUtils from '@/utils/debugger'
 import { onMessage } from '@/utils/messaging'
-import { registerRerouteRepo, registerTodosRepo } from '@/utils/service'
+import { getRerouteRepo, registerRerouteRepo, registerTodosRepo } from '@/utils/service'
+import { totalSwitch } from '@/utils/storage'
 import { openDB } from 'idb'
 
 export default defineBackground(() => {
@@ -127,7 +128,7 @@ export default defineBackground(() => {
     ])
   }
 
-  browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (!await totalSwitch.getValue()) {
       const targets = await browser.debugger.getTargets()
       const target = targets.find(target => target.tabId === tabId)
@@ -137,6 +138,36 @@ export default defineBackground(() => {
       await setPauseState(true)
       return
     }
+
+    // 只在页面初始加载时处理，避免无限循环重载
+    // 并且只对特定的URL模式进行处理
+    if (changeInfo.status === 'loading' && tab.url && /^https?:\/\//.test(tab.url)) {
+      // 检查是否需要重载
+      const rerouteRepo = getRerouteRepo()
+      const reroutes = await rerouteRepo.getAll()
+      const enabledRules = reroutes.filter(rule => rule.enabled)
+
+      // 只有当标签页匹配某个启用的规则且调试器尚未附加时才重载
+      const hasMatch = enabledRules.some((rule) => {
+        try {
+          const pattern = new RegExp(rule.url)
+          return pattern.test(tab.url!)
+        }
+        catch (e) {
+          return false
+        }
+      })
+
+      const targets = await browser.debugger.getTargets()
+      const isAttached = targets.some(target => target.tabId === tabId && target.attached)
+
+      if (hasMatch && !isAttached && !ke.has(tabId)) {
+        ke.add(tabId)
+        await browser.tabs.reload(tabId)
+        console.log(`Tab ${tabId} 匹配规则，已触发重新加载并将附加调试器`)
+      }
+    }
+
     await setPauseState(false)
   })
 
