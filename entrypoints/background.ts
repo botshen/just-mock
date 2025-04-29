@@ -129,50 +129,70 @@ export default defineBackground(() => {
   }
 
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    // 只在页面初始加载时处理
+    if (changeInfo.status !== 'loading' || !tab.url || !/^https?:\/\//.test(tab.url))
+      return
+
+    // 检查全局开关
     if (!await totalSwitch.getValue()) {
-      const targets = await browser.debugger.getTargets()
-      const target = targets.find(target => target.tabId === tabId)
-      if (target?.attached) {
-        debuggerUtils.deactivateDebugger(tabId)
+      // 如果全局开关关闭，停用调试器
+      if (ke.has(tabId)) {
+        await debuggerUtils.deactivateDebugger(tabId)
+        ke.delete(tabId)
+        Ce.delete(tabId)
       }
       await setPauseState(true)
       return
     }
 
-    // 只在页面初始加载时处理，避免无限循环重载
-    // 并且只对特定的URL模式进行处理
-    if (changeInfo.status === 'loading' && tab.url && /^https?:\/\//.test(tab.url)) {
-      // 检查是否需要重载
-      const rerouteRepo = getRerouteRepo()
-      const reroutes = await rerouteRepo.getAll()
-      const enabledRules = reroutes.filter(rule => rule.enabled)
+    // 检查是否需要附加调试器
+    const rerouteRepo = getRerouteRepo()
+    const reroutes = await rerouteRepo.getAll()
+    const enabledRules = reroutes.filter(rule => rule.enabled)
 
-      // 只有当标签页匹配某个启用的规则且调试器尚未附加时才重载
-      const hasMatch = enabledRules.some((rule) => {
-        try {
-          const pattern = new RegExp(rule.url)
-          return pattern.test(tab.url!)
+    // 检查当前标签页是否匹配任何规则
+    const hasMatch = enabledRules.some((rule) => {
+      try {
+        const pattern = new RegExp(rule.url)
+        return pattern.test(tab.url!)
+      }
+      catch (e) {
+        console.error('Invalid regex pattern:', rule.url, e)
+        return false
+      }
+    })
+
+    // 根据匹配结果决定是否附加或分离调试器
+    if (hasMatch && !ke.has(tabId)) {
+      // 标签页匹配规则且调试器尚未附加，附加调试器
+      try {
+        const success = await debuggerUtils.activateDebugger(tabId)
+        if (success) {
+          ke.add(tabId)
+          Ce.add(tabId)
+          await setPauseState(false)
+          console.log(`成功附加调试器到标签页 ${tabId}`)
         }
-        catch (e) {
-          return false
-        }
-      })
-
-      const targets = await browser.debugger.getTargets()
-      const isAttached = targets.some(target => target.tabId === tabId && target.attached)
-
-      if (hasMatch && !isAttached && !ke.has(tabId)) {
-        ke.add(tabId)
-        await browser.tabs.reload(tabId)
-        console.log(`Tab ${tabId} 匹配规则，已触发重新加载并将附加调试器`)
+      }
+      catch (error) {
+        console.error(`附加调试器到标签页 ${tabId} 失败:`, error)
       }
     }
-
-    await setPauseState(false)
+    else if (!hasMatch && ke.has(tabId)) {
+      // 标签页不匹配任何规则但调试器已附加，分离调试器
+      await debuggerUtils.deactivateDebugger(tabId)
+      ke.delete(tabId)
+      Ce.delete(tabId)
+      console.log(`已从标签页 ${tabId} 分离调试器`)
+    }
   })
 
   // 监听标签页关闭事件，清理相关资源
   browser.tabs.onRemoved.addListener((tabId) => {
-    debuggerUtils.deactivateDebugger(tabId)
+    if (ke.has(tabId)) {
+      debuggerUtils.deactivateDebugger(tabId)
+      ke.delete(tabId)
+      Ce.delete(tabId)
+    }
   })
 })
