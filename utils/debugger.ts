@@ -169,6 +169,10 @@ export async function handleMockResponse(tabId: number, requestId: string, rule:
       responseHeaders: [
         { name: 'Content-Type', value: 'application/json' },
         { name: 'Access-Control-Allow-Origin', value: '*' },
+        { name: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS' },
+        { name: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-Requested-With, Accept' },
+        { name: 'Access-Control-Allow-Credentials', value: 'true' },
+        { name: 'Access-Control-Max-Age', value: '86400' },
       ],
       body: encodedBody, // 使用编码后的响应体
     })
