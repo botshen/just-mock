@@ -40,7 +40,7 @@ export default defineConfig({
     action: {},
     name: '__MSG_name__',
     description: '__MSG_description__',
-    version: '0.0.3',
+    version: '0.0.4',
     permissions: [
       'sidePanel',
       'storage',
