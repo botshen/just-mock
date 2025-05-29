@@ -59,16 +59,8 @@ export const ReroutePage = createComponent(null, () => {
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.create(newRule)
     rules.value = await rerouteRepo.getAll()
-  }
-  // 检查是否需要停用调试器
-  const checkAndDeactivateDebuggerIfNeeded = async () => {
-    if (rules.value.every(rule => !rule.enabled)) {
-      const todosRepo = getTodosRepo()
-      const allTodos = await todosRepo.getAll()
-      if (allTodos.length === 0 || allTodos.every(todo => !todo.active)) {
-        await sendMessage('deactivateAllDebugger', undefined)
-      }
-    }
+    // 添加规则后立即检查并注入调试器
+    await sendMessage('doDebugger', undefined)
   }
 
   // 删除规则

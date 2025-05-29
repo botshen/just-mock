@@ -150,16 +150,22 @@ export async function handleMockResponse(tabId: number, requestId: string, rule:
         .join(''),
     )
 
-    // 发送 mock 数据到侧边栏
+    // 尝试发送 mock 数据到侧边栏，如果侧边栏关闭则忽略错误
     if (request) {
-      await sendMessage('sendToSidePanel', {
-        url: request.url,
-        status: Number.parseInt(rule.status) || 200,
-        mock: true,
-        type: request.method,
-        response: responseBody,
-        payload: request.postData,
-      })
+      try {
+        await sendMessage('sendToSidePanel', {
+          url: request.url,
+          status: Number.parseInt(rule.status) || 200,
+          mock: true,
+          type: request.method,
+          response: responseBody,
+          payload: request.postData,
+        })
+      }
+      catch (error) {
+        // 侧边栏关闭时会出现此错误，这是正常的，不应该影响mock处理
+        console.log('侧边栏未打开，跳过mock日志发送')
+      }
     }
 
     // 使用Fetch.fulfillRequest返回mock数据
@@ -248,15 +254,21 @@ export async function handleDebuggerEvent(debuggerId: any, method: string, param
         responseBody = '处理响应失败'
       }
 
-      // 发送完整信息到侧边栏
-      await sendMessage('sendToSidePanel', {
-        url: request.url,
-        status: responseStatusCode,
-        mock: false,
-        type: request.method,
-        response: responseBody,
-        payload: request.postData,
-      })
+      // 尝试发送完整信息到侧边栏，如果侧边栏关闭则忽略错误
+      try {
+        await sendMessage('sendToSidePanel', {
+          url: request.url,
+          status: responseStatusCode,
+          mock: false,
+          type: request.method,
+          response: responseBody,
+          payload: request.postData,
+        })
+      }
+      catch (error) {
+        // 侧边栏关闭时会出现此错误，这是正常的，不应该影响请求处理
+        console.log('侧边栏未打开，跳过日志发送')
+      }
       // 处理响应，这里可以根据需要修改响应
       return browser.debugger.sendCommand({ tabId }, 'Fetch.continueResponse', {
         requestId,
