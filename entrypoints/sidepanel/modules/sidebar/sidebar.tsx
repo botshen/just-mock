@@ -35,9 +35,9 @@ export const Sidebar = createComponent(null, () => {
       <RouterLink to="/projects" class={linkClass('/projects')}>
         {renderIcon('/projects', projectActiveUrl, projectUrl, t('savedApi'))}
       </RouterLink>
-      <RouterLink to="/reroute" class={linkClass('/reroute')}>
+      {/* <RouterLink to="/reroute" class={linkClass('/reroute')}>
         {renderIcon('/reroute', routeUrl, routeUrl, t('reroute'))}
-      </RouterLink>
+      </RouterLink> */}
       {/* <RouterLink to="/settings" class={linkClass('/settings')}>
         {renderIcon('/settings', settingActiveUrl, settingUrl, t('settings'))}
       </RouterLink> */}

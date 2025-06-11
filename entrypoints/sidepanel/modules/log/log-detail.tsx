@@ -93,7 +93,11 @@ export const LogDetail = createComponent(null, () => {
     const todosRepo = getTodosRepo()
     await todosRepo.update(newRule)
 
-    await sendMessage('doDebugger', undefined)
+    // 更新mock规则后重新检查当前标签页
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    if (tabs[0]?.id) {
+      await sendMessage('activateCurrentTab', tabs[0].id)
+    }
     router.back()
   }
 

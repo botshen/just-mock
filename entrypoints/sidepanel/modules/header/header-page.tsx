@@ -4,6 +4,7 @@ import filterAllIcon from '@/assets/filter-all.svg'
 import { Input } from '@/components/input/input'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
+import { sendMessage } from '@/utils/messaging'
 import { totalSwitch } from '@/utils/storage'
 import { onMounted, onUnmounted } from 'vue'
 import { useMockStore } from './use-mock-store'
@@ -79,7 +80,14 @@ export const HeaderPage = createComponent<Options>({
   })
   watch(globalMocked, async (newValue) => {
     if (newValue) {
-      await sendMessage('doDebugger', undefined)
+      // 只对当前标签页注入debugger
+      const tabs = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      })
+      if (tabs && tabs.length > 0 && tabs[0].id) {
+        await sendMessage('activateCurrentTab', tabs[0].id)
+      }
     }
     else {
       await sendMessage('deactivateAllDebugger', undefined)

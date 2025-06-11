@@ -4,6 +4,7 @@ interface ProtocolMap {
   sendToSidePanel: (data: any) => void
   activateDebugger: () => void
   doDebugger: () => void
+  activateCurrentTab: (tabId: number) => void
   deactivateDebugger: (tabId: number) => void
   deactivateAllDebugger: () => void
   getDebuggerStatus: (tabId: number) => { tabId: number, active: boolean } | null

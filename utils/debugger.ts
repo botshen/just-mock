@@ -9,23 +9,9 @@ interface DebuggerSession {
   active: boolean
 }
 export async function doDebugger() {
-  if (!(await totalSwitch.getValue())) {
-    await deactivateAllDebugger()
-    return
-  }
-  const todoRepo = getTodosRepo()
-  const todos = await todoRepo.getAll()
-  console.log('todos', todos)
-  const rerouteRepo = getRerouteRepo()
-  const reroutes = await rerouteRepo.getAll()
-  console.log('reroutes', reroutes)
-  if (todos.length === 0 && reroutes.length === 0) {
-    await deactivateAllDebugger()
-    return
-  }
-  if (todos.every(todo => !todo.active) && reroutes.every(reroute => !reroute.enabled)) {
-    await deactivateAllDebugger()
-  }
+  // 这个函数已被重构，现在只激活当前标签页
+  // 具体逻辑已移到background.ts中的doDebugger消息处理
+  console.log('doDebugger函数已被重构，请使用activateCurrentTab消息')
 }
 
 async function setCommand(tabId: number, command: string) {

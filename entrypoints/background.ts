@@ -33,54 +33,67 @@ export default defineBackground(() => {
 
   onMessage('doDebugger', async () => {
     await setPauseState(false)
-    // 获取所有 HTTP/HTTPS 标签页
-    const tabs = await browser.tabs.query({
-      url: ['http://*/*', 'https://*/*'],
-    })
 
-    // 检查是否需要激活调试器
-    const rerouteRepo = getRerouteRepo()
-    const reroutes = await rerouteRepo.getAll()
-    const enabledRules = reroutes.filter(rule => rule.enabled)
-    if (enabledRules.length === 0) {
+    // 检查全局开关
+    if (!await totalSwitch.getValue()) {
       await debuggerUtils.deactivateAllDebugger()
+      await setPauseState(true)
       return
     }
 
-    // 对每个标签页检查是否需要激活调试器
-    for (const tab of tabs) {
-      if (!tab.id || !tab.url)
-        continue
+    // 获取当前活跃标签页
+    const tabs = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    })
 
-      // 检查当前标签页是否匹配任何规则
-      const hasMatch = enabledRules.some((rule) => {
-        try {
-          const pattern = new RegExp(rule.url)
-          return pattern.test(tab.url!)
-        }
-        catch (e) {
-          console.error('Invalid regex pattern:', rule.url, e)
-          return false
-        }
-      })
-
-      if (hasMatch) {
-        // 启用调试器和 Fetch
-        await debuggerUtils.activateDebugger(tab.id)
+    if (tabs && tabs.length > 0 && tabs[0].id && tabs[0].url) {
+      const tab = tabs[0]
+      const tabId = tab.id!
+      const tabUrl = tab.url!
+      if (tabUrl.startsWith('http://') || tabUrl.startsWith('https://')) {
+        // 先停用所有debugger，然后只激活当前标签页
+        await debuggerUtils.deactivateAllDebugger()
+        await debuggerUtils.activateDebugger(tabId)
+        console.log(`doDebugger: 激活当前标签页 ${tabId} 的debugger`)
+      }
+      else {
+        await debuggerUtils.deactivateAllDebugger()
+        await setPauseState(true)
       }
     }
+    else {
+      await debuggerUtils.deactivateAllDebugger()
+      await setPauseState(true)
+    }
   })
-  onMessage('activeTabWithUrl', async (message) => {
-    const url = message.data as string
-    // 获取所有标签页
-    const tabs = await browser.tabs.query({})
+  // 与上文相同
 
-    // 遍历所有标签页，检查 URL 是否匹配
-    for (const tab of tabs) {
-      if (tab.url && new RegExp(url).test(tab.url)) {
-        // 如果 URL 匹配，停用该标签页的 debugger
-        await debuggerUtils.deactivateDebugger(tab.id!)
+  // 只激活当前标签页的debugger
+  onMessage('activateCurrentTab', async (message) => {
+    const tabId = message.data as number
+    await setPauseState(false)
+
+    // 先停用所有debugger
+    await debuggerUtils.deactivateAllDebugger()
+
+    // 检查全局开关
+    if (!await totalSwitch.getValue()) {
+      await setPauseState(true)
+      return
+    }
+
+    // 只激活当前标签页
+    try {
+      const tab = await browser.tabs.get(tabId)
+      if (tab.url && (tab.url.startsWith('http://') || tab.url.startsWith('https://'))) {
+        await debuggerUtils.activateDebugger(tabId)
+        console.log(`成功激活当前标签页 ${tabId} 的debugger`)
       }
+    }
+    catch (error) {
+      console.error(`激活当前标签页 ${tabId} 的debugger失败:`, error)
+      await setPauseState(true)
     }
   })
 
@@ -109,9 +122,7 @@ export default defineBackground(() => {
     debuggerUtils.handleDebuggerEvent(debuggerId, method, params)
   })
 
-  // 监控所有加载的标签页
-  const ke = new Set<number>() // 已附加调试器的标签页
-  const Ce = new Set<number>() // 已启用 Fetch 的标签页
+  // 与上文相同
 
   async function se(e: { text: string }) {
     return new Promise<void>(t => chrome.action.setBadgeText(e, t))
@@ -128,71 +139,55 @@ export default defineBackground(() => {
     ])
   }
 
-  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    // 只在页面初始加载时处理
-    if (changeInfo.status !== 'loading' || !tab.url || !/^https?:\/\//.test(tab.url))
-      return
-
+  // 监听标签页激活事件，当用户切换标签页时自动激活新标签页的debugger
+  browser.tabs.onActivated.addListener(async (activeInfo) => {
     // 检查全局开关
     if (!await totalSwitch.getValue()) {
-      // 如果全局开关关闭，停用调试器
-      if (ke.has(tabId)) {
-        await debuggerUtils.deactivateDebugger(tabId)
-        ke.delete(tabId)
-        Ce.delete(tabId)
-      }
       await setPauseState(true)
       return
     }
 
-    // 检查是否需要附加调试器
-    const rerouteRepo = getRerouteRepo()
-    const reroutes = await rerouteRepo.getAll()
-    const enabledRules = reroutes.filter(rule => rule.enabled)
-
-    // 检查当前标签页是否匹配任何规则
-    const hasMatch = enabledRules.some((rule) => {
-      try {
-        const pattern = new RegExp(rule.url)
-        return pattern.test(tab.url!)
-      }
-      catch (e) {
-        console.error('Invalid regex pattern:', rule.url, e)
-        return false
-      }
-    })
-
-    // 根据匹配结果决定是否附加或分离调试器
-    if (hasMatch && !ke.has(tabId)) {
-      // 标签页匹配规则且调试器尚未附加，附加调试器
-      try {
-        const success = await debuggerUtils.activateDebugger(tabId)
-        if (success) {
-          ke.add(tabId)
-          Ce.add(tabId)
-          await setPauseState(false)
-          console.log(`成功附加调试器到标签页 ${tabId}`)
-        }
-      }
-      catch (error) {
-        console.error(`附加调试器到标签页 ${tabId} 失败:`, error)
+    const tabId = activeInfo.tabId
+    try {
+      const tab = await browser.tabs.get(tabId)
+      if (tab.url && (tab.url.startsWith('http://') || tab.url.startsWith('https://'))) {
+        // 先停用所有debugger，然后只激活当前标签页
+        await debuggerUtils.deactivateAllDebugger()
+        await debuggerUtils.activateDebugger(tabId)
+        await setPauseState(false)
+        console.log(`标签页切换，激活标签页 ${tabId} 的debugger`)
       }
     }
-    else if (!hasMatch && ke.has(tabId)) {
-      // 标签页不匹配任何规则但调试器已附加，分离调试器
-      await debuggerUtils.deactivateDebugger(tabId)
-      ke.delete(tabId)
-      Ce.delete(tabId)
-      console.log(`已从标签页 ${tabId} 分离调试器`)
+    catch (error) {
+      console.error(`标签页切换时激活debugger失败:`, error)
+    }
+  })
+
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    // 只在页面完成加载且是当前活跃标签页时处理
+    if (changeInfo.status !== 'complete' || !tab.active || !tab.url || !/^https?:\/\//.test(tab.url))
+      return
+
+    // 检查全局开关
+    if (!await totalSwitch.getValue()) {
+      await setPauseState(true)
+      return
+    }
+
+    // 页面加载完成时，重新激活当前标签页的debugger
+    try {
+      await debuggerUtils.deactivateAllDebugger()
+      await debuggerUtils.activateDebugger(tabId)
+      await setPauseState(false)
+      console.log(`页面加载完成，重新激活标签页 ${tabId} 的debugger`)
+    }
+    catch (error) {
+      console.error(`页面加载完成时激活debugger失败:`, error)
     }
   })
 
   // 监听标签页关闭事件，清理相关资源
   browser.tabs.onRemoved.addListener((tabId) => {
-    if (ke.has(tabId)) {
-      debuggerUtils.deactivateDebugger(tabId)
-      ke.delete(tabId)
-      Ce.delete(tabId)
-    }
+    debuggerUtils.deactivateDebugger(tabId)
   })
 })

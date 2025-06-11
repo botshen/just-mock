@@ -55,12 +55,13 @@ export const ReroutePage = createComponent(null, () => {
       url,
       urlType: 'REGEX',
     }
-    await sendMessage('activeTabWithUrl', url)
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.create(newRule)
     rules.value = await rerouteRepo.getAll()
     // 添加规则后立即检查并注入调试器
-    await sendMessage('doDebugger', undefined)
+    if (currentTab?.id) {
+      await sendMessage('activateCurrentTab', currentTab.id)
+    }
   }
 
   // 删除规则
@@ -68,7 +69,11 @@ export const ReroutePage = createComponent(null, () => {
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.delete(id)
     rules.value = await rerouteRepo.getAll()
-    await sendMessage('doDebugger', undefined)
+    // 删除规则后重新检查当前标签页
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    if (tabs[0]?.id) {
+      await sendMessage('activateCurrentTab', tabs[0].id)
+    }
   }
 
   // 更新规则启用状态
@@ -80,7 +85,11 @@ export const ReroutePage = createComponent(null, () => {
     rule.enabled = isChecked
     const rerouteRepo = getRerouteRepo()
     await rerouteRepo.update(rule)
-    await sendMessage('doDebugger', undefined)
+    // 更新规则后重新检查当前标签页
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    if (tabs[0]?.id) {
+      await sendMessage('activateCurrentTab', tabs[0].id)
+    }
   }
 
   // 更新规则字段
