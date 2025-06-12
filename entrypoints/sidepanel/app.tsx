@@ -27,6 +27,11 @@ export const App = createComponent(null, () => {
       delay: rule?.delay ?? 0,
       response: rule?.response,
       active: true,
+      // 新增图片相关字段
+      isImage: rule.isImage,
+      contentType: rule.contentType,
+      requestId: rule.requestId,
+      tabId: rule.tabId,
     })
   }
 

@@ -2,6 +2,7 @@ import { CreateTable } from '@/components/table/create-table'
 import { useTableStore } from '@/components/table/use-table-store'
 import { useLogsStore } from '@/entrypoints/sidepanel/modules/store/use-logs-store'
 import { createComponent } from '@/share/create-component'
+import { sendMessage } from '@/utils/messaging'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { HeaderPage } from '../header/header-page'
@@ -21,11 +22,33 @@ export const LogPage = createComponent(null, () => {
     payload: string
     delay: string
     response: string
+    isImage?: boolean
+    contentType?: string
+    requestId?: string
+    tabId?: number
   }>()
 
   const router = useRouter()
   const { formData } = useLogsStore()
   const { t } = i18n
+
+  // 下载图片函数
+  const downloadImage = async (row: any) => {
+    if (row.isImage && row.requestId && row.tabId && row.contentType) {
+      try {
+        await sendMessage('downloadImage', {
+          tabId: row.tabId,
+          requestId: row.requestId,
+          url: row.url,
+          contentType: row.contentType,
+        })
+        console.log('图片下载请求已发送')
+      }
+      catch (error) {
+        console.error('下载图片失败:', error)
+      }
+    }
+  }
 
   // 根据当前域名过滤列表
   const domainFilteredList = computed(() => {
@@ -71,25 +94,43 @@ export const LogPage = createComponent(null, () => {
                   return url
                 }
                 return (
-                  <div
-                    class="flex items-center cursor-pointer"
-                    onClick={() => {
-                      formData.value = {
-                        url: row.url,
-                        type: row.type,
-                        payload: row.payload,
-                        delay: row.delay,
-                        response: row.response,
-                        id: row.id,
-                        status: row.status,
-                        mock: row.mock,
-                        active: true,
-                        comments: '',
-                      }
-                      router.push('/log')
-                    }}
-                  >
-                    <span>{getDisplayUrl(row.url)}</span>
+                  <div class="flex items-center justify-between w-full">
+                    <div
+                      class="flex items-center cursor-pointer flex-1"
+                      onClick={() => {
+                        formData.value = {
+                          url: row.url,
+                          type: row.type,
+                          payload: row.payload,
+                          delay: row.delay,
+                          response: row.response,
+                          id: row.id,
+                          status: row.status,
+                          mock: row.mock,
+                          active: true,
+                          comments: '',
+                        }
+                        router.push('/log')
+                      }}
+                    >
+                      <span>{getDisplayUrl(row.url)}</span>
+                      {row.isImage && (
+                        <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                          {row.contentType}
+                        </span>
+                      )}
+                    </div>
+                    {row.isImage && (
+                      <button
+                        class="ml-2 px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          downloadImage(row)
+                        }}
+                      >
+                        下载
+                      </button>
+                    )}
                   </div>
                 )
               },

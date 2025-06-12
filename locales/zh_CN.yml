@@ -35,3 +35,5 @@ activateDebugger: 激活调试器
 reroute: 拦截地址配置
 noRerouteTip: 还没有任何拦截地址
 globalMocked: 全局拦截
+downloadImage: 下载图片
+imageData: 图片数据

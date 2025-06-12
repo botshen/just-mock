@@ -203,22 +203,172 @@ export async function handleRerouteResponse(tabId: number, requestId: string, ru
   })
 }
 
+// 存储图片数据的缓存
+const imageDataCache = new Map<string, { base64Data: string, contentType: string }>()
+
+// 下载图片的辅助函数
+export async function downloadImageFromResponse(tabId: number, requestId: string, url: string, contentType: string) {
+  try {
+    // 首先尝试从缓存中获取
+    const cacheKey = `${tabId}-${requestId}`
+    let imageData = imageDataCache.get(cacheKey)
+
+    if (!imageData) {
+      // 如果缓存中没有，尝试重新获取
+      try {
+        const response = await browser.debugger.sendCommand({ tabId }, 'Fetch.getResponseBody', {
+          requestId,
+        }) as { body: string, base64Encoded: boolean }
+
+        if (response.base64Encoded) {
+          imageData = {
+            base64Data: response.body,
+            contentType,
+          }
+        }
+      }
+      catch (error) {
+        console.error('无法获取响应体，可能请求已过期:', error)
+        return
+      }
+    }
+
+    if (imageData) {
+      const filename = getFileNameFromUrl(url, contentType)
+
+      // 发送下载消息到 content script
+      try {
+        await browser.tabs.sendMessage(tabId, {
+          type: 'downloadImage',
+          data: {
+            base64Data: `data:${imageData.contentType};base64,${imageData.base64Data}`,
+            filename,
+          },
+        })
+        console.log(`成功触发下载图片: ${filename}`)
+
+        // 下载后从缓存中移除
+        imageDataCache.delete(cacheKey)
+      }
+      catch (error) {
+        console.error('发送下载消息失败:', error)
+      }
+    }
+  }
+  catch (error) {
+    console.error('下载图片失败:', error)
+  }
+}
+
+// 从 URL 获取文件名
+function getFileNameFromUrl(url: string, contentType: string): string {
+  try {
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+    let filename = pathname.split('/').pop() || 'image'
+
+    // 如果没有扩展名，根据 content-type 添加
+    if (!filename.includes('.')) {
+      const ext = getExtensionFromContentType(contentType)
+      filename = `${filename}.${ext}`
+    }
+
+    return filename
+  }
+  catch (error) {
+    const ext = getExtensionFromContentType(contentType)
+    return `image_${Date.now()}.${ext}`
+  }
+}
+
+// 根据 content-type 获取文件扩展名
+function getExtensionFromContentType(contentType: string): string {
+  const typeMap: Record<string, string> = {
+    'image/webp': 'webp',
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/svg+xml': 'svg',
+    'image/bmp': 'bmp',
+    'image/tiff': 'tiff',
+  }
+
+  return typeMap[contentType.toLowerCase()] || 'webp'
+}
+
+// 检查是否为图片类型
+function isImageContentType(contentType: string): boolean {
+  return contentType.startsWith('image/')
+}
+
 // 处理调试器事件
 export async function handleDebuggerEvent(debuggerId: any, method: string, params: any) {
   const { tabId } = debuggerId
   console.log('method', method, params)
   const { requestId, request, responseStatusCode, resourceType, responseHeaders } = params
 
-  if (method === 'Fetch.requestPaused' && params.resourceType === 'XHR') {
+  if (method === 'Fetch.requestPaused') {
     // 如果存在responseStatusCode，说明这是响应阶段
     if (responseStatusCode !== undefined) {
       let responseBody = ''
+      let contentType = ''
+
+      // 获取 content-type
+      if (responseHeaders) {
+        const contentTypeHeader = responseHeaders.find((h: any) =>
+          h.name.toLowerCase() === 'content-type',
+        )
+        if (contentTypeHeader) {
+          contentType = contentTypeHeader.value
+        }
+      }
+
       try {
         console.log('===========', request.url)
+        console.log('Content-Type:', contentType)
 
         const response = await browser.debugger.sendCommand({ tabId }, 'Fetch.getResponseBody', {
           requestId,
         }) as { body: string, base64Encoded: boolean }
+
+        // 检查是否为图片类型，如果是则提供下载选项
+        if (isImageContentType(contentType)) {
+          console.log(`检测到图片类型: ${contentType}`)
+
+          // 缓存图片数据以备后续下载
+          if (response.base64Encoded) {
+            const cacheKey = `${tabId}-${requestId}`
+            imageDataCache.set(cacheKey, {
+              base64Data: response.body,
+              contentType,
+            })
+          }
+
+          // 发送图片信息到侧边栏，包含下载选项
+          try {
+            await sendMessage('sendToSidePanel', {
+              url: request.url,
+              status: responseStatusCode,
+              mock: false,
+              type: request.method,
+              response: `[图片数据] ${contentType}`,
+              payload: request.postData,
+              isImage: true,
+              contentType,
+              requestId,
+              tabId,
+            })
+          }
+          catch (error) {
+            console.log('侧边栏未打开，跳过图片信息发送')
+          }
+
+          // 继续处理响应
+          return browser.debugger.sendCommand({ tabId }, 'Fetch.continueResponse', {
+            requestId,
+          })
+        }
 
         if (response.base64Encoded) {
           // 使用浏览器内置的 atob 函数进行 base64 解码

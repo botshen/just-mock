@@ -13,6 +13,11 @@ export interface LogRule {
   response: string
   comments?: string
   active: boolean
+  // 新增图片相关字段
+  isImage?: boolean
+  contentType?: string
+  requestId?: string
+  tabId?: number
 }
 
 const list = ref<LogRule[]>([])

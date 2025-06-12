@@ -47,6 +47,7 @@ export default defineConfig({
       'debugger',
       'activeTab',
       'tabs',
+      'downloads',
     ],
   },
   autoIcons: {

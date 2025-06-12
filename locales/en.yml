@@ -35,3 +35,5 @@ activateDebugger: Activate Debugger
 reroute: Interception address configuration
 noRerouteTip: YThere is no intercepted address yet.
 globalMocked: Global Mocked
+downloadImage: Download Image
+imageData: Image Data

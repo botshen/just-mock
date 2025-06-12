@@ -12,6 +12,7 @@ interface ProtocolMap {
   debuggerInterceptResult: (requestId: string, mockData: any) => void
   getAllDebuggerSessions: () => { tabId: number, active: boolean }[]
   activeTabWithUrl: (url: string) => void
+  downloadImage: (data: { tabId: number, requestId: string, url: string, contentType: string }) => void
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>()

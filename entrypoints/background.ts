@@ -117,6 +117,12 @@ export default defineBackground(() => {
     return await debuggerUtils.getAllDebuggerSessions()
   })
 
+  // 下载图片
+  onMessage('downloadImage', async (message) => {
+    const { tabId, requestId, url, contentType } = message.data
+    await debuggerUtils.downloadImageFromResponse(tabId, requestId, url, contentType)
+  })
+
   // 监听调试器事件
   browser.debugger.onEvent.addListener((debuggerId, method, params) => {
     debuggerUtils.handleDebuggerEvent(debuggerId, method, params)
